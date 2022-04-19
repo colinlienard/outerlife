@@ -1,0 +1,7 @@
+{
+  "editor.tabSize": 2,
+  "stylelint.validate": [
+    "scss",
+    "vue"
+  ],
+}
