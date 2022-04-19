@@ -4,7 +4,8 @@
     "dev": "nuxi dev",
     "build": "nuxi build",
     "start": "node .output/server/index.mjs",
-    "lint": "eslint **/**.vue **/**.ts"
+    "lint": "eslint **/**.vue **/**.ts",
+    "lint:scss": "stylelint \"**/**.{vue,scss}\""
   },
   "devDependencies": {
     "@nuxtjs/eslint-config-typescript": "^9.0.0",
@@ -15,7 +16,11 @@
     "eslint-plugin-import": "2.25.2",
     "eslint-plugin-vue": "^8.6.0",
     "nuxt3": "latest",
+    "postcss-html": "^1.4.1",
     "sass": "^1.50.0",
+    "stylelint": "^14.7.1",
+    "stylelint-config-standard-scss": "^3.0.0",
+    "stylelint-config-standard-vue": "^1.0.0",
     "typescript": "^4.6.3"
   }
 }
