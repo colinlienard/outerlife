@@ -3,20 +3,15 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [
-    "@nuxtjs/eslint-config-typescript",
-    "airbnb-base"
-  ],
+  "extends": ["@nuxtjs/eslint-config-typescript", "airbnb-base", "prettier"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "parser": "@typescript-eslint/parser",
     "sourceType": "module"
   },
-  "plugins": [
-    "vue",
-    "@typescript-eslint"
-  ],
+  "plugins": ["vue", "@typescript-eslint", "prettier"],
   "rules": {
+    "prettier/prettier": "error",
     "linebreak-style": ["error", "windows"]
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
