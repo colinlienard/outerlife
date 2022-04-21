@@ -1,3 +1,4 @@
 {
-  "endOfLine": "crlf"
+  "endOfLine": "crlf",
+  "singleQuote": true
 }
