@@ -6,6 +6,7 @@
     "start": "node .output/server/index.mjs",
     "lint": "eslint **/**.vue **/**.ts",
     "lint:scss": "stylelint \"**/**.{vue,scss}\"",
+    "check": "prettier --check .",
     "prepare": "husky install"
   },
   "devDependencies": {
