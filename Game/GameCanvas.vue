@@ -1,24 +1,12 @@
 <script setup lang="ts">
-import Renderer from './Renderer';
+import Game from './Game';
 
 const canvas = ref<HTMLCanvasElement>();
 
-const setCanvasSize = () => {
-  if (canvas.value) {
-    canvas.value.width = window.innerWidth;
-    canvas.value.height = window.innerHeight;
-  }
-};
-
 onMounted(() => {
   if (canvas.value) {
-    setCanvasSize();
-    const renderer = new Renderer(canvas.value, 200);
-
-    window.addEventListener('resize', () => {
-      setCanvasSize();
-      renderer.updateSize(200);
-    });
+    // eslint-disable-next-line no-new
+    new Game(canvas.value);
   }
 });
 </script>
