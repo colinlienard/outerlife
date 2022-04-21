@@ -11,8 +11,9 @@
   },
   "plugins": ["vue", "@typescript-eslint", "prettier"],
   "rules": {
-    "prettier/prettier": "error",
-    "linebreak-style": ["error", "windows"]
+    "import/extensions": ["error", { "ts": "never" }],
+    "linebreak-style": ["error", "windows"],
+    "prettier/prettier": "error"
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
   "overrides": [

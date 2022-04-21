@@ -1,15 +1,14 @@
 <script setup lang="ts">
-const count = ref<number>(0);
+import GameCanvas from './Game/GameCanvas.vue';
 </script>
 
 <template>
-  <button class="button" @click="count += 1">
-    {{ count }}
-  </button>
+  <GameCanvas></GameCanvas>
 </template>
 
 <style lang="scss">
-.button {
-  color: blue;
+/* stylelint-disable-next-line selector-id-pattern */
+#__nuxt {
+  font-size: 0;
 }
 </style>
