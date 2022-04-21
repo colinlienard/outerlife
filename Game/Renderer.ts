@@ -1,45 +1,35 @@
 class Renderer {
-  context: CanvasRenderingContext2D | null;
+  #context: CanvasRenderingContext2D;
 
-  ratio = 1;
+  #yPixelsNumber = 200;
 
-  constructor(canvas: HTMLCanvasElement, yPixelsNumber: number) {
-    this.context = canvas.getContext('2d');
-    if (this.context) {
-      this.context.imageSmoothingEnabled = false;
+  #ratio = 1;
 
-      this.ratio = Math.round(window.innerHeight / yPixelsNumber);
-
-      window.requestAnimationFrame(() => this.render());
-    }
+  constructor(context: CanvasRenderingContext2D) {
+    this.#context = context;
   }
 
   render() {
-    if (this.context) {
-      const image = new Image();
-      image.src = 'assets/sprites/player.png';
+    const image = new Image();
+    image.src = 'assets/sprites/player.png';
 
-      const spriteSize = 32;
-      this.context.drawImage(
-        image,
-        0,
-        0,
-        spriteSize,
-        spriteSize,
-        0,
-        0,
-        spriteSize * this.ratio,
-        spriteSize * this.ratio
-      );
-    }
-    window.requestAnimationFrame(() => this.render());
+    const spriteSize = 32;
+    this.#context.drawImage(
+      image,
+      0,
+      0,
+      spriteSize,
+      spriteSize,
+      0,
+      0,
+      spriteSize * this.#ratio,
+      spriteSize * this.#ratio
+    );
   }
 
-  updateSize(yPixelsNumber: number) {
-    this.ratio = Math.round(window.innerHeight / yPixelsNumber);
-    if (this.context) {
-      this.context.imageSmoothingEnabled = false;
-    }
+  updateSize() {
+    this.#ratio = Math.round(window.innerHeight / this.#yPixelsNumber);
+    this.#context.imageSmoothingEnabled = false;
   }
 }
 
