@@ -13,21 +13,22 @@ const setCanvasSize = () => {
 onMounted(() => {
   if (canvas.value) {
     setCanvasSize();
+    const renderer = new Renderer(canvas.value, 200);
 
-    window.addEventListener('resize', setCanvasSize);
-
-    const renderer = new Renderer(canvas.value);
-    console.log(renderer);
+    window.addEventListener('resize', () => {
+      setCanvasSize();
+      renderer.updateSize(200);
+    });
   }
 });
 </script>
 
 <template>
-  <canvas ref="canvas"></canvas>
+  <canvas ref="canvas" class="canvas" moz-opaque></canvas>
 </template>
 
 <style scoped lang="scss">
-canvas {
+.canvas {
   background-color: #cecece;
 }
 </style>
