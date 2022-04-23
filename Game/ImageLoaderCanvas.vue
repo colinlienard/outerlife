@@ -7,7 +7,7 @@ onMounted(() => {
     const sprites = ['player'];
     sprites.forEach((sprite) => {
       const image = new Image();
-      image.src = `assets/sprites/${sprite}`;
+      image.src = `assets/sprites/${sprite}.png`;
       context?.drawImage(image, 0, 0);
     });
   }
