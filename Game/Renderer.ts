@@ -1,3 +1,5 @@
+import Scene from './Scene';
+
 class Renderer {
   #context: CanvasRenderingContext2D;
 
@@ -9,22 +11,24 @@ class Renderer {
     this.#context = context;
   }
 
-  render() {
-    const image = new Image();
-    image.src = 'assets/sprites/player.png';
+  clear() {
+    this.#context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  }
 
-    const spriteSize = 32;
-    this.#context.drawImage(
-      image,
-      0,
-      0,
-      spriteSize,
-      spriteSize,
-      0,
-      0,
-      spriteSize * this.#ratio,
-      spriteSize * this.#ratio
-    );
+  render({ elements }: Scene) {
+    elements.forEach(({ sprite }) => {
+      this.#context.drawImage(
+        sprite.image,
+        sprite.width * sprite.column, // position x in the source image
+        sprite.height * sprite.row, // position y in the source image
+        sprite.width, // width of the sprite in the source image
+        sprite.height, // height of the sprite in the source image
+        0, // position x in the canvas
+        0, // position y in the canvas
+        sprite.width * this.#ratio, // width of the sprite in the canvas
+        sprite.height * this.#ratio // height of the sprite in the canvas
+      );
+    });
   }
 
   updateSize() {

@@ -1,7 +1,10 @@
 import Renderer from './Renderer';
+import Scene from './Scene';
 
 class Game {
   #canvas: HTMLCanvasElement;
+
+  #scene;
 
   #renderer;
 
@@ -14,6 +17,8 @@ class Game {
       this.#resizeCanvas();
       window.addEventListener('resize', () => this.#resizeCanvas());
 
+      this.#scene = new Scene();
+
       this.#loop();
     }
   }
@@ -25,7 +30,10 @@ class Game {
   }
 
   #loop() {
-    this.#renderer?.render();
+    this.#scene?.animate();
+
+    this.#renderer?.clear();
+    this.#renderer?.render(this.#scene as Scene);
 
     window.requestAnimationFrame(() => this.#loop());
   }

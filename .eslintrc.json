@@ -13,6 +13,7 @@
   "rules": {
     "import/extensions": ["error", { "ts": "never" }],
     "linebreak-style": ["error", "windows"],
+    "no-param-reassign": ["error", { "props": false }],
     "prettier/prettier": "error"
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
