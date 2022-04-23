@@ -9,7 +9,10 @@ type Animations = {
   run: Animation;
 };
 
-type Direction = ['up' | 'down' | null, 'left' | 'right' | null];
+type Direction = {
+  x: null | 'left' | 'right';
+  y: null | 'up' | 'down';
+};
 
 type Keys = {
   up: boolean;
