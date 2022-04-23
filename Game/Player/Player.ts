@@ -13,10 +13,16 @@ class Player {
     frameWaiter: 0,
   };
 
-  animations: Animations = {
+  readonly animations: Animations = {
     idle: {
+      frameStart: 1,
       frameNumber: 7,
       framePerSecond: 8,
+    },
+    run: {
+      frameStart: 8,
+      frameNumber: 8,
+      framePerSecond: 12,
     },
   };
 

@@ -19,7 +19,7 @@ class Renderer {
     elements.forEach(({ sprite }) => {
       this.#context.drawImage(
         sprite.image,
-        sprite.width * sprite.column, // position x in the source image
+        sprite.width * (sprite.column + sprite.currentAnimation.frameStart - 1), // position x in the source image
         sprite.height * sprite.row, // position y in the source image
         sprite.width, // width of the sprite in the source image
         sprite.height, // height of the sprite in the source image
