@@ -9,7 +9,7 @@ class Player {
 
     currentAnimation: <Animation | null>null,
     row: 0,
-    column: 5,
+    column: 0,
     frameWaiter: 0,
   };
 

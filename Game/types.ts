@@ -9,4 +9,11 @@ type Animations = {
   run: Animation;
 };
 
-export { Animation, Animations };
+type Keys = {
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+};
+
+export { Animation, Animations, Keys };
