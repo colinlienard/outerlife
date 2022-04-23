@@ -1,13 +1,15 @@
 type Animation = {
   frameStart: number;
   frameNumber: number;
-  framePerSecond: number;
+  framesPerSecond: number;
 };
 
 type Animations = {
   idle: Animation;
   run: Animation;
 };
+
+type Direction = ['up' | 'down' | null, 'left' | 'right' | null];
 
 type Keys = {
   up: boolean;
@@ -16,4 +18,4 @@ type Keys = {
   right: boolean;
 };
 
-export { Animation, Animations, Keys };
+export { Animation, Animations, Direction, Keys };
