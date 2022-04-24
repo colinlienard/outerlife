@@ -23,6 +23,19 @@ class Renderer {
   render({ elements }: Scene) {
     elements.forEach((element) => {
       const { sprite, position } = element;
+      if (sprite.behind) {
+        this.#context.drawImage(
+          sprite.image,
+          sprite.behind.sourceX, // position x in the source image
+          sprite.behind.sourceY, // position y in the source image
+          sprite.behind.width, // width of the sprite in the source image
+          sprite.behind.height, // height of the sprite in the source image
+          (position.x + sprite.behind.x) * this.#ratio, // position x in the canvas
+          (position.y + sprite.behind.y) * this.#ratio, // position y in the canvas
+          sprite.behind.width * this.#ratio, // width of the sprite in the canvas
+          sprite.behind.height * this.#ratio // height of the sprite in the canvas
+        );
+      }
       this.#context.drawImage(
         sprite.image,
         sprite.width * (sprite.column + sprite.currentAnimation.frameStart - 1), // position x in the source image

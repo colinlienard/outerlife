@@ -37,6 +37,15 @@ class Player {
     row: 0,
     column: 0,
     frameWaiter: 0,
+
+    behind: {
+      x: 10,
+      y: 30,
+      width: 12,
+      height: 4,
+      sourceX: 0,
+      sourceY: 128,
+    },
   };
 
   constructor() {
