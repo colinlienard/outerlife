@@ -5,8 +5,8 @@ type Animation = {
 };
 
 type Animations = {
-  idle: Animation;
-  run: Animation;
+  idle?: Animation;
+  run?: Animation;
 };
 
 type Direction = {
@@ -21,4 +21,13 @@ type Keys = {
   right: boolean;
 };
 
-export { Animation, Animations, Direction, Keys };
+type SceneLayerElement = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  sourceX: number;
+  sourceY: number;
+};
+
+export { Animation, Animations, Direction, Keys, SceneLayerElement };

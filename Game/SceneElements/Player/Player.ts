@@ -1,7 +1,8 @@
-import { Animation, Animations, Direction, Keys } from '../types';
+import SceneElement from '../SceneElement';
+import { Direction, Keys } from '../../types';
 
-class Player {
-  readonly animations: Animations = {
+class Player extends SceneElement {
+  animations = {
     idle: {
       frameStart: 1,
       frameNumber: 7,
@@ -33,7 +34,7 @@ class Player {
     width: 32,
     height: 32,
 
-    currentAnimation: <Animation>this.animations.idle,
+    currentAnimation: this.animations.idle,
     row: 0,
     column: 0,
     frameWaiter: 0,
@@ -46,9 +47,13 @@ class Player {
       sourceX: 0,
       sourceY: 128,
     },
+
+    over: undefined,
   };
 
   constructor() {
+    super();
+
     this.sprite.image.src = `assets/sprites/${this.sprite.source}.png`;
 
     this.sprite.row = 1;

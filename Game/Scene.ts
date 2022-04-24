@@ -1,4 +1,4 @@
-import Player from './Player/Player';
+import Player from './SceneElements/Player/Player';
 import { Keys } from './types';
 
 class Scene {
