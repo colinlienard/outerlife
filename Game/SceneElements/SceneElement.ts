@@ -6,7 +6,7 @@ class SceneElement {
   position!: {
     x: number;
     y: number;
-    direction: Direction;
+    direction?: Direction;
     speed?: number;
     maxSpeed?: number;
     acceleration?: number;

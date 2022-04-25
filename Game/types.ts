@@ -2,11 +2,7 @@ type Animation = {
   frameStart: number;
   frameNumber: number;
   framesPerSecond: number;
-};
-
-type Animations = {
-  idle?: Animation;
-  run?: Animation;
+  once?: boolean;
 };
 
 type Direction = {
@@ -30,4 +26,4 @@ type SceneLayerElement = {
   sourceY: number;
 };
 
-export { Animation, Animations, Direction, Keys, SceneLayerElement };
+export { Animation, Direction, Keys, SceneLayerElement };

@@ -1,5 +1,6 @@
 import SceneElement from '../SceneElement';
 import { Direction, Keys } from '../../types';
+import Dust from '../Effects/Dust';
 
 class Player extends SceneElement {
   animations = {
@@ -47,16 +48,18 @@ class Player extends SceneElement {
       sourceX: 0,
       sourceY: 128,
     },
-
-    over: undefined,
   };
 
-  constructor() {
+  #spawn;
+
+  constructor(spawn: (element: SceneElement) => void) {
     super();
 
     this.sprite.image.src = `assets/sprites/${this.sprite.source}.png`;
 
     this.sprite.row = 1;
+
+    this.#spawn = spawn;
   }
 
   update(keys: Keys) {
@@ -79,6 +82,20 @@ class Player extends SceneElement {
       this.position.speed -= this.position.deceleration;
     } else {
       this.position.speed = 0;
+    }
+
+    // Spawn a dust when running
+    if (
+      keyDown &&
+      this.sprite.frameWaiter === 0 &&
+      (this.sprite.column === 0 || this.sprite.column === 4)
+    ) {
+      this.#spawn(
+        new Dust(
+          this.position.x + this.sprite.width / 2,
+          this.position.y + this.sprite.height
+        )
+      );
     }
 
     // Avoid player going too fast when running diagonally

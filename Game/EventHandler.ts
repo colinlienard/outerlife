@@ -9,11 +9,11 @@ class EventHandler {
   };
 
   constructor() {
-    window.addEventListener('keydown', (event) => this.#keyHandler(event));
-    window.addEventListener('keyup', (event) => this.#keyHandler(event));
+    window.addEventListener('keydown', (event) => this.#bindKeys(event));
+    window.addEventListener('keyup', (event) => this.#bindKeys(event));
   }
 
-  #keyHandler(event: KeyboardEvent) {
+  #bindKeys(event: KeyboardEvent) {
     const keyState = event.type === 'keydown';
 
     switch (event.key) {
