@@ -38,6 +38,7 @@ class Game {
   #loop() {
     this.#scene?.updatePlayer(this.#eventHandler?.keys as Keys);
     this.#scene?.animate();
+    this.#scene?.ySort();
 
     this.#renderer?.clear();
     this.#renderer?.render(this.#scene as Scene);

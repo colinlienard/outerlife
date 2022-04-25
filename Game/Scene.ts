@@ -45,6 +45,15 @@ class Scene {
   spawn(element: SceneElement) {
     this.elements.push(element);
   }
+
+  ySort() {
+    this.elements.sort((previous, current) =>
+      previous.position.y + previous.sprite.height >
+      current.position.y + current.sprite.height
+        ? 1
+        : -1
+    );
+  }
 }
 
 export default Scene;
