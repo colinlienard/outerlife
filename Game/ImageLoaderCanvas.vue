@@ -4,10 +4,10 @@ const canvas = ref<HTMLCanvasElement>();
 onMounted(() => {
   if (canvas.value) {
     const context = canvas.value.getContext('2d');
-    const sprites = ['player'];
+    const sprites = ['player', 'dust'];
     sprites.forEach((sprite) => {
       const image = new Image();
-      image.src = `assets/sprites/${sprite}`;
+      image.src = `assets/sprites/${sprite}.png`;
       context?.drawImage(image, 0, 0);
     });
   }

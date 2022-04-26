@@ -1,9 +1,16 @@
+import EventHandler from './EventHandler';
 import Renderer from './Renderer';
+import Scene from './Scene';
+import { Keys } from './types';
 
 class Game {
   #canvas: HTMLCanvasElement;
 
+  #eventHandler;
+
   #renderer;
+
+  #scene;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#canvas = canvas;
@@ -13,6 +20,10 @@ class Game {
 
       this.#resizeCanvas();
       window.addEventListener('resize', () => this.#resizeCanvas());
+
+      this.#scene = new Scene();
+
+      this.#eventHandler = new EventHandler();
 
       this.#loop();
     }
@@ -25,7 +36,12 @@ class Game {
   }
 
   #loop() {
-    this.#renderer?.render();
+    this.#scene?.updatePlayer(this.#eventHandler?.keys as Keys);
+    this.#scene?.animate();
+    this.#scene?.ySort();
+
+    this.#renderer?.clear();
+    this.#renderer?.render(this.#scene as Scene);
 
     window.requestAnimationFrame(() => this.#loop());
   }

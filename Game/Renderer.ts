@@ -1,3 +1,5 @@
+import Scene from './Scene';
+
 class Renderer {
   #context: CanvasRenderingContext2D;
 
@@ -9,27 +11,43 @@ class Renderer {
     this.#context = context;
   }
 
-  render() {
-    const image = new Image();
-    image.src = 'assets/sprites/player.png';
-
-    const spriteSize = 32;
-    this.#context.drawImage(
-      image,
-      0,
-      0,
-      spriteSize,
-      spriteSize,
-      0,
-      0,
-      spriteSize * this.#ratio,
-      spriteSize * this.#ratio
-    );
+  clear() {
+    this.#context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   }
 
   updateSize() {
     this.#ratio = Math.round(window.innerHeight / this.#yPixelsNumber);
     this.#context.imageSmoothingEnabled = false;
+  }
+
+  render({ entities }: Scene) {
+    entities.forEach((entity) => {
+      const { sprite, position } = entity;
+      if (sprite.behind) {
+        this.#context.drawImage(
+          sprite.image,
+          sprite.behind.sourceX, // position x in the source image
+          sprite.behind.sourceY, // position y in the source image
+          sprite.behind.width, // width of the sprite in the source image
+          sprite.behind.height, // height of the sprite in the source image
+          (position.x + sprite.behind.x) * this.#ratio, // position x in the canvas
+          (position.y + sprite.behind.y) * this.#ratio, // position y in the canvas
+          sprite.behind.width * this.#ratio, // width of the sprite in the canvas
+          sprite.behind.height * this.#ratio // height of the sprite in the canvas
+        );
+      }
+      this.#context.drawImage(
+        sprite.image,
+        sprite.width * (sprite.column + sprite.currentAnimation.frameStart - 1), // position x in the source image
+        sprite.height * sprite.row, // position y in the source image
+        sprite.width, // width of the sprite in the source image
+        sprite.height, // height of the sprite in the source image
+        position.x * this.#ratio, // position x in the canvas
+        position.y * this.#ratio, // position y in the canvas
+        sprite.width * this.#ratio, // width of the sprite in the canvas
+        sprite.height * this.#ratio // height of the sprite in the canvas
+      );
+    });
   }
 }
 
