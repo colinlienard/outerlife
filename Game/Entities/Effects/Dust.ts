@@ -30,7 +30,7 @@ class Dust extends Entity {
   constructor(x: number, y: number) {
     super();
 
-    this.sprite.image.src = `assets/sprites/${this.sprite.source}.png`;
+    this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
 
     this.position.x = x - this.sprite.width / 2;
     this.position.y = y - this.sprite.height;

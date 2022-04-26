@@ -7,7 +7,7 @@ onMounted(() => {
     const sprites = ['player', 'dust'];
     sprites.forEach((sprite) => {
       const image = new Image();
-      image.src = `assets/sprites/${sprite}.png`;
+      image.src = `/sprites/${sprite}.png`;
       context?.drawImage(image, 0, 0);
     });
   }
@@ -15,7 +15,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvas" class="canvas"></canvas>
+  <canvas ref="canvas" class="canvas" moz-opaque></canvas>
 </template>
 
 <style scoped lang="scss">
