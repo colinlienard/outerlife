@@ -1,8 +1,8 @@
-import SceneElement from '../SceneElement';
+import Entity from '../Entity';
 import { Direction, Keys } from '../../types';
 import Dust from '../Effects/Dust';
 
-class Player extends SceneElement {
+class Player extends Entity {
   animations = {
     idle: {
       frameStart: 1,
@@ -52,7 +52,7 @@ class Player extends SceneElement {
 
   #spawn;
 
-  constructor(spawn: (element: SceneElement) => void) {
+  constructor(spawn: (entity: Entity) => void) {
     super();
 
     this.sprite.image.src = `assets/sprites/${this.sprite.source}.png`;

@@ -10,14 +10,7 @@ type Direction = {
   y: null | 'up' | 'down';
 };
 
-type Keys = {
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
-};
-
-type SceneLayerElement = {
+type EntityLayer = {
   x: number;
   y: number;
   width: number;
@@ -26,4 +19,11 @@ type SceneLayerElement = {
   sourceY: number;
 };
 
-export { Animation, Direction, Keys, SceneLayerElement };
+type Keys = {
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+};
+
+export { Animation, Direction, EntityLayer, Keys };

@@ -1,6 +1,6 @@
-import { Animation, Direction, SceneLayerElement } from '../types';
+import { Animation, Direction, EntityLayer } from '../types';
 
-class SceneElement {
+class Entity {
   animations!: { [key: string]: Animation };
 
   position!: {
@@ -24,9 +24,9 @@ class SceneElement {
     column: number;
     frameWaiter: number;
 
-    behind?: SceneLayerElement;
-    over?: SceneLayerElement;
+    behind?: EntityLayer;
+    over?: EntityLayer;
   };
 }
 
-export default SceneElement;
+export default Entity;

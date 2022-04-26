@@ -1,6 +1,6 @@
-import SceneElement from '../SceneElement';
+import Entity from '../Entity';
 
-class Dust extends SceneElement {
+class Dust extends Entity {
   animations = {
     poof: {
       frameStart: 1,

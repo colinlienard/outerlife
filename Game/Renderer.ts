@@ -20,9 +20,9 @@ class Renderer {
     this.#context.imageSmoothingEnabled = false;
   }
 
-  render({ elements }: Scene) {
-    elements.forEach((element) => {
-      const { sprite, position } = element;
+  render({ entities }: Scene) {
+    entities.forEach((entity) => {
+      const { sprite, position } = entity;
       if (sprite.behind) {
         this.#context.drawImage(
           sprite.image,

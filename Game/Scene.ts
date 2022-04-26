@@ -1,20 +1,20 @@
-import Player from './SceneElements/Organisms/Player';
-import SceneElement from './SceneElements/SceneElement';
+import Player from './Entities/Organisms/Player';
+import Entity from './Entities/Entity';
 import { Keys } from './types';
 
 class Scene {
-  elements: SceneElement[] = [];
+  entities: Entity[] = [];
 
   #player;
 
   constructor() {
-    this.#player = new Player((element: SceneElement) => this.spawn(element));
-    this.elements.push(this.#player);
+    this.#player = new Player((entity: Entity) => this.spawn(entity));
+    this.entities.push(this.#player);
   }
 
   animate() {
-    this.elements.forEach((element) => {
-      const { sprite } = element;
+    this.entities.forEach((entity) => {
+      const { sprite } = entity;
 
       // Execute the following every {specified number} frames per second
       if (sprite.frameWaiter >= 60 / sprite.currentAnimation.framesPerSecond) {
@@ -26,7 +26,7 @@ class Scene {
 
           // Delete instance after its animation
         } else if (sprite.currentAnimation.once) {
-          delete this.elements[this.elements.indexOf(element)];
+          delete this.entities[this.entities.indexOf(entity)];
 
           // Reset animation
         } else {
@@ -42,12 +42,12 @@ class Scene {
     this.#player.update(keys);
   }
 
-  spawn(element: SceneElement) {
-    this.elements.push(element);
+  spawn(entity: Entity) {
+    this.entities.push(entity);
   }
 
   ySort() {
-    this.elements.sort((previous, current) =>
+    this.entities.sort((previous, current) =>
       previous.position.y + previous.sprite.height >
       current.position.y + current.sprite.height
         ? 1
