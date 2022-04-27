@@ -26,4 +26,10 @@ type Keys = {
   right: boolean;
 };
 
-export { Animation, Direction, EntityLayer, Keys };
+type Tilemap = {
+  rows: number;
+  columns: number;
+  map: string[];
+};
+
+export { Animation, Direction, EntityLayer, Keys, Tilemap };

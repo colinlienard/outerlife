@@ -1,3 +1,5 @@
+import Entity from './Entities/Entity';
+import Terrain from './Entities/Terrains/Terrain';
 import Scene from './Scene';
 
 class Renderer {
@@ -20,7 +22,12 @@ class Renderer {
     this.#context.imageSmoothingEnabled = false;
   }
 
-  render({ entities }: Scene) {
+  render(scene: Scene) {
+    this.#renderTerrains(scene.tilemap.terrains, 16);
+    this.#renderEntities(scene.entities);
+  }
+
+  #renderEntities(entities: Entity[]) {
     entities.forEach((entity) => {
       const { sprite, position } = entity;
       if (sprite.behind) {
@@ -46,6 +53,23 @@ class Renderer {
         position.y * this.#ratio, // position y in the canvas
         sprite.width * this.#ratio, // width of the sprite in the canvas
         sprite.height * this.#ratio // height of the sprite in the canvas
+      );
+    });
+  }
+
+  #renderTerrains(terrains: Terrain[], tileSize: number) {
+    terrains.forEach((terrain) => {
+      const { sprite, position } = terrain;
+      this.#context.drawImage(
+        sprite.image,
+        sprite.x, // position x in the source image
+        sprite.y, // position y in the source image
+        tileSize, // width of the sprite in the source image
+        tileSize, // height of the sprite in the source image
+        position.x * this.#ratio, // position x in the canvas
+        position.y * this.#ratio, // position y in the canvas
+        tileSize * this.#ratio, // width of the sprite in the canvas
+        tileSize * this.#ratio // height of the sprite in the canvas
       );
     });
   }
