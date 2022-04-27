@@ -54,8 +54,7 @@ class Player extends Entity {
 
   constructor(spawn: (entity: Entity) => void) {
     super();
-
-    this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
+    super.init();
 
     this.sprite.row = 1;
 

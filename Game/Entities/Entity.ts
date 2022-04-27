@@ -27,6 +27,10 @@ class Entity {
     behind?: EntityLayer;
     over?: EntityLayer;
   };
+
+  init() {
+    this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
+  }
 }
 
 export default Entity;
