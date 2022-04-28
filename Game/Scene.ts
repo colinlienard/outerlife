@@ -3,7 +3,7 @@ import Entity from './Entities/Entity';
 import Planet1 from './Tilemaps/Planet';
 import { Keys, Tilemap } from './types';
 import Terrain from './Entities/Terrains/Terrain';
-import Grass from './Entities/Terrains/Grass';
+import TerrainTiles from './Entities/Terrains/TerrainTiles';
 
 class Scene {
   entities: Entity[] = [];
@@ -49,8 +49,18 @@ class Scene {
   buildMap(tileSize: number) {
     for (let row = 0; row < this.tilemap.map.rows; row += 1) {
       for (let column = 0; column < this.tilemap.map.columns; column += 1) {
+        const tile =
+          TerrainTiles[
+            this.tilemap.map.map[row * this.tilemap.map.columns + column]
+          ];
         this.tilemap.terrains.push(
-          new Grass(column * tileSize, row * tileSize)
+          new Terrain(
+            column * tileSize,
+            row * tileSize,
+            tile.source,
+            tile.x,
+            tile.y
+          )
         );
       }
     }
