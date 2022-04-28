@@ -22,6 +22,7 @@ class Game {
       window.addEventListener('resize', () => this.#resizeCanvas());
 
       this.#scene = new Scene();
+      this.#scene.buildMap(16);
 
       this.#eventHandler = new EventHandler();
 

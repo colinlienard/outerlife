@@ -1,11 +1,19 @@
 import Player from './Entities/Organisms/Player';
 import Entity from './Entities/Entity';
-import { Keys } from './types';
+import Planet1 from './Tilemaps/Planet';
+import { Keys, Tilemap } from './types';
+import Terrain from './Entities/Terrains/Terrain';
+import TerrainTiles from './Entities/Terrains/TerrainTiles';
 
 class Scene {
   entities: Entity[] = [];
 
   #player;
+
+  tilemap = {
+    map: <Tilemap>Planet1,
+    terrains: <Terrain[]>[],
+  };
 
   constructor() {
     this.#player = new Player((entity: Entity) => this.spawn(entity));
@@ -36,6 +44,26 @@ class Scene {
         sprite.frameWaiter += 1;
       }
     });
+  }
+
+  buildMap(tileSize: number) {
+    for (let row = 0; row < this.tilemap.map.rows; row += 1) {
+      for (let column = 0; column < this.tilemap.map.columns; column += 1) {
+        const tile =
+          TerrainTiles[
+            this.tilemap.map.map[row * this.tilemap.map.columns + column]
+          ];
+        this.tilemap.terrains.push(
+          new Terrain(
+            column * tileSize,
+            row * tileSize,
+            tile.source,
+            tile.x,
+            tile.y
+          )
+        );
+      }
+    }
   }
 
   updatePlayer(keys: Keys) {
