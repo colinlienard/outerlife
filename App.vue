@@ -1,12 +1,6 @@
-<script setup lang="ts">
-import GameCanvas from './Game/GameCanvas.vue';
-import ImageLoaderCanvas from './Game/ImageLoaderCanvas.vue';
-</script>
-
 <template>
   <main>
-    <GameCanvas></GameCanvas>
-    <ImageLoaderCanvas></ImageLoaderCanvas>
+    <NuxtPage />
   </main>
 </template>
 
@@ -14,5 +8,9 @@ import ImageLoaderCanvas from './Game/ImageLoaderCanvas.vue';
 /* stylelint-disable-next-line selector-id-pattern */
 #__nuxt {
   font-size: 0;
+
+  * {
+    font-size: initial;
+  }
 }
 </style>
