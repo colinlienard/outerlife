@@ -6,17 +6,25 @@ const rows = ref(10);
 const columns = ref(20);
 const ratio = ref(5);
 const canvas = ref<HTMLCanvasElement>();
+const editor = ref<Editor>();
 
 onMounted(() => {
   if (canvas.value) {
-    // eslint-disable-next-line no-new
-    new Editor(canvas.value);
+    editor.value = new Editor(canvas.value);
+    editor.value?.updateSize(rows.value, columns.value, ratio.value);
+    editor.value.bindImages();
+    editor.value?.drawMap(tileSize);
   }
+});
+
+onUpdated(() => {
+  editor.value?.updateSize(rows.value, columns.value, ratio.value);
+  editor.value?.drawMap(tileSize);
 });
 </script>
 
 <template>
-  <div>
+  <main>
     <div class="canvas-container">
       <div class="grid"></div>
       <canvas
@@ -28,7 +36,11 @@ onMounted(() => {
       ></canvas>
     </div>
     <div class="toolkit">
-      <label for="rows">
+      <label>
+        Ratio
+        <input v-model="ratio" type="number" name="rows" />
+      </label>
+      <label>
         Rows
         <input v-model="rows" type="number" name="rows" />
       </label>
@@ -37,12 +49,13 @@ onMounted(() => {
         <input v-model="columns" type="number" name="columns" />
       </label>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped lang="scss">
 .canvas-container {
   position: relative;
+  width: fit-content;
 
   .canvas {
     background-color: #cecece;
@@ -52,7 +65,7 @@ onMounted(() => {
     position: absolute;
     inset: 0;
     background-image: repeating-linear-gradient(
-        #000 0 1px,
+        white 0 1px,
         transparent 1px 100%
       ),
       repeating-linear-gradient(90deg, white 0 1px, transparent 1px 100%);
@@ -61,5 +74,9 @@ onMounted(() => {
     z-index: 1;
     pointer-events: none;
   }
+}
+
+.toolkit {
+  font-size: initial;
 }
 </style>
