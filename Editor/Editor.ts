@@ -72,10 +72,29 @@ class Editor {
   }
 
   updateSize(rows: number, columns: number, ratio: number) {
+    // If no changes are made, do nothing
+    if (
+      this.tilemap.rows === rows &&
+      this.tilemap.columns === columns &&
+      this.ratio === ratio
+    ) {
+      return;
+    }
+    for (let row = 1; row < this.tilemap.rows + 1; row += 1) {
+      // Add a column
+      if (this.tilemap.columns < columns) {
+        this.tilemap.map.splice(row * columns - 1, 0, '000');
+
+        // Remove a column
+      } else if (this.tilemap.columns > columns) {
+        this.tilemap.map.splice(row * columns, 1);
+      }
+    }
     this.tilemap.rows = rows;
     this.tilemap.columns = columns;
     this.ratio = ratio;
     this.context.imageSmoothingEnabled = false;
+    console.log(this.tilemap.map.length);
   }
 }
 

@@ -32,8 +32,8 @@ onUpdated(() => {
 
 const handlePlace = (event: MouseEvent) => {
   if (event.type === 'click' || mouseDown.value) {
-    const column = Math.trunc(event.x / tileSize / ratio.value);
-    const row = Math.trunc(event.y / tileSize / ratio.value);
+    const column = Math.trunc(event.offsetX / tileSize / ratio.value);
+    const row = Math.trunc(event.offsetY / tileSize / ratio.value);
     editor.value?.placeTile(row, column, selected.value);
   }
 };
