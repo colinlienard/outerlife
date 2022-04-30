@@ -11,11 +11,15 @@ class Editor {
   tilemap: Tilemap = {
     rows: 0,
     columns: 0,
-    map: ['001'],
+    map: [],
   };
 
-  constructor(canvas: HTMLCanvasElement) {
+  tileSize: number;
+
+  constructor(canvas: HTMLCanvasElement, tileSize: number) {
     this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+    this.tileSize = tileSize;
   }
 
   bindImages() {
@@ -34,7 +38,7 @@ class Editor {
     this.images = images;
   }
 
-  drawMap(tileSize: number) {
+  drawMap() {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile =
@@ -44,16 +48,27 @@ class Editor {
             this.images[tile.source],
             tile.x, // position x in the source image
             tile.y, // position y in the source image
-            tileSize, // width of the sprite in the source image
-            tileSize, // height of the sprite in the source image
-            column * tileSize * this.ratio, // position x in the canvas
-            row * tileSize * this.ratio, // position y in the canvas
-            tileSize * this.ratio, // width of the sprite in the canvas
-            tileSize * this.ratio // height of the sprite in the canvas
+            this.tileSize, // width of the sprite in the source image
+            this.tileSize, // height of the sprite in the source image
+            column * this.tileSize * this.ratio, // position x in the canvas
+            row * this.tileSize * this.ratio, // position y in the canvas
+            this.tileSize * this.ratio, // width of the sprite in the canvas
+            this.tileSize * this.ratio // height of the sprite in the canvas
           );
         }
       }
     }
+  }
+
+  fillWithVoid() {
+    for (let i = 0; i < this.tilemap.rows * this.tilemap.columns; i += 1) {
+      this.tilemap.map.push('000');
+    }
+  }
+
+  placeTile(row: number, column: number) {
+    this.tilemap.map[row * this.tilemap.columns + column] = '001';
+    this.drawMap();
   }
 
   updateSize(rows: number, columns: number, ratio: number) {

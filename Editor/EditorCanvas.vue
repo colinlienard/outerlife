@@ -5,34 +5,49 @@ const tileSize = 16;
 const rows = ref(10);
 const columns = ref(20);
 const ratio = ref(5);
+const showGrid = ref(true);
+const mouseDown = ref(false);
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
 
 onMounted(() => {
   if (canvas.value) {
-    editor.value = new Editor(canvas.value);
+    editor.value = new Editor(canvas.value, tileSize);
     editor.value?.updateSize(rows.value, columns.value, ratio.value);
+    editor.value.fillWithVoid();
     editor.value.bindImages();
-    editor.value?.drawMap(tileSize);
+    editor.value?.drawMap();
   }
 });
 
 onUpdated(() => {
   editor.value?.updateSize(rows.value, columns.value, ratio.value);
-  editor.value?.drawMap(tileSize);
+  editor.value?.drawMap();
 });
+
+const handlePlace = (event: MouseEvent) => {
+  if (event.type === 'click' || mouseDown.value) {
+    const column = Math.trunc(event.x / tileSize / ratio.value);
+    const row = Math.trunc(event.y / tileSize / ratio.value);
+    editor.value?.placeTile(row, column);
+  }
+};
 </script>
 
 <template>
   <main>
     <div class="canvas-container">
-      <div class="grid"></div>
+      <div :class="['grid', showGrid && 'visible']"></div>
       <canvas
         ref="canvas"
         class="canvas"
         moz-opaque
         :width="columns * ratio * tileSize"
         :height="rows * ratio * tileSize"
+        @click="handlePlace"
+        @mousedown="mouseDown = true"
+        @mouseup="mouseDown = false"
+        v-on="mouseDown ? { mousemove: handlePlace } : {}"
       ></canvas>
     </div>
     <div class="toolkit">
@@ -47,6 +62,10 @@ onUpdated(() => {
       <label for="columns">
         Columns
         <input v-model="columns" type="number" name="columns" />
+      </label>
+      <label for="showGrid">
+        Show grid
+        <input v-model="showGrid" type="checkbox" name="showGrid" />
       </label>
     </div>
   </main>
@@ -64,15 +83,18 @@ onUpdated(() => {
   .grid {
     position: absolute;
     inset: 0;
-    background-image: repeating-linear-gradient(
-        white 0 1px,
-        transparent 1px 100%
-      ),
-      repeating-linear-gradient(90deg, white 0 1px, transparent 1px 100%);
     background-size: calc(v-bind(ratio) * v-bind(tileSize) * 1px)
       calc(v-bind(ratio) * v-bind(tileSize) * 1px);
     z-index: 1;
     pointer-events: none;
+
+    &.visible {
+      background-image: repeating-linear-gradient(
+          white 0 1px,
+          transparent 1px 100%
+        ),
+        repeating-linear-gradient(90deg, white 0 1px, transparent 1px 100%);
+    }
   }
 }
 
