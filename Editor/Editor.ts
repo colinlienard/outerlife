@@ -66,8 +66,8 @@ class Editor {
     }
   }
 
-  placeTile(row: number, column: number) {
-    this.tilemap.map[row * this.tilemap.columns + column] = '001';
+  placeTile(row: number, column: number, tile: string) {
+    this.tilemap.map[row * this.tilemap.columns + column] = tile;
     this.drawMap();
   }
 
@@ -75,6 +75,7 @@ class Editor {
     this.tilemap.rows = rows;
     this.tilemap.columns = columns;
     this.ratio = ratio;
+    this.context.imageSmoothingEnabled = false;
   }
 }
 

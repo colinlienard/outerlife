@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import Editor from './Editor';
+import EditorTile from './EditorTile.vue';
+import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
 
 const tileSize = 16;
 const rows = ref(10);
 const columns = ref(20);
 const ratio = ref(5);
+
 const showGrid = ref(true);
 const mouseDown = ref(false);
+const selected = ref<string>('000');
+
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
 
@@ -29,7 +34,14 @@ const handlePlace = (event: MouseEvent) => {
   if (event.type === 'click' || mouseDown.value) {
     const column = Math.trunc(event.x / tileSize / ratio.value);
     const row = Math.trunc(event.y / tileSize / ratio.value);
-    editor.value?.placeTile(row, column);
+    editor.value?.placeTile(row, column, selected.value);
+  }
+};
+
+const getOuput = () => {
+  const output = editor.value?.tilemap.map;
+  if (output) {
+    navigator.clipboard.writeText(JSON.stringify(output));
   }
 };
 </script>
@@ -37,7 +49,7 @@ const handlePlace = (event: MouseEvent) => {
 <template>
   <main>
     <div class="canvas-container">
-      <div :class="['grid', showGrid && 'visible']"></div>
+      <div :class="['grid', { visible: showGrid }]"></div>
       <canvas
         ref="canvas"
         class="canvas"
@@ -67,6 +79,18 @@ const handlePlace = (event: MouseEvent) => {
         Show grid
         <input v-model="showGrid" type="checkbox" name="showGrid" />
       </label>
+      <button type="button" @click="getOuput">Get output</button>
+      <ul>
+        <li v-for="(terrain, tile, index) in TerrainTiles" :key="index">
+          <EditorTile
+            :source="terrain.source"
+            :x="terrain.x"
+            :y="terrain.y"
+            :selected="selected === tile"
+            @click="selected = (tile as string)"
+          />
+        </li>
+      </ul>
     </div>
   </main>
 </template>
