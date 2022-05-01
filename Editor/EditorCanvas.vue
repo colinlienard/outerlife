@@ -11,6 +11,9 @@ const ratio = ref(5);
 const showGrid = ref(true);
 const mouseDown = ref(false);
 const selected = ref<string>('000');
+const toolkitOpen = ref(true);
+const toolkitWidth = ref(350);
+const oldToolkitValue = ref(0);
 
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
@@ -44,6 +47,24 @@ const getOuput = () => {
     navigator.clipboard.writeText(JSON.stringify(output));
   }
 };
+
+const handleDrag = (event: DragEvent) => {
+  switch (event.type) {
+    case 'dragstart':
+      oldToolkitValue.value = toolkitWidth.value;
+      break;
+    case 'drag':
+      if (event.offsetX > -1000) {
+        toolkitWidth.value = oldToolkitValue.value - event.offsetX;
+      }
+      break;
+    case 'dragend':
+      oldToolkitValue.value = toolkitWidth.value;
+      break;
+    default:
+      break;
+  }
+};
 </script>
 
 <template>
@@ -62,47 +83,62 @@ const getOuput = () => {
         v-on="mouseDown ? { mousemove: handlePlace } : {}"
       ></canvas>
     </section>
-    <section class="toolkit">
-      <header class="header">Toolkit</header>
-      <div class="wrapper">
-        <label class="label" for="ratio">
-          Ratio
-          <input id="ratio" v-model="ratio" class="input" type="number" />
-        </label>
-        <label class="label" for="showGrid">
-          Show grid
-          <input id="showGrid" v-model="showGrid" type="checkbox" />
-        </label>
-      </div>
-      <hr class="separator" />
-      <div class="wrapper">
-        <label class="label" for="rows">
-          Rows
-          <input id="rows" v-model="rows" class="input" type="number" />
-        </label>
-        <label class="label" for="columns">
-          Columns
-          <input id="columns" v-model="columns" class="input" type="number" />
-        </label>
-      </div>
-      <hr class="separator" />
-      <div class="wrapper">
-        <button class="button" type="button" @click="getOuput">
-          Get output
+    <section :class="['toolkit', { closed: !toolkitOpen }]">
+      <div
+        class="dragger"
+        draggable
+        @drag="handleDrag"
+        @dragstart="handleDrag"
+        @dragend="handleDrag"
+      ></div>
+      <header class="header">
+        Toolkit
+        <button v-if="toolkitOpen" class="reduce" @click="toolkitOpen = false">
+          -
         </button>
+        <button v-else class="reduce" @click="toolkitOpen = true">+</button>
+      </header>
+      <div class="content">
+        <div class="wrapper">
+          <label class="label" for="ratio">
+            Ratio
+            <input id="ratio" v-model="ratio" class="input" type="number" />
+          </label>
+          <label class="label" for="showGrid">
+            Show grid
+            <input id="showGrid" v-model="showGrid" type="checkbox" />
+          </label>
+        </div>
+        <hr class="separator" />
+        <div class="wrapper">
+          <label class="label" for="rows">
+            Rows
+            <input id="rows" v-model="rows" class="input" type="number" />
+          </label>
+          <label class="label" for="columns">
+            Columns
+            <input id="columns" v-model="columns" class="input" type="number" />
+          </label>
+        </div>
+        <hr class="separator" />
+        <div class="wrapper">
+          <button class="button" type="button" @click="getOuput">
+            Get output
+          </button>
+        </div>
+        <hr class="separator" />
+        <ul class="wrapper tile-list">
+          <li v-for="(terrain, tile, index) in TerrainTiles" :key="index">
+            <EditorTile
+              :source="terrain.source"
+              :x="terrain.x"
+              :y="terrain.y"
+              :selected="selected === tile"
+              @click="selected = (tile as string)"
+            />
+          </li>
+        </ul>
       </div>
-      <hr class="separator" />
-      <ul class="wrapper tile-list">
-        <li v-for="(terrain, tile, index) in TerrainTiles" :key="index">
-          <EditorTile
-            :source="terrain.source"
-            :x="terrain.x"
-            :y="terrain.y"
-            :selected="selected === tile"
-            @click="selected = (tile as string)"
-          />
-        </li>
-      </ul>
     </section>
   </main>
 </template>
@@ -114,7 +150,9 @@ const getOuput = () => {
 .main {
   background-color: variables.$dark-1;
   color-scheme: dark;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
 }
 
 .canvas-container {
@@ -156,13 +194,46 @@ const getOuput = () => {
   bottom: 1rem;
   right: 1rem;
   background-color: variables.$dark-2;
-  width: 20rem;
+  width: calc(v-bind(toolkitWidth) * 1px);
   z-index: 1;
+
+  .dragger {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    height: 100%;
+    width: 3px;
+    transform: translateX(50%);
+    background-color: variables.$dark-4;
+    cursor: ew-resize;
+    z-index: 1;
+    transition: width 0.2s ease-in-out;
+
+    &:hover {
+      width: 8px;
+      background-color: variables.$accent;
+    }
+
+    &:active {
+      background-color: white;
+    }
+  }
 
   .header {
     background-color: variables.$dark-3;
     text-align: center;
     padding: 0.5rem 0;
+    position: relative;
+
+    .reduce {
+      position: absolute;
+      inset: 0 0 0 auto;
+      aspect-ratio: 1 / 1;
+      background-color: variables.$dark-4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   .wrapper {
@@ -195,7 +266,7 @@ const getOuput = () => {
     color: variables.$dark-2;
 
     &:hover {
-      background-color: color.adjust(variables.$accent, $lightness: -10%);
+      background-color: color.adjust(variables.$accent, $lightness: 20%);
     }
 
     &:active {
@@ -209,6 +280,15 @@ const getOuput = () => {
     gap: 1px;
     max-height: 16rem;
     overflow: auto;
+  }
+
+  &.closed {
+    width: 10rem;
+
+    .dragger,
+    .content {
+      display: none;
+    }
   }
 }
 </style>
