@@ -8,9 +8,9 @@ const { source, x, y, selected } = defineProps<{
 </script>
 
 <template>
-  <div :class="['tile', { selected: selected }]" @click="$emit('click')">
+  <button :class="['tile', { selected: selected }]" @click="$emit('click')">
     <img class="image" :src="`/sprites/${source}.png`" alt="" />
-  </div>
+  </button>
 </template>
 
 <style scoped lang="scss">
@@ -19,10 +19,14 @@ const { source, x, y, selected } = defineProps<{
   height: 48px;
   overflow: hidden;
   position: relative;
-  border: 1px solid white;
+
+  &:hover {
+    opacity: 0.8;
+  }
 
   &.selected {
-    border-color: yellow;
+    outline: 3px solid white;
+    z-index: 1;
   }
 
   .image {

@@ -94,7 +94,6 @@ class Editor {
     this.tilemap.columns = columns;
     this.ratio = ratio;
     this.context.imageSmoothingEnabled = false;
-    console.log(this.tilemap.map.length);
   }
 }
 
