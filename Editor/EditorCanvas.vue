@@ -21,10 +21,10 @@ const editor = ref<Editor>();
 onMounted(() => {
   if (canvas.value) {
     editor.value = new Editor(canvas.value, tileSize);
-    editor.value?.updateSize(rows.value, columns.value, ratio.value);
+    editor.value.updateSize(rows.value, columns.value, ratio.value);
     editor.value.fillWithVoid();
     editor.value.bindImages();
-    editor.value?.drawMap();
+    editor.value.drawMap();
   }
 });
 
@@ -33,16 +33,8 @@ onUpdated(() => {
   editor.value?.drawMap();
 });
 
-const handlePlace = (event: MouseEvent) => {
-  if (event.type === 'click' || mouseDown.value) {
-    const column = Math.trunc(event.offsetX / tileSize / ratio.value);
-    const row = Math.trunc(event.offsetY / tileSize / ratio.value);
-    editor.value?.placeTile(row, column, selected.value);
-  }
-};
-
 const getOuput = () => {
-  const output = editor.value?.tilemap.map;
+  const output = editor.value?.tilemap;
   if (output) {
     navigator.clipboard.writeText(JSON.stringify(output));
   }
@@ -63,6 +55,19 @@ const handleDrag = (event: DragEvent) => {
       break;
     default:
       break;
+  }
+};
+
+const handleInput = (event: Event) => {
+  editor.value?.changeMap((event.target as HTMLInputElement).value as string);
+  (event.target as HTMLInputElement).value = '';
+};
+
+const handlePlace = (event: MouseEvent) => {
+  if (event.type === 'click' || mouseDown.value) {
+    const column = Math.trunc(event.offsetX / tileSize / ratio.value);
+    const row = Math.trunc(event.offsetY / tileSize / ratio.value);
+    editor.value?.placeTile(row, column, selected.value);
   }
 };
 </script>
@@ -101,27 +106,37 @@ const handleDrag = (event: DragEvent) => {
       <div class="content">
         <div class="wrapper">
           <label class="label" for="ratio">
-            Ratio
+            Ratio:
             <input id="ratio" v-model="ratio" class="input" type="number" />
           </label>
           <label class="label" for="showGrid">
-            Show grid
+            Show grid:
             <input id="showGrid" v-model="showGrid" type="checkbox" />
           </label>
         </div>
         <hr class="separator" />
         <div class="wrapper">
           <label class="label" for="rows">
-            Rows
+            Rows:
             <input id="rows" v-model="rows" class="input" type="number" />
           </label>
           <label class="label" for="columns">
-            Columns
+            Columns:
             <input id="columns" v-model="columns" class="input" type="number" />
           </label>
         </div>
         <hr class="separator" />
         <div class="wrapper">
+          <label class="label" for="input">
+            Insert input:
+            <input
+              id="input"
+              class="input"
+              type="text"
+              placeholder="here..."
+              @change="handleInput"
+            />
+          </label>
           <button class="button" type="button" @click="getOuput">
             Get output
           </button>

@@ -38,6 +38,23 @@ class Editor {
     this.images = images;
   }
 
+  changeMap(input: string) {
+    const map = input.replaceAll("'", '"');
+    this.tilemap.map = JSON.parse(map);
+
+    this.clear();
+    this.drawMap();
+  }
+
+  clear() {
+    this.context.clearRect(
+      0,
+      0,
+      this.tilemap.columns * this.tileSize * this.ratio,
+      this.tilemap.rows * this.tileSize * this.ratio
+    );
+  }
+
   drawMap() {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
@@ -68,6 +85,8 @@ class Editor {
 
   placeTile(row: number, column: number, tile: string) {
     this.tilemap.map[row * this.tilemap.columns + column] = tile;
+
+    this.clear();
     this.drawMap();
   }
 
