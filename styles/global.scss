@@ -1,0 +1,13 @@
+/* stylelint-disable-next-line selector-id-pattern */
+#__nuxt {
+  font-size: 0;
+}
+
+@font-face {
+  font-family: VPPixel;
+  src: url('/fonts/VPPixel-Simplified.otf');
+}
+
+body {
+  font-family: VPPixel, sans-serif;
+}
