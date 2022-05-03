@@ -32,7 +32,7 @@ const { source, x, y, selected } = defineProps<{
   .image {
     image-rendering: pixelated;
     max-width: unset;
-    transform: scale(3) translate(calc(50% - 32px), calc(50% - 32px));
+    transform: scale(3) translate(33.33%, 33.33%);
     position: absolute;
     top: calc(v-bind(y/16) * -48px);
     left: calc(v-bind(x/16) * -48px);
