@@ -7,10 +7,13 @@ class Renderer {
 
   #yPixelsNumber = 200;
 
-  #ratio = 1;
+  ratio = 1;
 
-  constructor(context: CanvasRenderingContext2D) {
+  #scene;
+
+  constructor(context: CanvasRenderingContext2D, scene: Scene) {
     this.#context = context;
+    this.#scene = scene;
   }
 
   clear() {
@@ -18,13 +21,13 @@ class Renderer {
   }
 
   updateSize() {
-    this.#ratio = Math.round(window.innerHeight / this.#yPixelsNumber);
+    this.ratio = Math.round(window.innerHeight / this.#yPixelsNumber);
     this.#context.imageSmoothingEnabled = false;
   }
 
-  render(scene: Scene) {
-    this.#renderTerrains(scene.tilemap.terrains, 16);
-    this.#renderEntities(scene.entities);
+  render() {
+    this.#renderTerrains(this.#scene.tilemap.terrains, 16);
+    this.#renderEntities(this.#scene.entities);
   }
 
   #renderEntities(entities: Entity[]) {
@@ -37,10 +40,10 @@ class Renderer {
           sprite.behind.sourceY, // position y in the source image
           sprite.behind.width, // width of the sprite in the source image
           sprite.behind.height, // height of the sprite in the source image
-          (position.x + sprite.behind.x) * this.#ratio, // position x in the canvas
-          (position.y + sprite.behind.y) * this.#ratio, // position y in the canvas
-          sprite.behind.width * this.#ratio, // width of the sprite in the canvas
-          sprite.behind.height * this.#ratio // height of the sprite in the canvas
+          (position.x + sprite.behind.x) * this.ratio, // position x in the canvas
+          (position.y + sprite.behind.y) * this.ratio, // position y in the canvas
+          sprite.behind.width * this.ratio, // width of the sprite in the canvas
+          sprite.behind.height * this.ratio // height of the sprite in the canvas
         );
       }
       this.#context.drawImage(
@@ -49,10 +52,10 @@ class Renderer {
         sprite.height * sprite.row, // position y in the source image
         sprite.width, // width of the sprite in the source image
         sprite.height, // height of the sprite in the source image
-        position.x * this.#ratio, // position x in the canvas
-        position.y * this.#ratio, // position y in the canvas
-        sprite.width * this.#ratio, // width of the sprite in the canvas
-        sprite.height * this.#ratio // height of the sprite in the canvas
+        position.x * this.ratio, // position x in the canvas
+        position.y * this.ratio, // position y in the canvas
+        sprite.width * this.ratio, // width of the sprite in the canvas
+        sprite.height * this.ratio // height of the sprite in the canvas
       );
     });
   }
@@ -66,12 +69,23 @@ class Renderer {
         sprite.y, // position y in the source image
         tileSize, // width of the sprite in the source image
         tileSize, // height of the sprite in the source image
-        position.x * this.#ratio, // position x in the canvas
-        position.y * this.#ratio, // position y in the canvas
-        tileSize * this.#ratio, // width of the sprite in the canvas
-        tileSize * this.#ratio // height of the sprite in the canvas
+        position.x * this.ratio, // position x in the canvas
+        position.y * this.ratio, // position y in the canvas
+        tileSize * this.ratio, // width of the sprite in the canvas
+        tileSize * this.ratio // height of the sprite in the canvas
       );
     });
+  }
+
+  translate(x: number, y: number) {
+    this.#context.setTransform(
+      1,
+      0,
+      0,
+      1,
+      Math.round(x * this.ratio),
+      Math.round(y * this.ratio)
+    );
   }
 }
 
