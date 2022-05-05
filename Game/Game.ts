@@ -27,7 +27,7 @@ class Game {
       this.#resizeCanvas();
       window.addEventListener('resize', () => this.#resizeCanvas());
 
-      this.#camera = new Camera(this.#scene.player, this.#renderer.ratio);
+      this.#camera = new Camera(this.#scene, this.#renderer.ratio);
 
       this.#eventHandler = new EventHandler();
 
