@@ -8,7 +8,7 @@ import TerrainTiles from './Entities/Terrains/TerrainTiles';
 class Scene {
   entities: Entity[] = [];
 
-  #player;
+  player;
 
   tilemap = {
     map: <Tilemap>Planet1,
@@ -16,8 +16,8 @@ class Scene {
   };
 
   constructor() {
-    this.#player = new Player((entity: Entity) => this.spawn(entity));
-    this.entities.push(this.#player);
+    this.player = new Player((entity: Entity) => this.spawn(entity));
+    this.entities.push(this.player);
   }
 
   animate() {
@@ -67,7 +67,7 @@ class Scene {
   }
 
   updatePlayer(keys: Keys) {
-    this.#player.update(keys);
+    this.player.update(keys);
   }
 
   spawn(entity: Entity) {
