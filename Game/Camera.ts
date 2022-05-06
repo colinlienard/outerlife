@@ -1,5 +1,7 @@
 import Scene from './Scene';
 
+const EASING = 0.08;
+
 class Camera {
   #mapHeight = 0;
 
@@ -11,6 +13,10 @@ class Camera {
 
   #viewPortY = 0;
 
+  #x = 0;
+
+  #y = 0;
+
   constructor(scene: Scene, ratio: number) {
     this.#player = scene.player;
 
@@ -21,39 +27,45 @@ class Camera {
   }
 
   getOffsetX(): number {
-    const x =
+    let target =
       (this.#viewPortX - this.#player.sprite.width) / 2 -
       this.#player.position.x;
 
     // No overflow on the left
-    if (x > 0) {
-      return 0;
+    if (target > 0) {
+      target = 0;
     }
 
     // No overflow on the right
-    if (x < -this.#mapWidth + this.#viewPortX) {
-      return -this.#mapWidth + this.#viewPortX;
+    else if (target < -this.#mapWidth + this.#viewPortX) {
+      target = -this.#mapWidth + this.#viewPortX;
     }
 
-    return x;
+    // Easing
+    this.#x += (target - this.#x) * EASING;
+
+    return this.#x;
   }
 
   getOffsetY(): number {
-    const y =
+    let target =
       (this.#viewPortY - this.#player.sprite.height) / 2 -
       this.#player.position.y;
 
     // No overflow on the top
-    if (y > 0) {
-      return 0;
+    if (target > 0) {
+      target = 0;
     }
 
     // No overflow on the bottom
-    if (y < -this.#mapHeight + this.#viewPortY) {
+    else if (target < -this.#mapHeight + this.#viewPortY) {
       return -this.#mapHeight + this.#viewPortY;
     }
 
-    return y;
+    // Easing
+    this.#y += (target - this.#y) * EASING;
+
+    return this.#y;
   }
 
   updateViewPort(ratio: number) {
