@@ -31,10 +31,7 @@ class Dust extends Entity {
 
   constructor(x: number, y: number) {
     super();
-    super.init();
-
-    this.position.x = x - this.sprite.width / 2;
-    this.position.y = y - this.sprite.height;
+    super.init(x, y);
   }
 }
 

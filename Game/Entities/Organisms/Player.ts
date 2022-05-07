@@ -42,7 +42,7 @@ class Player extends Entity {
     width: 32,
     height: 32,
 
-    behind: {
+    shadow: {
       x: 10,
       y: 30,
       width: 12,
@@ -56,7 +56,7 @@ class Player extends Entity {
 
   constructor(spawn: (entity: Entity) => void) {
     super();
-    super.init();
+    super.init(256, 256);
 
     this.animator.row = 1;
 
@@ -92,10 +92,7 @@ class Player extends Entity {
       (this.animator.column === 0 || this.animator.column === 4)
     ) {
       this.#spawn(
-        new Dust(
-          this.position.x + this.sprite.width / 2,
-          this.position.y + this.sprite.height
-        )
+        new Dust(this.position.x + 8, this.position.y + this.sprite.height - 8)
       );
     }
 

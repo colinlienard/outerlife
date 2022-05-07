@@ -30,11 +30,13 @@ class Entity {
     sourceX?: number;
     sourceY?: number;
 
-    behind?: EntityLayer;
-    over?: EntityLayer;
+    shadow?: EntityLayer;
   };
 
-  init() {
+  init(x: number, y: number) {
+    this.position.x = x - this.sprite.width / 2 + 8;
+    this.position.y = y - this.sprite.height + 8;
+
     this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
   }
 }

@@ -10,14 +10,24 @@ class Tree001 extends Entity {
     image: new Image(),
     source: 'environments-001',
     width: 64,
-    height: 96,
+    height: 79,
+
     sourceX: 0,
     sourceY: 0,
+
+    shadow: {
+      x: 8,
+      y: 68,
+      width: 34,
+      height: 15,
+      sourceX: 8,
+      sourceY: 81,
+    },
   };
 
-  constructor() {
+  constructor(x: number, y: number) {
     super();
-    super.init();
+    super.init(x, y);
   }
 }
 
