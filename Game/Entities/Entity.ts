@@ -1,11 +1,19 @@
 import { Animation, Direction, EntityLayer } from '../types';
 
 class Entity {
-  animations!: { [key: string]: Animation };
+  animations?: { [key: string]: Animation };
+
+  animator?: {
+    currentAnimation: Animation;
+    row: number;
+    column: number;
+    frameWaiter: number;
+  };
 
   position!: {
     x: number;
     y: number;
+
     direction?: Direction;
     speed?: number;
     maxSpeed?: number;
@@ -19,10 +27,8 @@ class Entity {
     width: number;
     height: number;
 
-    currentAnimation: Animation;
-    row: number;
-    column: number;
-    frameWaiter: number;
+    sourceX?: number;
+    sourceY?: number;
 
     behind?: EntityLayer;
     over?: EntityLayer;

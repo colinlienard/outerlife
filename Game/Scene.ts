@@ -22,26 +22,30 @@ class Scene {
 
   animate() {
     this.entities.forEach((entity) => {
-      const { sprite } = entity;
+      const { animator } = entity;
+      if (animator) {
+        // Execute the following every {specified number} frames per second
+        if (
+          animator.frameWaiter >=
+          60 / animator.currentAnimation.framesPerSecond
+        ) {
+          animator.frameWaiter = 0;
 
-      // Execute the following every {specified number} frames per second
-      if (sprite.frameWaiter >= 60 / sprite.currentAnimation.framesPerSecond) {
-        sprite.frameWaiter = 0;
+          // Move forward in the animation
+          if (animator.column < animator.currentAnimation.frameNumber - 1) {
+            animator.column += 1;
 
-        // Move forward in the animation
-        if (sprite.column < sprite.currentAnimation.frameNumber - 1) {
-          sprite.column += 1;
+            // Delete instance after its animation
+          } else if (animator.currentAnimation.once) {
+            delete this.entities[this.entities.indexOf(entity)];
 
-          // Delete instance after its animation
-        } else if (sprite.currentAnimation.once) {
-          delete this.entities[this.entities.indexOf(entity)];
-
-          // Reset animation
+            // Reset animation
+          } else {
+            animator.column = 0;
+          }
         } else {
-          sprite.column = 0;
+          animator.frameWaiter += 1;
         }
-      } else {
-        sprite.frameWaiter += 1;
       }
     });
   }
