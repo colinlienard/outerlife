@@ -1,6 +1,6 @@
 import Entity from '../Entity';
 
-class Tree001 extends Entity {
+class Crystal002 extends Entity {
   position = {
     x: 0,
     y: 0,
@@ -9,19 +9,19 @@ class Tree001 extends Entity {
   sprite = {
     image: new Image(),
     source: 'environments-001',
-    width: 64,
-    height: 80,
+    width: 32,
+    height: 32,
 
-    sourceX: 0,
-    sourceY: 0,
+    sourceX: 48,
+    sourceY: 112,
 
     shadow: {
       x: 0,
-      y: 68,
-      width: 64,
+      y: 22,
+      width: 32,
       height: 16,
-      sourceX: 0,
-      sourceY: 80,
+      sourceX: 48,
+      sourceY: 144,
     },
   };
 
@@ -31,4 +31,4 @@ class Tree001 extends Entity {
   }
 }
 
-export default Tree001;
+export default Crystal002;

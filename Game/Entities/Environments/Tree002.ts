@@ -1,6 +1,6 @@
 import Entity from '../Entity';
 
-class Tree001 extends Entity {
+class Tree002 extends Entity {
   position = {
     x: 0,
     y: 0,
@@ -10,18 +10,18 @@ class Tree001 extends Entity {
     image: new Image(),
     source: 'environments-001',
     width: 64,
-    height: 80,
+    height: 96,
 
-    sourceX: 0,
+    sourceX: 64,
     sourceY: 0,
 
     shadow: {
       x: 0,
-      y: 68,
+      y: 74,
       width: 64,
       height: 16,
-      sourceX: 0,
-      sourceY: 80,
+      sourceX: 64,
+      sourceY: 96,
     },
   };
 
@@ -31,4 +31,4 @@ class Tree001 extends Entity {
   }
 }
 
-export default Tree001;
+export default Tree002;
