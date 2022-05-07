@@ -29,7 +29,8 @@ type Keys = {
 type Tilemap = {
   rows: number;
   columns: number;
-  map: string[];
+  terrains: string[];
+  environments: string[];
 };
 
 export { Animation, Direction, EntityLayer, Keys, Tilemap };
