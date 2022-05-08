@@ -16,6 +16,13 @@ class Player extends Entity {
     },
   };
 
+  animator = {
+    currentAnimation: this.animations.idle,
+    row: 0,
+    column: 0,
+    frameWaiter: 0,
+  };
+
   position = {
     x: 0,
     y: 0,
@@ -35,12 +42,7 @@ class Player extends Entity {
     width: 32,
     height: 32,
 
-    currentAnimation: this.animations.idle,
-    row: 0,
-    column: 0,
-    frameWaiter: 0,
-
-    behind: {
+    shadow: {
       x: 10,
       y: 30,
       width: 12,
@@ -54,9 +56,9 @@ class Player extends Entity {
 
   constructor(spawn: (entity: Entity) => void) {
     super();
-    super.init();
+    super.init(256, 256);
 
-    this.sprite.row = 1;
+    this.animator.row = 1;
 
     this.#spawn = spawn;
   }
@@ -66,7 +68,7 @@ class Player extends Entity {
     const keyDown = Object.values(keys).reduce(
       (previous, current) => previous || current
     );
-    this.sprite.currentAnimation = keyDown
+    this.animator.currentAnimation = keyDown
       ? this.animations.run
       : this.animations.idle;
 
@@ -86,14 +88,11 @@ class Player extends Entity {
     // Spawn a dust when running
     if (
       keyDown &&
-      this.sprite.frameWaiter === 0 &&
-      (this.sprite.column === 0 || this.sprite.column === 4)
+      this.animator.frameWaiter === 0 &&
+      (this.animator.column === 0 || this.animator.column === 4)
     ) {
       this.#spawn(
-        new Dust(
-          this.position.x + this.sprite.width / 2,
-          this.position.y + this.sprite.height
-        )
+        new Dust(this.position.x + 8, this.position.y + this.sprite.height - 8)
       );
     }
 
@@ -106,19 +105,19 @@ class Player extends Entity {
     // Handle the direction of the player
     if (keys.up) {
       this.position.direction.y = 'up';
-      this.sprite.row = 0;
+      this.animator.row = 0;
     } else if (keys.down) {
       this.position.direction.y = 'down';
-      this.sprite.row = 1;
+      this.animator.row = 1;
     } else if (keyDown) {
       this.position.direction.y = null;
     }
     if (keys.left) {
       this.position.direction.x = 'left';
-      this.sprite.row = 2;
+      this.animator.row = 2;
     } else if (keys.right) {
       this.position.direction.x = 'right';
-      this.sprite.row = 3;
+      this.animator.row = 3;
     } else if (keyDown) {
       this.position.direction.x = null;
     }

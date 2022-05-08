@@ -10,6 +10,13 @@ class Dust extends Entity {
     },
   };
 
+  animator = {
+    currentAnimation: this.animations.poof,
+    row: 0,
+    column: 0,
+    frameWaiter: 0,
+  };
+
   position = {
     x: 0,
     y: 0,
@@ -20,20 +27,11 @@ class Dust extends Entity {
     source: 'dust',
     width: 7,
     height: 3,
-
-    currentAnimation: this.animations.poof,
-    row: 0,
-    column: 0,
-    frameWaiter: 0,
   };
 
   constructor(x: number, y: number) {
     super();
-
-    this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
-
-    this.position.x = x - this.sprite.width / 2;
-    this.position.y = y - this.sprite.height;
+    super.init(x, y);
   }
 }
 

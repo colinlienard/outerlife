@@ -20,8 +20,8 @@ class Camera {
   constructor(scene: Scene, ratio: number) {
     this.#player = scene.player;
 
-    this.#mapWidth = scene.tilemap.map.columns * 16;
-    this.#mapHeight = scene.tilemap.map.rows * 16;
+    this.#mapWidth = scene.tilemap.columns * 16;
+    this.#mapHeight = scene.tilemap.rows * 16;
 
     this.updateViewPort(ratio);
   }
@@ -59,7 +59,7 @@ class Camera {
 
     // No overflow on the bottom
     else if (target < -this.#mapHeight + this.#viewPortY) {
-      return -this.#mapHeight + this.#viewPortY;
+      target = -this.#mapHeight + this.#viewPortY;
     }
 
     // Easing
