@@ -1,13 +1,14 @@
-import Crystal001 from './Crystal001';
-import Crystal002 from './Crystal002';
-import Grass001 from './Grass001';
-import Grass002 from './Grass002';
-import Grass003 from './Grass003';
-import Tree001 from './Tree001';
-import Tree002 from './Tree002';
+import Crystal001 from './Planet-001/Crystal001';
+import Crystal002 from './Planet-001/Crystal002';
+import Environment from './Environment';
+import Grass001 from './Planet-001/Grass001';
+import Grass002 from './Planet-001/Grass002';
+import Grass003 from './Planet-001/Grass003';
+import Tree001 from './Planet-001/Tree001';
+import Tree002 from './Planet-001/Tree002';
 
 const EnvironmentTiles: {
-  [key: string]: typeof Tree001 | typeof Grass001;
+  [key: string]: typeof Environment;
 } = {
   '001': Tree001,
   '002': Tree002,

@@ -1,6 +1,6 @@
-import Entity from '../Entity';
+import Entity from '../../Entity';
 
-class Grass003 extends Entity {
+class Grass002 extends Entity {
   position = {
     x: 0,
     y: 0,
@@ -12,7 +12,7 @@ class Grass003 extends Entity {
     width: 16,
     height: 16,
 
-    sourceX: 32,
+    sourceX: 16,
     sourceY: 160,
   };
 
@@ -22,4 +22,4 @@ class Grass003 extends Entity {
   }
 }
 
-export default Grass003;
+export default Grass002;

@@ -1,4 +1,4 @@
-import Entity from '../Entity';
+import Entity from '../../Entity';
 
 class Grass001 extends Entity {
   position = {
