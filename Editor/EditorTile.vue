@@ -3,6 +3,7 @@ const { source, x, y, selected } = defineProps<{
   source: string;
   x: number;
   y: number;
+  size: number;
   selected: boolean;
 }>();
 </script>
@@ -34,8 +35,8 @@ const { source, x, y, selected } = defineProps<{
     max-width: unset;
     transform: scale(3) translate(33.33%, 33.33%);
     position: absolute;
-    top: calc(v-bind(y/16) * -48px);
-    left: calc(v-bind(x/16) * -48px);
+    top: calc(v-bind(y) / v-bind(size) * -48px);
+    left: calc(v-bind(x) / v-bind(size) * -48px);
   }
 }
 </style>

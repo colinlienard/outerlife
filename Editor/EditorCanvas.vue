@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Editor from './Editor';
 import EditorTile from './EditorTile.vue';
+import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
 import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
 
 const tileSize = 16;
@@ -10,7 +11,8 @@ const ratio = ref(5);
 
 const showGrid = ref(true);
 const mouseDown = ref(false);
-const selected = ref<string>('000');
+const selectedTile = ref<string>('000');
+const selectedType = ref<'terrain' | 'environment'>('terrain');
 const toolkitOpen = ref(true);
 const toolkitWidth = ref(350);
 const oldToolkitValue = ref(0);
@@ -67,7 +69,12 @@ const handlePlace = (event: MouseEvent) => {
   if (event.type === 'click' || mouseDown.value) {
     const column = Math.trunc(event.offsetX / tileSize / ratio.value);
     const row = Math.trunc(event.offsetY / tileSize / ratio.value);
-    editor.value?.placeTile(row, column, selected.value);
+    editor.value?.placeTile(
+      row,
+      column,
+      selectedType.value,
+      selectedTile.value
+    );
   }
 };
 </script>
@@ -148,8 +155,31 @@ const handlePlace = (event: MouseEvent) => {
               :source="terrain.source"
               :x="terrain.x"
               :y="terrain.y"
-              :selected="selected === tile"
-              @click="selected = (tile as string)"
+              :size="16"
+              :selected="selectedType === 'terrain' && selectedTile === tile"
+              @click="selectedTile = (tile as string); selectedType = 'terrain'"
+            />
+          </li>
+        </ul>
+        <ul class="wrapper tile-list">
+          <li
+            v-for="(environment, tile, index) in EnvironmentTiles"
+            :key="index"
+          >
+            <EditorTile
+              :source="new environment(0, 0).sprite.source"
+              :x="new environment(0, 0).sprite.sourceX || 0"
+              :y="new environment(0, 0).sprite.sourceY || 0"
+              :size="
+                new environment(0, 0).sprite.width >
+                new environment(0, 0).sprite.height
+                  ? new environment(0, 0).sprite.width
+                  : new environment(0, 0).sprite.height
+              "
+              :selected="
+                selectedType === 'environment' && selectedTile === tile
+              "
+              @click="selectedTile = (tile as string); selectedType = 'environment'"
             />
           </li>
         </ul>

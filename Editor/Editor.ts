@@ -1,3 +1,4 @@
+import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
 import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
 import { Tilemap } from '~~/Game/types';
 
@@ -6,12 +7,13 @@ class Editor {
 
   images: { [key: string]: HTMLImageElement } = {};
 
-  ratio: number = 0;
+  ratio = 0;
 
   tilemap: Tilemap = {
     rows: 0,
     columns: 0,
-    map: [],
+    terrains: [],
+    environments: [],
   };
 
   tileSize: number;
@@ -40,7 +42,7 @@ class Editor {
 
   changeMap(input: string) {
     const map = input.replaceAll("'", '"');
-    this.tilemap.map = JSON.parse(map);
+    this.tilemap.terrains = JSON.parse(map);
 
     this.clear();
     this.drawMap();
@@ -56,10 +58,13 @@ class Editor {
   }
 
   drawMap() {
+    // Draw terrain
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile =
-          TerrainTiles[this.tilemap.map[row * this.tilemap.columns + column]];
+          TerrainTiles[
+            this.tilemap.terrains[row * this.tilemap.columns + column]
+          ];
         if (tile) {
           this.context.drawImage(
             this.images[tile.source],
@@ -75,16 +80,67 @@ class Editor {
         }
       }
     }
+
+    // Draw environment
+    for (let row = 0; row < this.tilemap.rows; row += 1) {
+      for (let column = 0; column < this.tilemap.columns; column += 1) {
+        const Tile =
+          EnvironmentTiles[
+            this.tilemap.environments[row * this.tilemap.columns + column]
+          ];
+        if (Tile) {
+          const instance = new Tile(0, 0);
+          const { sprite } = instance;
+          const x = column * 16 - sprite.width / 2 + 8;
+          const y = row * 16 - sprite.height + 8;
+          if (sprite.shadow) {
+            const { shadow } = sprite;
+            this.context.drawImage(
+              sprite.image,
+              shadow.sourceX, // position x in the source image
+              shadow.sourceY, // position y in the source image
+              shadow.width, // width of the sprite in the source image
+              shadow.height, // height of the sprite in the source image
+              (x + shadow.x) * this.ratio, // position x in the canvas
+              (y + shadow.y) * this.ratio, // position y in the canvas
+              shadow.width * this.ratio, // width of the sprite in the canvas
+              shadow.height * this.ratio // height of the sprite in the canvas
+            );
+          }
+          this.context.drawImage(
+            sprite.image,
+            sprite.sourceX as number, // position x in the source image
+            sprite.sourceY as number, // position y in the source image
+            sprite.width, // width of the sprite in the source image
+            sprite.height, // height of the sprite in the source image
+            x * this.ratio, // position x in the canvas
+            y * this.ratio, // position y in the canvas
+            sprite.width * this.ratio, // width of the sprite in the canvas
+            sprite.height * this.ratio // height of the sprite in the canvas
+          );
+        }
+      }
+    }
   }
 
   fillWithVoid() {
     for (let i = 0; i < this.tilemap.rows * this.tilemap.columns; i += 1) {
-      this.tilemap.map.push('000');
+      this.tilemap.terrains.push('000');
+      this.tilemap.environments.push('000');
     }
   }
 
-  placeTile(row: number, column: number, tile: string) {
-    this.tilemap.map[row * this.tilemap.columns + column] = tile;
+  placeTile(
+    row: number,
+    column: number,
+    type: 'terrain' | 'environment',
+    tile: string
+  ) {
+    if (type === 'terrain') {
+      this.tilemap.terrains[row * this.tilemap.columns + column] = tile;
+    } else {
+      this.tilemap.environments[row * this.tilemap.columns + column] = tile;
+    }
 
     this.clear();
     this.drawMap();
@@ -102,11 +158,13 @@ class Editor {
     for (let row = 1; row < this.tilemap.rows + 1; row += 1) {
       // Add a column
       if (this.tilemap.columns < columns) {
-        this.tilemap.map.splice(row * columns - 1, 0, '000');
+        this.tilemap.terrains.splice(row * columns - 1, 0, '000');
+        this.tilemap.environments.splice(row * columns - 1, 0, '000');
 
         // Remove a column
       } else if (this.tilemap.columns > columns) {
-        this.tilemap.map.splice(row * columns, 1);
+        this.tilemap.terrains.splice(row * columns, 1);
+        this.tilemap.environments.splice(row * columns, 1);
       }
     }
     this.tilemap.rows = rows;
