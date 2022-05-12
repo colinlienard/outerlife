@@ -12,7 +12,7 @@ const ratio = ref(5);
 const showGrid = ref(true);
 const mouseDown = ref(false);
 const selectedTile = ref<string>('000');
-const selectedType = ref<'terrain' | 'environment'>('terrain');
+const selectedType = ref<'terrains' | 'environments'>('terrains');
 const toolkitOpen = ref(true);
 const toolkitWidth = ref(350);
 const oldToolkitValue = ref(0);
@@ -65,10 +65,19 @@ const handleInput = (event: Event) => {
   (event.target as HTMLInputElement).value = '';
 };
 
-const handlePlace = (event: MouseEvent) => {
-  if (event.type === 'click' || mouseDown.value) {
-    const column = Math.trunc(event.offsetX / tileSize / ratio.value);
-    const row = Math.trunc(event.offsetY / tileSize / ratio.value);
+const handleClick = (event: MouseEvent) => {
+  const column = Math.trunc(event.offsetX / tileSize / ratio.value);
+  const row = Math.trunc(event.offsetY / tileSize / ratio.value);
+
+  // Use tile picker
+  if (event.type === 'contextmenu') {
+    event.preventDefault();
+    selectedTile.value =
+      editor.value?.getTile(row, column, selectedType.value) || '000';
+  }
+
+  // Place tile
+  else if (event.type === 'click' || mouseDown.value) {
     editor.value?.placeTile(
       row,
       column,
@@ -89,10 +98,11 @@ const handlePlace = (event: MouseEvent) => {
         moz-opaque
         :width="columns * ratio * tileSize"
         :height="rows * ratio * tileSize"
-        @click="handlePlace"
+        @click="handleClick"
+        @contextmenu="handleClick"
         @mousedown="mouseDown = true"
         @mouseup="mouseDown = false"
-        v-on="mouseDown ? { mousemove: handlePlace } : {}"
+        v-on="mouseDown ? { mousemove: handleClick } : {}"
       ></canvas>
     </section>
     <section :class="['toolkit', { closed: !toolkitOpen }]">
@@ -156,8 +166,8 @@ const handlePlace = (event: MouseEvent) => {
               :x="terrain.x"
               :y="terrain.y"
               :size="16"
-              :selected="selectedType === 'terrain' && selectedTile === tile"
-              @click="selectedTile = (tile as string); selectedType = 'terrain'"
+              :selected="selectedType === 'terrains' && selectedTile === tile"
+              @click="selectedTile = (tile as string); selectedType = 'terrains'"
             />
           </li>
         </ul>
@@ -169,11 +179,11 @@ const handlePlace = (event: MouseEvent) => {
               :y="0"
               :size="16"
               :selected="
-                selectedType === 'environment' && selectedTile === '000'
+                selectedType === 'environments' && selectedTile === '000'
               "
               @click="
                 selectedTile = '000';
-                selectedType = 'environment';
+                selectedType = 'environments';
               "
             />
           </li>
@@ -192,9 +202,9 @@ const handlePlace = (event: MouseEvent) => {
                   : new environment(0, 0).sprite.height
               "
               :selected="
-                selectedType === 'environment' && selectedTile === tile
+                selectedType === 'environments' && selectedTile === tile
               "
-              @click="selectedTile = (tile as string); selectedType = 'environment'"
+              @click="selectedTile = (tile as string); selectedType = 'environments'"
             />
           </li>
         </ul>

@@ -135,17 +135,21 @@ class Editor {
     }
   }
 
+  getTile(
+    row: number,
+    column: number,
+    type: 'terrains' | 'environments'
+  ): string {
+    return this.tilemap[type][row * this.tilemap.columns + column];
+  }
+
   placeTile(
     row: number,
     column: number,
-    type: 'terrain' | 'environment',
+    type: 'terrains' | 'environments',
     tile: string
   ) {
-    if (type === 'terrain') {
-      this.tilemap.terrains[row * this.tilemap.columns + column] = tile;
-    } else {
-      this.tilemap.environments[row * this.tilemap.columns + column] = tile;
-    }
+    this.tilemap[type][row * this.tilemap.columns + column] = tile;
 
     this.clear();
     this.drawMap();
@@ -165,9 +169,10 @@ class Editor {
       if (this.tilemap.columns < columns) {
         this.tilemap.terrains.splice(row * columns - 1, 0, '000');
         this.tilemap.environments.splice(row * columns - 1, 0, '000');
+      }
 
-        // Remove a column
-      } else if (this.tilemap.columns > columns) {
+      // Remove a column
+      else if (this.tilemap.columns > columns) {
         this.tilemap.terrains.splice(row * columns, 1);
         this.tilemap.environments.splice(row * columns, 1);
       }
