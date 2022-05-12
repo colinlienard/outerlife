@@ -162,6 +162,21 @@ const handlePlace = (event: MouseEvent) => {
           </li>
         </ul>
         <ul class="wrapper tile-list">
+          <li>
+            <EditorTile
+              source="eraser"
+              :x="0"
+              :y="0"
+              :size="16"
+              :selected="
+                selectedType === 'environment' && selectedTile === '000'
+              "
+              @click="
+                selectedTile = '000';
+                selectedType = 'environment';
+              "
+            />
+          </li>
           <li
             v-for="(environment, tile, index) in EnvironmentTiles"
             :key="index"

@@ -57,31 +57,7 @@ class Editor {
     );
   }
 
-  drawMap() {
-    // Draw terrain
-    for (let row = 0; row < this.tilemap.rows; row += 1) {
-      for (let column = 0; column < this.tilemap.columns; column += 1) {
-        const tile =
-          TerrainTiles[
-            this.tilemap.terrains[row * this.tilemap.columns + column]
-          ];
-        if (tile) {
-          this.context.drawImage(
-            this.images[tile.source],
-            tile.x, // position x in the source image
-            tile.y, // position y in the source image
-            this.tileSize, // width of the sprite in the source image
-            this.tileSize, // height of the sprite in the source image
-            column * this.tileSize * this.ratio, // position x in the canvas
-            row * this.tileSize * this.ratio, // position y in the canvas
-            this.tileSize * this.ratio, // width of the sprite in the canvas
-            this.tileSize * this.ratio // height of the sprite in the canvas
-          );
-        }
-      }
-    }
-
-    // Draw environment
+  drawEnvironment() {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const Tile =
@@ -117,6 +93,35 @@ class Editor {
             y * this.ratio, // position y in the canvas
             sprite.width * this.ratio, // width of the sprite in the canvas
             sprite.height * this.ratio // height of the sprite in the canvas
+          );
+        }
+      }
+    }
+  }
+
+  drawMap() {
+    this.drawTerrain();
+    this.drawEnvironment();
+  }
+
+  drawTerrain() {
+    for (let row = 0; row < this.tilemap.rows; row += 1) {
+      for (let column = 0; column < this.tilemap.columns; column += 1) {
+        const tile =
+          TerrainTiles[
+            this.tilemap.terrains[row * this.tilemap.columns + column]
+          ];
+        if (tile) {
+          this.context.drawImage(
+            this.images[tile.source],
+            tile.x, // position x in the source image
+            tile.y, // position y in the source image
+            this.tileSize, // width of the sprite in the source image
+            this.tileSize, // height of the sprite in the source image
+            column * this.tileSize * this.ratio, // position x in the canvas
+            row * this.tileSize * this.ratio, // position y in the canvas
+            this.tileSize * this.ratio, // width of the sprite in the canvas
+            this.tileSize * this.ratio // height of the sprite in the canvas
           );
         }
       }
