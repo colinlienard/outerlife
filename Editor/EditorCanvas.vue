@@ -3,6 +3,7 @@ import Editor from './Editor';
 import EditorTile from './EditorTile.vue';
 import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
 import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
+import { Tilemap } from '~~/Game/types';
 
 const tileSize = 16;
 const rows = ref(10);
@@ -60,8 +61,27 @@ const handleDrag = (event: DragEvent) => {
   }
 };
 
-const handleInput = (event: Event) => {
-  editor.value?.changeMap((event.target as HTMLInputElement).value as string);
+const handleInput = async (event: Event) => {
+  const input = (event.target as HTMLInputElement).value
+    // Replace ' by "
+    .replaceAll("'", '"')
+    // Remove spaces
+    .replaceAll(' ', '')
+    // Remove trailing commas
+    .replaceAll(',}', '}')
+    .replaceAll(',]', ']')
+    // Add " around object keys
+    .replace(/([{,])(\s*)([A-Za-z0-9_-]+?)\s*:/g, '$1"$3":');
+
+  const map: Tilemap = JSON.parse(input);
+
+  rows.value = map.rows;
+  columns.value = map.columns;
+
+  setTimeout(() => {
+    editor.value?.changeMap(map);
+  }, 100);
+
   (event.target as HTMLInputElement).value = '';
 };
 
@@ -77,7 +97,7 @@ const handleClick = (event: MouseEvent) => {
   }
 
   // Place tile
-  else if (event.type === 'click' || mouseDown.value) {
+  else if (event.buttons !== 2) {
     editor.value?.placeTile(
       row,
       column,

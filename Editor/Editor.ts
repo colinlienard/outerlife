@@ -40,9 +40,9 @@ class Editor {
     this.images = images;
   }
 
-  changeMap(input: string) {
-    const map = input.replaceAll("'", '"');
-    this.tilemap.terrains = JSON.parse(map);
+  changeMap(map: Tilemap) {
+    this.tilemap.terrains = map.terrains;
+    this.tilemap.environments = map.environments;
 
     this.clear();
     this.drawMap();
