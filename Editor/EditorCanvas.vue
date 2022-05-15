@@ -191,6 +191,7 @@ const handleClick = (event: MouseEvent) => {
             />
           </li>
         </ul>
+        <hr class="separator" />
         <ul class="wrapper tile-list">
           <li>
             <EditorTile
@@ -216,7 +217,7 @@ const handleClick = (event: MouseEvent) => {
               :x="new environment(0, 0).sprite.sourceX || 0"
               :y="new environment(0, 0).sprite.sourceY || 0"
               :size="
-                new environment(0, 0).sprite.width >
+                new environment(0, 0).sprite.width <
                 new environment(0, 0).sprite.height
                   ? new environment(0, 0).sprite.width
                   : new environment(0, 0).sprite.height
@@ -368,7 +369,7 @@ const handleClick = (event: MouseEvent) => {
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
-    max-height: 16rem;
+    max-height: 12rem;
     overflow: auto;
   }
 

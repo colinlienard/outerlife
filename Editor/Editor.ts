@@ -69,37 +69,40 @@ class Editor {
           const { sprite } = instance;
           const x = column * 16 - sprite.width / 2 + 8;
           const y = row * 16 - sprite.height + 8;
-          if (sprite.shadow) {
-            const { shadow } = sprite;
+          sprite.image.onload = () => {
+            if (sprite.shadow) {
+              const { shadow } = sprite;
+              this.context.drawImage(
+                sprite.image,
+                shadow.sourceX, // position x in the source image
+                shadow.sourceY, // position y in the source image
+                shadow.width, // width of the sprite in the source image
+                shadow.height, // height of the sprite in the source image
+                (x + shadow.x) * this.ratio, // position x in the canvas
+                (y + shadow.y) * this.ratio, // position y in the canvas
+                shadow.width * this.ratio, // width of the sprite in the canvas
+                shadow.height * this.ratio // height of the sprite in the canvas
+              );
+            }
             this.context.drawImage(
               sprite.image,
-              shadow.sourceX, // position x in the source image
-              shadow.sourceY, // position y in the source image
-              shadow.width, // width of the sprite in the source image
-              shadow.height, // height of the sprite in the source image
-              (x + shadow.x) * this.ratio, // position x in the canvas
-              (y + shadow.y) * this.ratio, // position y in the canvas
-              shadow.width * this.ratio, // width of the sprite in the canvas
-              shadow.height * this.ratio // height of the sprite in the canvas
+              sprite.sourceX as number, // position x in the source image
+              sprite.sourceY as number, // position y in the source image
+              sprite.width, // width of the sprite in the source image
+              sprite.height, // height of the sprite in the source image
+              x * this.ratio, // position x in the canvas
+              y * this.ratio, // position y in the canvas
+              sprite.width * this.ratio, // width of the sprite in the canvas
+              sprite.height * this.ratio // height of the sprite in the canvas
             );
-          }
-          this.context.drawImage(
-            sprite.image,
-            sprite.sourceX as number, // position x in the source image
-            sprite.sourceY as number, // position y in the source image
-            sprite.width, // width of the sprite in the source image
-            sprite.height, // height of the sprite in the source image
-            x * this.ratio, // position x in the canvas
-            y * this.ratio, // position y in the canvas
-            sprite.width * this.ratio, // width of the sprite in the canvas
-            sprite.height * this.ratio // height of the sprite in the canvas
-          );
+          };
         }
       }
     }
   }
 
   drawMap() {
+    this.clear();
     this.drawTerrain();
     this.drawEnvironment();
   }
