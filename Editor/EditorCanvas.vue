@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import Editor from './Editor';
 import EditorTile from './EditorTile.vue';
+import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
 import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
+import { Tilemap } from '~~/Game/types';
 
 const tileSize = 16;
 const rows = ref(10);
@@ -10,7 +12,8 @@ const ratio = ref(5);
 
 const showGrid = ref(true);
 const mouseDown = ref(false);
-const selected = ref<string>('000');
+const selectedTile = ref<string>('000');
+const selectedType = ref<'terrains' | 'environments'>('terrains');
 const toolkitOpen = ref(true);
 const toolkitWidth = ref(350);
 const oldToolkitValue = ref(0);
@@ -58,16 +61,49 @@ const handleDrag = (event: DragEvent) => {
   }
 };
 
-const handleInput = (event: Event) => {
-  editor.value?.changeMap((event.target as HTMLInputElement).value as string);
+const handleInput = async (event: Event) => {
+  const input = (event.target as HTMLInputElement).value
+    // Replace ' by "
+    .replaceAll("'", '"')
+    // Remove spaces
+    .replaceAll(' ', '')
+    // Remove trailing commas
+    .replaceAll(',}', '}')
+    .replaceAll(',]', ']')
+    // Add " around object keys
+    .replace(/([{,])(\s*)([A-Za-z0-9_-]+?)\s*:/g, '$1"$3":');
+
+  const map: Tilemap = JSON.parse(input);
+
+  rows.value = map.rows;
+  columns.value = map.columns;
+
+  setTimeout(() => {
+    editor.value?.changeMap(map);
+  }, 100);
+
   (event.target as HTMLInputElement).value = '';
 };
 
-const handlePlace = (event: MouseEvent) => {
-  if (event.type === 'click' || mouseDown.value) {
-    const column = Math.trunc(event.offsetX / tileSize / ratio.value);
-    const row = Math.trunc(event.offsetY / tileSize / ratio.value);
-    editor.value?.placeTile(row, column, selected.value);
+const handleClick = (event: MouseEvent) => {
+  const column = Math.trunc(event.offsetX / tileSize / ratio.value);
+  const row = Math.trunc(event.offsetY / tileSize / ratio.value);
+
+  // Use tile picker
+  if (event.type === 'contextmenu') {
+    event.preventDefault();
+    selectedTile.value =
+      editor.value?.getTile(row, column, selectedType.value) || '000';
+  }
+
+  // Place tile
+  else if (event.buttons !== 2) {
+    editor.value?.placeTile(
+      row,
+      column,
+      selectedType.value,
+      selectedTile.value
+    );
   }
 };
 </script>
@@ -82,10 +118,11 @@ const handlePlace = (event: MouseEvent) => {
         moz-opaque
         :width="columns * ratio * tileSize"
         :height="rows * ratio * tileSize"
-        @click="handlePlace"
+        @click="handleClick"
+        @contextmenu="handleClick"
         @mousedown="mouseDown = true"
         @mouseup="mouseDown = false"
-        v-on="mouseDown ? { mousemove: handlePlace } : {}"
+        v-on="mouseDown ? { mousemove: handleClick } : {}"
       ></canvas>
     </section>
     <section :class="['toolkit', { closed: !toolkitOpen }]">
@@ -148,8 +185,47 @@ const handlePlace = (event: MouseEvent) => {
               :source="terrain.source"
               :x="terrain.x"
               :y="terrain.y"
-              :selected="selected === tile"
-              @click="selected = (tile as string)"
+              :size="16"
+              :selected="selectedType === 'terrains' && selectedTile === tile"
+              @click="selectedTile = (tile as string); selectedType = 'terrains'"
+            />
+          </li>
+        </ul>
+        <hr class="separator" />
+        <ul class="wrapper tile-list">
+          <li>
+            <EditorTile
+              source="eraser"
+              :x="0"
+              :y="0"
+              :size="16"
+              :selected="
+                selectedType === 'environments' && selectedTile === '000'
+              "
+              @click="
+                selectedTile = '000';
+                selectedType = 'environments';
+              "
+            />
+          </li>
+          <li
+            v-for="(environment, tile, index) in EnvironmentTiles"
+            :key="index"
+          >
+            <EditorTile
+              :source="new environment(0, 0).sprite.source"
+              :x="new environment(0, 0).sprite.sourceX || 0"
+              :y="new environment(0, 0).sprite.sourceY || 0"
+              :size="
+                new environment(0, 0).sprite.width <
+                new environment(0, 0).sprite.height
+                  ? new environment(0, 0).sprite.width
+                  : new environment(0, 0).sprite.height
+              "
+              :selected="
+                selectedType === 'environments' && selectedTile === tile
+              "
+              @click="selectedTile = (tile as string); selectedType = 'environments'"
             />
           </li>
         </ul>
@@ -293,7 +369,7 @@ const handlePlace = (event: MouseEvent) => {
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
-    max-height: 16rem;
+    max-height: 12rem;
     overflow: auto;
   }
 
