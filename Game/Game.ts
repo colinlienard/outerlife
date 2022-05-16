@@ -54,7 +54,7 @@ class Game {
       this.#camera?.getOffsetY() as number
     );
     this.#renderer?.clear();
-    this.#renderer?.render();
+    this.#renderer?.render({ colliders: true });
 
     window.requestAnimationFrame(() => this.#loop());
   }

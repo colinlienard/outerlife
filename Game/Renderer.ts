@@ -1,6 +1,7 @@
 import Entity from './Entities/Entity';
 import Terrain from './Entities/Terrains/Terrain';
 import Scene from './Scene';
+import { Collider } from './types';
 
 class Renderer {
   #context: CanvasRenderingContext2D;
@@ -25,10 +26,43 @@ class Renderer {
     this.#context.imageSmoothingEnabled = false;
   }
 
-  render() {
+  render(options: { colliders: boolean }) {
     this.#renderTerrains(this.#scene.terrains, 16);
     this.#renderShadows(this.#scene.entities);
     this.#renderEntities(this.#scene.entities);
+
+    if (options.colliders) {
+      this.#renderColliders(this.#scene.colliders, this.#scene.organisms);
+    }
+  }
+
+  #renderColliders(colliders: Collider[], organisms: Entity[]) {
+    // Render environments colliders
+    this.#context.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    colliders.forEach((collider) => {
+      this.#context.fillRect(
+        collider.x * this.ratio,
+        collider.y * this.ratio,
+        collider.width * this.ratio,
+        collider.height * this.ratio
+      );
+    });
+
+    // Render organisms colliders
+    this.#context.fillStyle = 'rgba(0, 255, 0, 0.5)';
+    organisms.forEach((organism) => {
+      const { collider } = organism;
+      if (collider) {
+        this.#context.fillRect(
+          (organism.position.x + collider.x) * this.ratio,
+          (organism.position.y + collider.y) * this.ratio,
+          collider.width * this.ratio,
+          collider.height * this.ratio
+        );
+      }
+    });
+
+    this.#context.fillStyle = 'transparent';
   }
 
   #renderEntities(entities: Entity[]) {
