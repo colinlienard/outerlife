@@ -1,6 +1,13 @@
 import Entity from '../../Entity';
 
 class Tree001 extends Entity {
+  collider = {
+    x: 20,
+    y: 65,
+    width: 14,
+    height: 15,
+  };
+
   position = {
     x: 0,
     y: 0,
