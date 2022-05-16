@@ -3,9 +3,9 @@ import Entity from '../../Entity';
 class Tree001 extends Entity {
   collider = {
     x: 20,
-    y: 65,
+    y: 68,
     width: 14,
-    height: 15,
+    height: 12,
   };
 
   position = {

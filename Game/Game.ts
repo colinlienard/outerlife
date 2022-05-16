@@ -46,6 +46,7 @@ class Game {
 
   #loop() {
     this.#scene?.updatePlayer(this.#eventHandler?.keys as Keys);
+    this.#scene?.performCollisions();
     this.#scene?.animate();
     this.#scene?.ySort();
 
@@ -54,7 +55,7 @@ class Game {
       this.#camera?.getOffsetY() as number
     );
     this.#renderer?.clear();
-    this.#renderer?.render({ colliders: true });
+    this.#renderer?.render({ colliders: false });
 
     window.requestAnimationFrame(() => this.#loop());
   }
