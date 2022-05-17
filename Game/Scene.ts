@@ -64,6 +64,7 @@ class Scene {
 
         // Build terrain
         const terrain = TerrainTiles[this.tilemap.terrains[tile]];
+
         this.terrains.push(
           new Terrain(
             column * tileSize,
@@ -73,6 +74,16 @@ class Scene {
             terrain.y
           )
         );
+
+        if (terrain.collider) {
+          const { x, y, width, height } = terrain.collider;
+          this.colliders.push({
+            x: x + column * tileSize,
+            y: y + row * tileSize,
+            width,
+            height,
+          });
+        }
 
         // Build environment
         const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
