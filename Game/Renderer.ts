@@ -1,5 +1,6 @@
 import Entity from './Entities/Entity';
 import Terrain from './Entities/Terrains/Terrain';
+import { TILE_SIZE } from './globals';
 import Scene from './Scene';
 import { Collider } from './types';
 
@@ -27,7 +28,7 @@ class Renderer {
   }
 
   render(options: { colliders: boolean }) {
-    this.#renderTerrains(this.#scene.terrains, 16);
+    this.#renderTerrains(this.#scene.terrains);
     this.#renderShadows(this.#scene.entities);
     this.#renderEntities(this.#scene.entities);
 
@@ -121,19 +122,19 @@ class Renderer {
     });
   }
 
-  #renderTerrains(terrains: Terrain[], tileSize: number) {
+  #renderTerrains(terrains: Terrain[]) {
     terrains.forEach((terrain) => {
       const { position, sprite } = terrain;
       this.#context.drawImage(
         sprite.image,
         sprite.x, // position x in the source image
         sprite.y, // position y in the source image
-        tileSize, // width of the sprite in the source image
-        tileSize, // height of the sprite in the source image
+        TILE_SIZE, // width of the sprite in the source image
+        TILE_SIZE, // height of the sprite in the source image
         position.x * this.ratio, // position x in the canvas
         position.y * this.ratio, // position y in the canvas
-        tileSize * this.ratio, // width of the sprite in the canvas
-        tileSize * this.ratio // height of the sprite in the canvas
+        TILE_SIZE * this.ratio, // width of the sprite in the canvas
+        TILE_SIZE * this.ratio // height of the sprite in the canvas
       );
     });
   }

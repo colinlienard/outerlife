@@ -1,3 +1,4 @@
+import { TILE_SIZE } from './globals';
 import Scene from './Scene';
 
 const EASING = 0.08;
@@ -20,8 +21,8 @@ class Camera {
   constructor(scene: Scene, ratio: number) {
     this.#player = scene.player;
 
-    this.#mapWidth = scene.tilemap.columns * 16;
-    this.#mapHeight = scene.tilemap.rows * 16;
+    this.#mapWidth = scene.tilemap.columns * TILE_SIZE;
+    this.#mapHeight = scene.tilemap.rows * TILE_SIZE;
 
     this.updateViewPort(ratio);
   }

@@ -20,7 +20,7 @@ class Game {
     const context = canvas.getContext('2d');
     if (context) {
       this.#scene = new Scene();
-      this.#scene.buildMap(16);
+      this.#scene.buildMap();
 
       this.#renderer = new Renderer(context, this.#scene);
 

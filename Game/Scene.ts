@@ -5,6 +5,7 @@ import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
 import { Collider, Keys, Tilemap } from './types';
+import { TILE_SIZE } from './globals';
 
 class Scene {
   colliders: Collider[] = [];
@@ -57,7 +58,7 @@ class Scene {
     });
   }
 
-  buildMap(tileSize: number) {
+  buildMap() {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile = row * this.tilemap.columns + column;
@@ -67,8 +68,8 @@ class Scene {
 
         this.terrains.push(
           new Terrain(
-            column * tileSize,
-            row * tileSize,
+            column * TILE_SIZE,
+            row * TILE_SIZE,
             terrain.source,
             terrain.x,
             terrain.y
@@ -78,8 +79,8 @@ class Scene {
         if (terrain.collider) {
           const { x, y, width, height } = terrain.collider;
           this.colliders.push({
-            x: x + column * tileSize,
-            y: y + row * tileSize,
+            x: x + column * TILE_SIZE,
+            y: y + row * TILE_SIZE,
             width,
             height,
           });
@@ -88,7 +89,10 @@ class Scene {
         // Build environment
         const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
         if (Environment) {
-          const environment = new Environment(column * 16, row * 16);
+          const environment = new Environment(
+            column * TILE_SIZE,
+            row * TILE_SIZE
+          );
 
           this.entities.push(environment);
 
