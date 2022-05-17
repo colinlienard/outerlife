@@ -1,5 +1,7 @@
+import { Collider } from '~~/Game/types';
+
 const TerrainTiles: {
-  [key: string]: { source: string; x: number; y: number };
+  [key: string]: { source: string; x: number; y: number; collider?: Collider };
 } = {
   '001': {
     source: 'terrain-001',
@@ -125,31 +127,67 @@ const TerrainTiles: {
     source: 'terrain-001',
     x: 96,
     y: 0,
+    collider: {
+      x: 8,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '026': {
     source: 'terrain-001',
     x: 112,
     y: 0,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '027': {
     source: 'terrain-001',
     x: 128,
     y: 0,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '028': {
     source: 'terrain-001',
     x: 144,
     y: 0,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '0285': {
     source: 'terrain-001',
     x: 160,
     y: 0,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '029': {
     source: 'terrain-001',
     x: 96,
     y: 16,
+    collider: {
+      x: 8,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '030': {
     source: 'terrain-001',
@@ -160,21 +198,45 @@ const TerrainTiles: {
     source: 'terrain-001',
     x: 128,
     y: 16,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '032': {
     source: 'terrain-001',
     x: 144,
     y: 16,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '0325': {
     source: 'terrain-001',
     x: 160,
     y: 16,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '033': {
     source: 'terrain-001',
     x: 96,
     y: 32,
+    collider: {
+      x: 8,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '034': {
     source: 'terrain-001',
@@ -195,66 +257,144 @@ const TerrainTiles: {
     source: 'terrain-001',
     x: 160,
     y: 32,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '037': {
     source: 'terrain-001',
     x: 96,
     y: 48,
+    collider: {
+      x: 8,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '038': {
     source: 'terrain-001',
     x: 112,
     y: 48,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '039': {
     source: 'terrain-001',
     x: 128,
     y: 48,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '040': {
     source: 'terrain-001',
     x: 144,
     y: 48,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 16,
+      height: 16,
+    },
   },
   '0405': {
     source: 'terrain-001',
     x: 160,
     y: 48,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '041': {
     source: 'terrain-001',
     x: 96,
     y: 80,
+    collider: {
+      x: 8,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
   '042': {
     source: 'terrain-001',
     x: 96,
     y: 64,
+    collider: {
+      x: 8,
+      y: 8,
+      width: 8,
+      height: 8,
+    },
   },
   '043': {
     source: 'terrain-001',
     x: 112,
     y: 64,
+    collider: {
+      x: 0,
+      y: 8,
+      width: 16,
+      height: 8,
+    },
   },
   '044': {
     source: 'terrain-001',
     x: 128,
     y: 64,
+    collider: {
+      x: 4,
+      y: 4,
+      width: 12,
+      height: 12,
+    },
   },
   '045': {
     source: 'terrain-001',
     x: 144,
     y: 64,
+    collider: {
+      x: 0,
+      y: 4,
+      width: 12,
+      height: 12,
+    },
   },
   '046': {
     source: 'terrain-001',
     x: 160,
     y: 64,
+    collider: {
+      x: 0,
+      y: 8,
+      width: 8,
+      height: 8,
+    },
   },
   '0465': {
     source: 'terrain-001',
     x: 160,
     y: 80,
+    collider: {
+      x: 0,
+      y: 0,
+      width: 8,
+      height: 16,
+    },
   },
 };
 

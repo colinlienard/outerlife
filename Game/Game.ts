@@ -20,7 +20,7 @@ class Game {
     const context = canvas.getContext('2d');
     if (context) {
       this.#scene = new Scene();
-      this.#scene.buildMap(16);
+      this.#scene.buildMap();
 
       this.#renderer = new Renderer(context, this.#scene);
 
@@ -46,6 +46,7 @@ class Game {
 
   #loop() {
     this.#scene?.updatePlayer(this.#eventHandler?.keys as Keys);
+    this.#scene?.performCollisions();
     this.#scene?.animate();
     this.#scene?.ySort();
 
@@ -54,7 +55,7 @@ class Game {
       this.#camera?.getOffsetY() as number
     );
     this.#renderer?.clear();
-    this.#renderer?.render();
+    this.#renderer?.render({ colliders: false });
 
     window.requestAnimationFrame(() => this.#loop());
   }

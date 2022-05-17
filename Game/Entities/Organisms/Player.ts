@@ -23,6 +23,13 @@ class Player extends Entity {
     frameWaiter: 0,
   };
 
+  collider = {
+    x: 10,
+    y: 26,
+    width: 12,
+    height: 8,
+  };
+
   position = {
     x: 0,
     y: 0,

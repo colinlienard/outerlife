@@ -1,5 +1,6 @@
 import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
 import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
+import { TILE_SIZE } from '~~/Game/globals';
 import { Tilemap } from '~~/Game/types';
 
 class Editor {
@@ -16,12 +17,8 @@ class Editor {
     environments: [],
   };
 
-  tileSize: number;
-
-  constructor(canvas: HTMLCanvasElement, tileSize: number) {
+  constructor(canvas: HTMLCanvasElement) {
     this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-    this.tileSize = tileSize;
   }
 
   bindImages() {
@@ -52,8 +49,8 @@ class Editor {
     this.context.clearRect(
       0,
       0,
-      this.tilemap.columns * this.tileSize * this.ratio,
-      this.tilemap.rows * this.tileSize * this.ratio
+      this.tilemap.columns * TILE_SIZE * this.ratio,
+      this.tilemap.rows * TILE_SIZE * this.ratio
     );
   }
 
@@ -67,8 +64,8 @@ class Editor {
         if (Tile) {
           const instance = new Tile(0, 0);
           const { sprite } = instance;
-          const x = column * 16 - sprite.width / 2 + 8;
-          const y = row * 16 - sprite.height + 8;
+          const x = column * TILE_SIZE - sprite.width / 2 + 8;
+          const y = row * TILE_SIZE - sprite.height + 8;
           sprite.image.onload = () => {
             if (sprite.shadow) {
               const { shadow } = sprite;
@@ -119,12 +116,12 @@ class Editor {
             this.images[tile.source],
             tile.x, // position x in the source image
             tile.y, // position y in the source image
-            this.tileSize, // width of the sprite in the source image
-            this.tileSize, // height of the sprite in the source image
-            column * this.tileSize * this.ratio, // position x in the canvas
-            row * this.tileSize * this.ratio, // position y in the canvas
-            this.tileSize * this.ratio, // width of the sprite in the canvas
-            this.tileSize * this.ratio // height of the sprite in the canvas
+            TILE_SIZE, // width of the sprite in the source image
+            TILE_SIZE, // height of the sprite in the source image
+            column * TILE_SIZE * this.ratio, // position x in the canvas
+            row * TILE_SIZE * this.ratio, // position y in the canvas
+            TILE_SIZE * this.ratio, // width of the sprite in the canvas
+            TILE_SIZE * this.ratio // height of the sprite in the canvas
           );
         }
       }

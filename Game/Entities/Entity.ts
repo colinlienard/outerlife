@@ -1,4 +1,4 @@
-import { Animation, Direction, EntityLayer } from '../types';
+import { Animation, Collider, Direction, EntityLayer } from '../types';
 
 class Entity {
   animations?: { [key: string]: Animation };
@@ -9,6 +9,8 @@ class Entity {
     column: number;
     frameWaiter: number;
   };
+
+  collider!: Collider;
 
   position!: {
     x: number;

@@ -5,6 +5,13 @@ type Animation = {
   once?: boolean;
 };
 
+type Collider = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type Direction = {
   x: null | 'left' | 'right';
   y: null | 'up' | 'down';
@@ -33,4 +40,4 @@ type Tilemap = {
   environments: string[];
 };
 
-export { Animation, Direction, EntityLayer, Keys, Tilemap };
+export { Animation, Collider, Direction, EntityLayer, Keys, Tilemap };

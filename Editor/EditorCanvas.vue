@@ -23,7 +23,7 @@ const editor = ref<Editor>();
 
 onMounted(() => {
   if (canvas.value) {
-    editor.value = new Editor(canvas.value, tileSize);
+    editor.value = new Editor(canvas.value);
     editor.value.updateSize(rows.value, columns.value, ratio.value);
     editor.value.fillWithVoid();
     editor.value.bindImages();

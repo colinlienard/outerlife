@@ -1,6 +1,13 @@
 import Entity from '../../Entity';
 
 class Crystal002 extends Entity {
+  collider = {
+    x: 4,
+    y: 22,
+    width: 26,
+    height: 10,
+  };
+
   position = {
     x: 0,
     y: 0,

@@ -4,10 +4,16 @@ import Planet1 from './Tilemaps/Planet';
 import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
-import { Keys, Tilemap } from './types';
+import { Collider, Keys, Tilemap } from './types';
+import { TILE_SIZE } from './globals';
+import getDistance from './utils/getDistance';
 
 class Scene {
-  entities: Entity[] = [];
+  colliders: Collider[] = [];
+
+  entities: Entity[] = []; // Environments + organisms
+
+  organisms: Entity[] = [];
 
   player;
 
@@ -18,6 +24,7 @@ class Scene {
   constructor() {
     this.player = new Player((entity: Entity) => this.spawn(entity));
     this.entities.push(this.player);
+    this.organisms.push(this.player);
   }
 
   animate() {
@@ -52,7 +59,7 @@ class Scene {
     });
   }
 
-  buildMap(tileSize: number) {
+  buildMap() {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile = row * this.tilemap.columns + column;
@@ -61,21 +68,87 @@ class Scene {
         const terrain = TerrainTiles[this.tilemap.terrains[tile]];
         this.terrains.push(
           new Terrain(
-            column * tileSize,
-            row * tileSize,
+            column * TILE_SIZE,
+            row * TILE_SIZE,
             terrain.source,
             terrain.x,
             terrain.y
           )
         );
+        if (terrain.collider) {
+          const { x, y, width, height } = terrain.collider;
+          this.colliders.push({
+            x: x + column * TILE_SIZE,
+            y: y + row * TILE_SIZE,
+            width,
+            height,
+          });
+        }
 
         // Build environment
         const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
         if (Environment) {
-          this.entities.push(new Environment(column * 16, row * 16));
+          const environment = new Environment(
+            column * TILE_SIZE,
+            row * TILE_SIZE
+          );
+          this.entities.push(environment);
+          if (environment.collider) {
+            this.colliders.push({
+              x: environment.position.x + environment.collider.x,
+              y: environment.position.y + environment.collider.y,
+              width: environment.collider.width,
+              height: environment.collider.height,
+            });
+          }
         }
       }
     }
+  }
+
+  performCollisions() {
+    this.organisms.forEach((organism) => {
+      this.colliders.forEach((collider) => {
+        // Perform collisions only on colliders close to the organism
+        if (
+          getDistance(
+            organism.position.x,
+            organism.position.y,
+            collider.x,
+            collider.y
+          ) < 48
+        ) {
+          // Distances between centers
+          const distanceX =
+            organism.position.x +
+            organism.collider.x +
+            organism.collider.width / 2 -
+            (collider.x + collider.width / 2);
+          const distanceY =
+            organism.position.y +
+            organism.collider.y +
+            organism.collider.height / 2 -
+            (collider.y + collider.height / 2);
+
+          // Minimal distance between centers
+          const widthX = organism.collider.width / 2 + collider.width / 2;
+          const widthY = organism.collider.height / 2 + collider.height / 2;
+
+          // Check if there is a collision
+          if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
+            const overlapX = widthX - Math.abs(distanceX);
+            const overlapY = widthY - Math.abs(distanceY);
+
+            // Remove overlap
+            if (overlapX < overlapY) {
+              organism.position.x += distanceX > 0 ? overlapX : -overlapX;
+              return;
+            }
+            organism.position.y += distanceY > 0 ? overlapY : -overlapY;
+          }
+        }
+      });
+    });
   }
 
   updatePlayer(keys: Keys) {
