@@ -6,6 +6,7 @@ import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
 import { Collider, Keys, Tilemap } from './types';
 import { TILE_SIZE } from './globals';
+import getDistance from './utils/getDistance';
 
 class Scene {
   colliders: Collider[] = [];
@@ -65,7 +66,6 @@ class Scene {
 
         // Build terrain
         const terrain = TerrainTiles[this.tilemap.terrains[tile]];
-
         this.terrains.push(
           new Terrain(
             column * TILE_SIZE,
@@ -75,7 +75,6 @@ class Scene {
             terrain.y
           )
         );
-
         if (terrain.collider) {
           const { x, y, width, height } = terrain.collider;
           this.colliders.push({
@@ -93,9 +92,7 @@ class Scene {
             column * TILE_SIZE,
             row * TILE_SIZE
           );
-
           this.entities.push(environment);
-
           if (environment.collider) {
             this.colliders.push({
               x: environment.position.x + environment.collider.x,
@@ -112,33 +109,43 @@ class Scene {
   performCollisions() {
     this.organisms.forEach((organism) => {
       this.colliders.forEach((collider) => {
-        // Distances between centers
-        const distanceX =
-          organism.position.x +
-          organism.collider.x +
-          organism.collider.width / 2 -
-          (collider.x + collider.width / 2);
-        const distanceY =
-          organism.position.y +
-          organism.collider.y +
-          organism.collider.height / 2 -
-          (collider.y + collider.height / 2);
+        // Perform collisions only on colliders close to the organism
+        if (
+          getDistance(
+            organism.position.x,
+            organism.position.y,
+            collider.x,
+            collider.y
+          ) < 48
+        ) {
+          // Distances between centers
+          const distanceX =
+            organism.position.x +
+            organism.collider.x +
+            organism.collider.width / 2 -
+            (collider.x + collider.width / 2);
+          const distanceY =
+            organism.position.y +
+            organism.collider.y +
+            organism.collider.height / 2 -
+            (collider.y + collider.height / 2);
 
-        // Minimal distance between centers
-        const widthX = organism.collider.width / 2 + collider.width / 2;
-        const widthY = organism.collider.height / 2 + collider.height / 2;
+          // Minimal distance between centers
+          const widthX = organism.collider.width / 2 + collider.width / 2;
+          const widthY = organism.collider.height / 2 + collider.height / 2;
 
-        // If there is a collision
-        if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
-          const overlapX = widthX - Math.abs(distanceX);
-          const overlapY = widthY - Math.abs(distanceY);
+          // Check if there is a collision
+          if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
+            const overlapX = widthX - Math.abs(distanceX);
+            const overlapY = widthY - Math.abs(distanceY);
 
-          // Remove overlap
-          if (overlapX < overlapY) {
-            organism.position.x += distanceX > 0 ? overlapX : -overlapX;
-            return;
+            // Remove overlap
+            if (overlapX < overlapY) {
+              organism.position.x += distanceX > 0 ? overlapX : -overlapX;
+              return;
+            }
+            organism.position.y += distanceY > 0 ? overlapY : -overlapY;
           }
-          organism.position.y += distanceY > 0 ? overlapY : -overlapY;
         }
       });
     });
