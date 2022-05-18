@@ -4,7 +4,7 @@ import Planet1 from './Tilemaps/Planet';
 import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
-import { Collider, Keys, Tilemap } from './types';
+import { Collider, Interaction, Keys, Tilemap } from './types';
 import { TILE_SIZE } from './globals';
 import getDistance from './utils/getDistance';
 
@@ -12,6 +12,8 @@ class Scene {
   colliders: Collider[] = [];
 
   entities: Entity[] = []; // Environments + organisms
+
+  interactions: Interaction[] = [];
 
   organisms: Entity[] = [];
 
@@ -104,6 +106,9 @@ class Scene {
         }
       }
     }
+
+    // Build interactions
+    this.interactions = this.tilemap.interactions;
   }
 
   performCollisions() {
@@ -153,6 +158,25 @@ class Scene {
 
   updatePlayer(keys: Keys) {
     this.player.update(keys);
+
+    // Check interactions
+    const { collider, position } = this.player;
+    this.interactions.forEach((interaction) => {
+      if (
+        position.x + collider.x + collider.width > interaction.x &&
+        position.x + collider.x < interaction.x + interaction.width &&
+        position.y + collider.y + collider.height > interaction.y &&
+        position.y + collider.y < interaction.y + interaction.height
+      ) {
+        if (!interaction.entered) {
+          interaction.entered = true;
+          interaction.enter();
+        }
+      } else if (interaction.entered) {
+        interaction.entered = false;
+        interaction.leave();
+      }
+    });
   }
 
   spawn(entity: Entity) {

@@ -26,6 +26,16 @@ type EntityLayer = {
   sourceY: number;
 };
 
+type Interaction = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  entered?: boolean;
+  enter: () => void;
+  leave: () => void;
+};
+
 type Keys = {
   up: boolean;
   down: boolean;
@@ -38,6 +48,15 @@ type Tilemap = {
   columns: number;
   terrains: string[];
   environments: string[];
+  interactions: Interaction[];
 };
 
-export { Animation, Collider, Direction, EntityLayer, Keys, Tilemap };
+export {
+  Animation,
+  Collider,
+  Direction,
+  EntityLayer,
+  Keys,
+  Interaction,
+  Tilemap,
+};
