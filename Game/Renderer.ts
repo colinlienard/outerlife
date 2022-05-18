@@ -2,7 +2,7 @@ import Entity from './Entities/Entity';
 import Terrain from './Entities/Terrains/Terrain';
 import { TILE_SIZE } from './globals';
 import Scene from './Scene';
-import { Collider } from './types';
+import { Collider, Interaction } from './types';
 
 class Renderer {
   #context: CanvasRenderingContext2D;
@@ -33,11 +33,19 @@ class Renderer {
     this.#renderEntities(this.#scene.entities);
 
     if (options.colliders) {
-      this.#renderColliders(this.#scene.colliders, this.#scene.organisms);
+      this.#renderColliders(
+        this.#scene.colliders,
+        this.#scene.interactions,
+        this.#scene.organisms
+      );
     }
   }
 
-  #renderColliders(colliders: Collider[], organisms: Entity[]) {
+  #renderColliders(
+    colliders: Collider[],
+    interactions: Interaction[],
+    organisms: Entity[]
+  ) {
     // Render environments colliders
     this.#context.fillStyle = 'rgba(255, 0, 0, 0.5)';
     colliders.forEach((collider) => {
@@ -46,6 +54,17 @@ class Renderer {
         collider.y * this.ratio,
         collider.width * this.ratio,
         collider.height * this.ratio
+      );
+    });
+
+    // Render interactions
+    this.#context.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    interactions.forEach((interaction) => {
+      this.#context.fillRect(
+        interaction.x * this.ratio,
+        interaction.y * this.ratio,
+        interaction.width * this.ratio,
+        interaction.height * this.ratio
       );
     });
 
