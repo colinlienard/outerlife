@@ -4395,7 +4395,15 @@ const map002: Tilemap = {
     '000',
     '001',
   ],
-  interactions: [],
+  interactions: [
+    {
+      x: 96,
+      y: 32,
+      width: 16,
+      height: 16,
+      enter: { sceneSwitch: { map: '001', playerX: 300, playerY: 300 } },
+    },
+  ],
 };
 
 export default map002;

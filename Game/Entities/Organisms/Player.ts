@@ -60,9 +60,9 @@ class Player extends Entity {
     },
   };
 
-  constructor() {
+  constructor(x: number, y: number) {
     super();
-    super.init(256, 256);
+    super.init(x, y);
 
     this.animator.row = 1;
   }

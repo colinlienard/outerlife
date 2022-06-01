@@ -2413,8 +2413,7 @@ const map001: Tilemap = {
       y: 32,
       width: 16,
       height: 16,
-      enter: () => console.log('enter'),
-      leave: () => console.log('leave'),
+      enter: { sceneSwitch: { map: '002', playerX: 100, playerY: 100 } },
     },
   ],
 };

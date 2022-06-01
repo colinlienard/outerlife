@@ -3,11 +3,17 @@ import Entity from './Entities/Entity';
 import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
-import { Collider, Interaction, Keys, Tilemap } from './types';
+import {
+  Collider,
+  Interaction,
+  InteractionAction,
+  Keys,
+  Tilemap,
+} from './types';
 import { TILE_SIZE } from './globals';
 import getDistance from './utils/getDistance';
 import map001 from './Tilemaps/map001';
-import map002 from './Tilemaps/map002';
+import tilemapIndex from './Tilemaps/tilemapIndex';
 
 class Scene {
   colliders: Collider[] = [];
@@ -18,7 +24,7 @@ class Scene {
 
   organisms: Entity[] = [];
 
-  player = new Player();
+  player = new Player(0, 0);
 
   terrains: Terrain[] = [];
 
@@ -30,7 +36,7 @@ class Scene {
     );
   }
 
-  desctructor() {
+  destructor() {
     window.removeEventListener('spawn', (event) =>
       this.spawn((event as CustomEvent).detail)
     );
@@ -68,7 +74,7 @@ class Scene {
     });
   }
 
-  buildMap() {
+  buildMap(playerX: number, playerY: number) {
     // Reset the scene
     this.colliders = [];
     this.entities = [];
@@ -126,9 +132,19 @@ class Scene {
     this.interactions = this.tilemap.interactions;
 
     // Add a new player instance
-    this.player = new Player();
+    this.player = new Player(playerX, playerY);
     this.entities.push(this.player);
     this.organisms.push(this.player);
+  }
+
+  interact(action: InteractionAction) {
+    if (action.sceneSwitch) {
+      this.switchMap(
+        tilemapIndex[action.sceneSwitch.map],
+        action.sceneSwitch.playerX,
+        action.sceneSwitch.playerY
+      );
+    }
   }
 
   performCollisions() {
@@ -190,19 +206,21 @@ class Scene {
       ) {
         if (!interaction.entered) {
           interaction.entered = true;
-          interaction.enter();
-          this.switchMap(map002);
+          this.interact(interaction.enter);
+          // this.switchMap(map002, 300, 300);
         }
       } else if (interaction.entered) {
         interaction.entered = false;
-        interaction.leave();
+        if (interaction.leave) {
+          this.interact(interaction.leave);
+        }
       }
     });
   }
 
-  switchMap(newMap: Tilemap) {
+  switchMap(newMap: Tilemap, playerX: number, playerY: number) {
     this.tilemap = newMap;
-    this.buildMap();
+    this.buildMap(playerX, playerY);
     window.dispatchEvent(new Event('scene-switch'));
   }
 
