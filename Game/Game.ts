@@ -35,6 +35,14 @@ class Game {
     }
   }
 
+  destructor() {
+    window.removeEventListener('resize', () => this.#resizeCanvas());
+
+    this.#scene?.desctructor();
+    this.#camera?.destructor(this.#scene as Scene);
+    this.#eventHandler?.destructor();
+  }
+
   #resizeCanvas() {
     this.#canvas.width = window.innerWidth;
     this.#canvas.height = window.innerHeight;

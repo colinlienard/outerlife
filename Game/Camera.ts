@@ -9,7 +9,7 @@ class Camera {
 
   #mapWidth = 0;
 
-  #player = new Player(() => null);
+  #player = new Player();
 
   #viewPortX = 0;
 
@@ -25,6 +25,10 @@ class Camera {
     this.init(scene);
 
     window.addEventListener('scene-switch', () => this.init(scene));
+  }
+
+  destructor(scene: Scene) {
+    window.removeEventListener('scene-switch', () => this.init(scene));
   }
 
   getTargetX(): number {

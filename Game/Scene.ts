@@ -18,16 +18,22 @@ class Scene {
 
   organisms: Entity[] = [];
 
-  player;
+  player = new Player();
 
   terrains: Terrain[] = [];
 
   tilemap: Tilemap = map001;
 
   constructor() {
-    this.player = new Player((entity: Entity) => this.spawn(entity));
-    this.entities.push(this.player);
-    this.organisms.push(this.player);
+    window.addEventListener('spawn', (event) =>
+      this.spawn((event as CustomEvent).detail)
+    );
+  }
+
+  desctructor() {
+    window.removeEventListener('spawn', (event) =>
+      this.spawn((event as CustomEvent).detail)
+    );
   }
 
   animate() {
@@ -120,7 +126,7 @@ class Scene {
     this.interactions = this.tilemap.interactions;
 
     // Add a new player instance
-    this.player = new Player((entity: Entity) => this.spawn(entity));
+    this.player = new Player();
     this.entities.push(this.player);
     this.organisms.push(this.player);
   }

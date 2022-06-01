@@ -2,12 +2,15 @@
 import Game from './Game';
 
 const canvas = ref<HTMLCanvasElement>();
+const game = ref();
 
 onMounted(() => {
   if (canvas.value) {
-    // eslint-disable-next-line no-new
-    new Game(canvas.value);
+    game.value = new Game(canvas.value);
   }
+});
+onUnmounted(() => {
+  game.value.destructor();
 });
 </script>
 

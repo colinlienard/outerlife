@@ -1,6 +1,7 @@
 import Entity from '../Entity';
 import { Direction, Keys } from '../../types';
 import Dust from '../Effects/Dust';
+import spawn from '~~/Game/utils/spawn';
 
 class Player extends Entity {
   animations = {
@@ -59,15 +60,11 @@ class Player extends Entity {
     },
   };
 
-  #spawn;
-
-  constructor(spawn: (entity: Entity) => void) {
+  constructor() {
     super();
     super.init(256, 256);
 
     this.animator.row = 1;
-
-    this.#spawn = spawn;
   }
 
   update(keys: Keys) {
@@ -98,7 +95,7 @@ class Player extends Entity {
       this.animator.frameWaiter === 0 &&
       (this.animator.column === 0 || this.animator.column === 4)
     ) {
-      this.#spawn(
+      spawn(
         new Dust(this.position.x + 8, this.position.y + this.sprite.height - 8)
       );
     }
