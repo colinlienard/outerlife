@@ -1,4 +1,5 @@
-/* eslint-disable import/prefer-default-export */
 const TILE_SIZE = 16;
 
-export { TILE_SIZE };
+const TRANSITION_DURATION = 500;
+
+export { TILE_SIZE, TRANSITION_DURATION };

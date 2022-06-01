@@ -5,7 +5,7 @@ import ImageLoaderCanvas from '../Game/ImageLoaderCanvas.vue';
 
 <template>
   <main>
-    <GameCanvas></GameCanvas>
-    <ImageLoaderCanvas></ImageLoaderCanvas>
+    <GameCanvas />
+    <ImageLoaderCanvas />
   </main>
 </template>

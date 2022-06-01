@@ -9,7 +9,7 @@ class Camera {
 
   #mapWidth = 0;
 
-  #player = new Player();
+  #player = new Player(0, 0);
 
   #viewPortX = 0;
 

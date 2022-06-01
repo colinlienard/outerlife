@@ -10,7 +10,7 @@ import {
   Keys,
   Tilemap,
 } from './types';
-import { TILE_SIZE } from './globals';
+import { TILE_SIZE, TRANSITION_DURATION } from './globals';
 import getDistance from './utils/getDistance';
 import map001 from './Tilemaps/map001';
 import tilemapIndex from './Tilemaps/tilemapIndex';
@@ -207,7 +207,6 @@ class Scene {
         if (!interaction.entered) {
           interaction.entered = true;
           this.interact(interaction.enter);
-          // this.switchMap(map002, 300, 300);
         }
       } else if (interaction.entered) {
         interaction.entered = false;
@@ -219,9 +218,12 @@ class Scene {
   }
 
   switchMap(newMap: Tilemap, playerX: number, playerY: number) {
-    this.tilemap = newMap;
-    this.buildMap(playerX, playerY);
-    window.dispatchEvent(new Event('scene-switch'));
+    window.dispatchEvent(new Event('transition'));
+    setTimeout(() => {
+      this.tilemap = newMap;
+      this.buildMap(playerX, playerY);
+      window.dispatchEvent(new Event('scene-switch'));
+    }, TRANSITION_DURATION);
   }
 
   spawn(entity: Entity) {
