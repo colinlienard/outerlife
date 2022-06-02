@@ -189,6 +189,28 @@ class Scene {
           }
         }
       });
+
+      // Scene limits on the x axis
+      if (organism.position.x < 0) {
+        organism.position.x = 0;
+      } else if (
+        organism.position.x >
+        this.tilemap.columns * TILE_SIZE - organism.sprite.width
+      ) {
+        organism.position.x =
+          this.tilemap.columns * TILE_SIZE - organism.sprite.width;
+      }
+
+      // Scene limits on the y axis
+      if (organism.position.y < 0) {
+        organism.position.y = 0;
+      } else if (
+        organism.position.y >
+        this.tilemap.rows * TILE_SIZE - organism.sprite.height
+      ) {
+        organism.position.y =
+          this.tilemap.rows * TILE_SIZE - organism.sprite.height;
+      }
     });
   }
 
