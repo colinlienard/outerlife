@@ -1,30 +1,45 @@
 import Player from './Entities/Organisms/Player';
 import Entity from './Entities/Entity';
-import Planet1 from './Tilemaps/Planet';
 import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
-import { Collider, Keys, Tilemap } from './types';
-import { TILE_SIZE } from './globals';
+import {
+  Collider,
+  Interaction,
+  InteractionAction,
+  Keys,
+  Tilemap,
+} from './types';
+import { TILE_SIZE, TRANSITION_DURATION } from './globals';
 import getDistance from './utils/getDistance';
+import map001 from './Tilemaps/map001';
+import tilemapIndex from './Tilemaps/tilemapIndex';
 
 class Scene {
   colliders: Collider[] = [];
 
   entities: Entity[] = []; // Environments + organisms
 
+  interactions: Interaction[] = [];
+
   organisms: Entity[] = [];
 
-  player;
+  player = new Player(0, 0);
 
   terrains: Terrain[] = [];
 
-  tilemap: Tilemap = Planet1;
+  tilemap: Tilemap = map001;
 
   constructor() {
-    this.player = new Player((entity: Entity) => this.spawn(entity));
-    this.entities.push(this.player);
-    this.organisms.push(this.player);
+    window.addEventListener('spawn', (event) =>
+      this.spawn((event as CustomEvent).detail)
+    );
+  }
+
+  destructor() {
+    window.removeEventListener('spawn', (event) =>
+      this.spawn((event as CustomEvent).detail)
+    );
   }
 
   animate() {
@@ -59,7 +74,15 @@ class Scene {
     });
   }
 
-  buildMap() {
+  buildMap(playerX: number, playerY: number) {
+    // Reset the scene
+    this.colliders = [];
+    this.entities = [];
+    this.interactions = [];
+    this.organisms = [];
+    this.terrains = [];
+
+    // Build the scene
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile = row * this.tilemap.columns + column;
@@ -85,7 +108,7 @@ class Scene {
           });
         }
 
-        // Build environment
+        // Build environments
         const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
         if (Environment) {
           const environment = new Environment(
@@ -103,6 +126,24 @@ class Scene {
           }
         }
       }
+    }
+
+    // Build interactions
+    this.interactions = this.tilemap.interactions;
+
+    // Add a new player instance
+    this.player = new Player(playerX, playerY);
+    this.entities.push(this.player);
+    this.organisms.push(this.player);
+  }
+
+  interact(action: InteractionAction) {
+    if (action.sceneSwitch) {
+      this.switchMap(
+        tilemapIndex[action.sceneSwitch.map],
+        action.sceneSwitch.playerX,
+        action.sceneSwitch.playerY
+      );
     }
   }
 
@@ -148,11 +189,63 @@ class Scene {
           }
         }
       });
+
+      // Scene limits on the x axis
+      if (organism.position.x < 0) {
+        organism.position.x = 0;
+      } else if (
+        organism.position.x >
+        this.tilemap.columns * TILE_SIZE - organism.sprite.width
+      ) {
+        organism.position.x =
+          this.tilemap.columns * TILE_SIZE - organism.sprite.width;
+      }
+
+      // Scene limits on the y axis
+      if (organism.position.y < 0) {
+        organism.position.y = 0;
+      } else if (
+        organism.position.y >
+        this.tilemap.rows * TILE_SIZE - organism.sprite.height
+      ) {
+        organism.position.y =
+          this.tilemap.rows * TILE_SIZE - organism.sprite.height;
+      }
     });
   }
 
   updatePlayer(keys: Keys) {
     this.player.update(keys);
+
+    // Check interactions
+    const { collider, position } = this.player;
+    this.interactions.forEach((interaction) => {
+      if (
+        position.x + collider.x + collider.width > interaction.x &&
+        position.x + collider.x < interaction.x + interaction.width &&
+        position.y + collider.y + collider.height > interaction.y &&
+        position.y + collider.y < interaction.y + interaction.height
+      ) {
+        if (!interaction.entered) {
+          interaction.entered = true;
+          this.interact(interaction.enter);
+        }
+      } else if (interaction.entered) {
+        interaction.entered = false;
+        if (interaction.leave) {
+          this.interact(interaction.leave);
+        }
+      }
+    });
+  }
+
+  switchMap(newMap: Tilemap, playerX: number, playerY: number) {
+    window.dispatchEvent(new Event('transition'));
+    setTimeout(() => {
+      this.tilemap = newMap;
+      this.buildMap(playerX, playerY);
+      window.dispatchEvent(new Event('scene-switch'));
+    }, TRANSITION_DURATION);
   }
 
   spawn(entity: Entity) {

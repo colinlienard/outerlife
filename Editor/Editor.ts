@@ -15,6 +15,7 @@ class Editor {
     columns: 0,
     terrains: [],
     environments: [],
+    interactions: [],
   };
 
   constructor(canvas: HTMLCanvasElement) {

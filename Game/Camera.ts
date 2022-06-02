@@ -1,3 +1,4 @@
+import Player from './Entities/Organisms/Player';
 import { TILE_SIZE } from './globals';
 import Scene from './Scene';
 
@@ -8,7 +9,7 @@ class Camera {
 
   #mapWidth = 0;
 
-  #player;
+  #player = new Player(0, 0);
 
   #viewPortX = 0;
 
@@ -19,18 +20,33 @@ class Camera {
   #y = 0;
 
   constructor(scene: Scene, ratio: number) {
-    this.#player = scene.player;
-
-    this.#mapWidth = scene.tilemap.columns * TILE_SIZE;
-    this.#mapHeight = scene.tilemap.rows * TILE_SIZE;
-
     this.updateViewPort(ratio);
+
+    this.init(scene);
+
+    window.addEventListener('scene-switch', () => this.init(scene));
+  }
+
+  destructor(scene: Scene) {
+    window.removeEventListener('scene-switch', () => this.init(scene));
+  }
+
+  getTargetX(): number {
+    return (
+      (this.#viewPortX - this.#player.sprite.width) / 2 -
+      this.#player.position.x
+    );
+  }
+
+  getTargetY(): number {
+    return (
+      (this.#viewPortY - this.#player.sprite.height) / 2 -
+      this.#player.position.y
+    );
   }
 
   getOffsetX(): number {
-    let target =
-      (this.#viewPortX - this.#player.sprite.width) / 2 -
-      this.#player.position.x;
+    let target = this.getTargetX();
 
     // No overflow on the left
     if (target > 0) {
@@ -49,9 +65,7 @@ class Camera {
   }
 
   getOffsetY(): number {
-    let target =
-      (this.#viewPortY - this.#player.sprite.height) / 2 -
-      this.#player.position.y;
+    let target = this.getTargetY();
 
     // No overflow on the top
     if (target > 0) {
@@ -67,6 +81,16 @@ class Camera {
     this.#y += (target - this.#y) * EASING;
 
     return this.#y;
+  }
+
+  init(scene: Scene) {
+    this.#player = scene.player;
+
+    this.#mapWidth = scene.tilemap.columns * TILE_SIZE;
+    this.#mapHeight = scene.tilemap.rows * TILE_SIZE;
+
+    this.#x = this.getTargetX();
+    this.#y = this.getTargetY();
   }
 
   updateViewPort(ratio: number) {

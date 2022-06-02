@@ -1,9 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "dev": "nuxi dev",
-    "build": "nuxi build",
-    "preview": "node .output/server/index.mjs",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
     "lint": "eslint **/**.vue **/**.ts",
     "lint:scss": "stylelint \"**/**.{vue,scss}\"",
     "check": "prettier --check .",
@@ -20,7 +21,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.6.0",
     "husky": "^7.0.4",
-    "nuxt3": "3.0.0-27501460.04a72f8",
+    "nuxt": "3.0.0-rc.3",
     "postcss": "^8.4.12",
     "postcss-html": "^1.4.1",
     "prettier": "^2.6.2",
