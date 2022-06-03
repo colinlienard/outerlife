@@ -5,9 +5,11 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "eslint **/**.vue **/**.ts",
-    "lint:scss": "stylelint \"**/**.{vue,scss}\"",
-    "check": "prettier --check .",
+    "lint:ts": "eslint **/*.ts **/*.vue",
+    "lint:scss": "stylelint \"**/*.{vue,scss}\"",
+    "lint:prettier": "prettier --check .",
+    "lint": "pnpm lint:ts && pnpm lint:scss && pnpm lint:prettier",
+    "lintfix": "prettier --write .",
     "prepare": "husky install"
   },
   "devDependencies": {
