@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Ref } from 'vue';
+import { navigateTo } from '~~/.nuxt/imports';
 import Game from '../../Game';
 import MenuButton from './MenuButton.vue';
 import MenuButtonsList from './MenuButtonsList.vue';
@@ -11,14 +12,21 @@ const paused = ref(false);
 const showOptions = ref(false);
 const game = inject<Ref<Game>>('game');
 
-const tooglePause = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    if (game?.value.paused) {
-      paused.value = false;
-    } else {
-      paused.value = true;
-    }
+const enterFullScreen = () => document.body.requestFullscreen();
+
+const exitFullScreen = () => document.exitFullscreen();
+
+// Avoid blank screen when changing screen mode
+const handleFullScreenChange = () => {
+  if (paused.value) {
+    game?.value.loop();
   }
+};
+
+const isFullScreen = () => document.fullscreenElement !== null;
+
+const togglePause = () => {
+  paused.value = !game?.value.paused;
 };
 
 watch(paused, (newPaused) => {
@@ -31,37 +39,53 @@ watch(paused, (newPaused) => {
 });
 
 onMounted(() => {
-  window.addEventListener('keydown', tooglePause);
+  document.addEventListener('fullscreenchange', handleFullScreenChange);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', tooglePause);
+  document.removeEventListener('fullscreenchange', handleFullScreenChange);
 });
 </script>
 
 <template>
-  <div v-if="paused" class="pause-screen">
-    <article v-if="!showOptions" class="menu">
-      <MenuTitle>Game paused</MenuTitle>
-      <MenuButtonsList>
-        <MenuButton @click="paused = false">Resume</MenuButton>
-        <MenuButton @click="showOptions = true">Options</MenuButton>
-        <MenuButton>Quit</MenuButton>
-      </MenuButtonsList>
-    </article>
-    <article v-if="showOptions" class="menu">
-      <MenuTitle>Options</MenuTitle>
-      <MenuButtonsList>
-        <MenuButton @click="showOptions = false">Back</MenuButton>
-        <MenuCheck :default="true">Full screen</MenuCheck>
-        <MenuCheck :default="true">Debug mode</MenuCheck>
-        <MenuButton>Map editor</MenuButton>
-      </MenuButtonsList>
-    </article>
+  <div>
+    <button class="button" @click="togglePause">⚙️</button>
+    <div v-if="paused" class="pause-screen">
+      <article v-if="!showOptions" class="menu">
+        <MenuTitle>Game paused</MenuTitle>
+        <MenuButtonsList>
+          <MenuButton @click="paused = false">Resume</MenuButton>
+          <MenuButton @click="showOptions = true">Options</MenuButton>
+          <MenuButton>Quit</MenuButton>
+        </MenuButtonsList>
+      </article>
+      <article v-if="showOptions" class="menu">
+        <MenuTitle>Options</MenuTitle>
+        <MenuButtonsList>
+          <MenuButton @click="showOptions = false">⬅️ Back</MenuButton>
+          <MenuCheck
+            :default="isFullScreen()"
+            @check="enterFullScreen"
+            @uncheck="exitFullScreen"
+          >
+            Full screen
+          </MenuCheck>
+          <MenuCheck :default="false">Debug mode</MenuCheck>
+          <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
+        </MenuButtonsList>
+      </article>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 3rem;
+}
+
 .pause-screen {
   position: absolute;
   inset: 0;

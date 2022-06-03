@@ -16,7 +16,7 @@ watch(checked, (newChecked) => {
 <template>
   <li>
     <MenuButton @click="checked = !checked">
-      <span :class="['checkbox', { checked: checked }]" />
+      <span class="checkbox">{{ checked ? '✅' : '⬛' }}</span>
       <slot />
     </MenuButton>
   </li>
@@ -24,14 +24,7 @@ watch(checked, (newChecked) => {
 
 <style scoped lang="scss">
 .checkbox {
-  width: 2rem;
-  height: 2rem;
   position: absolute;
   left: 2rem;
-  background-color: red;
-
-  &.checked {
-    background-color: blue;
-  }
 }
 </style>

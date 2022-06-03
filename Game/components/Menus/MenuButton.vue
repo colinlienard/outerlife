@@ -15,14 +15,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(#000, 0.5);
+  background-color: #4e6679;
+  border: 5px solid #5c8ba8;
 
   &:hover {
-    background-color: rgba(#000, 0.6);
+    background-color: #5c8ba8;
   }
 
   &:active {
-    background-color: #000;
+    background-color: #72b6cf;
   }
 }
 </style>
