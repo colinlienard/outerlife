@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Game from '../Game';
+import PauseScreen from './Menus/PauseScreen.vue';
 import { TRANSITION_DURATION } from '../globals';
-import PauseMenu from './PauseMenu.vue';
 
 const canvas = ref<HTMLCanvasElement>();
 const game = ref();
@@ -41,7 +41,7 @@ onUnmounted(() => {
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
     </Transition>
-    <PauseMenu />
+    <PauseScreen />
   </section>
 </template>
 
