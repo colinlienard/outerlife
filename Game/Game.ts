@@ -11,6 +11,8 @@ class Game {
 
   eventHandler;
 
+  paused = false;
+
   renderer;
 
   scene;
@@ -24,26 +26,26 @@ class Game {
 
       this.renderer = new Renderer(context, this.scene);
 
-      this.#resizeCanvas();
-      window.addEventListener('resize', () => this.#resizeCanvas());
+      this.resizeCanvas();
+      window.addEventListener('resize', () => this.resizeCanvas());
 
       this.camera = new Camera(this.scene, this.renderer.ratio);
 
       this.eventHandler = new EventHandler();
 
-      this.#loop();
+      this.loop();
     }
   }
 
   destructor() {
-    window.removeEventListener('resize', () => this.#resizeCanvas());
+    window.removeEventListener('resize', () => this.resizeCanvas());
 
     this.scene?.destructor();
     this.camera?.destructor(this.scene as Scene);
     this.eventHandler?.destructor();
   }
 
-  #resizeCanvas() {
+  resizeCanvas() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
 
@@ -52,7 +54,7 @@ class Game {
     this.camera?.updateViewPort(this.renderer?.ratio as number);
   }
 
-  #loop() {
+  loop() {
     this.scene?.updatePlayer(this.eventHandler?.keys as Keys);
     this.scene?.performCollisions();
     this.scene?.animate();
@@ -65,7 +67,18 @@ class Game {
     this.renderer?.clear();
     this.renderer?.render({ colliders: false });
 
-    window.requestAnimationFrame(() => this.#loop());
+    if (!this.paused) {
+      window.requestAnimationFrame(() => this.loop());
+    }
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+    this.loop();
   }
 }
 

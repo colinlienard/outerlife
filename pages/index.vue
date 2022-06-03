@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import GameCanvas from '../Game/GameCanvas.vue';
-import ImageLoaderCanvas from '../Game/ImageLoaderCanvas.vue';
+import GameCanvas from '../Game/components/GameCanvas.vue';
+import ImageLoaderCanvas from '../Game/components/ImageLoaderCanvas.vue';
 </script>
 
 <template>

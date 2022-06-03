@@ -5,19 +5,19 @@ import Scene from './Scene';
 const EASING = 0.08;
 
 class Camera {
-  #mapHeight = 0;
+  mapHeight = 0;
 
-  #mapWidth = 0;
+  mapWidth = 0;
 
-  #player = new Player(0, 0);
+  player = new Player(0, 0);
 
-  #viewPortX = 0;
+  viewPortX = 0;
 
-  #viewPortY = 0;
+  viewPortY = 0;
 
-  #x = 0;
+  x = 0;
 
-  #y = 0;
+  y = 0;
 
   constructor(scene: Scene, ratio: number) {
     this.updateViewPort(ratio);
@@ -33,15 +33,13 @@ class Camera {
 
   getTargetX(): number {
     return (
-      (this.#viewPortX - this.#player.sprite.width) / 2 -
-      this.#player.position.x
+      (this.viewPortX - this.player.sprite.width) / 2 - this.player.position.x
     );
   }
 
   getTargetY(): number {
     return (
-      (this.#viewPortY - this.#player.sprite.height) / 2 -
-      this.#player.position.y
+      (this.viewPortY - this.player.sprite.height) / 2 - this.player.position.y
     );
   }
 
@@ -54,14 +52,14 @@ class Camera {
     }
 
     // No overflow on the right
-    else if (target < -this.#mapWidth + this.#viewPortX) {
-      target = -this.#mapWidth + this.#viewPortX;
+    else if (target < -this.mapWidth + this.viewPortX) {
+      target = -this.mapWidth + this.viewPortX;
     }
 
     // Easing
-    this.#x += (target - this.#x) * EASING;
+    this.x += (target - this.x) * EASING;
 
-    return this.#x;
+    return this.x;
   }
 
   getOffsetY(): number {
@@ -73,29 +71,29 @@ class Camera {
     }
 
     // No overflow on the bottom
-    else if (target < -this.#mapHeight + this.#viewPortY) {
-      target = -this.#mapHeight + this.#viewPortY;
+    else if (target < -this.mapHeight + this.viewPortY) {
+      target = -this.mapHeight + this.viewPortY;
     }
 
     // Easing
-    this.#y += (target - this.#y) * EASING;
+    this.y += (target - this.y) * EASING;
 
-    return this.#y;
+    return this.y;
   }
 
   init(scene: Scene) {
-    this.#player = scene.player;
+    this.player = scene.player;
 
-    this.#mapWidth = scene.tilemap.columns * TILE_SIZE;
-    this.#mapHeight = scene.tilemap.rows * TILE_SIZE;
+    this.mapWidth = scene.tilemap.columns * TILE_SIZE;
+    this.mapHeight = scene.tilemap.rows * TILE_SIZE;
 
-    this.#x = this.getTargetX();
-    this.#y = this.getTargetY();
+    this.x = this.getTargetX();
+    this.y = this.getTargetY();
   }
 
   updateViewPort(ratio: number) {
-    this.#viewPortX = window.innerWidth / ratio;
-    this.#viewPortY = window.innerHeight / ratio;
+    this.viewPortX = window.innerWidth / ratio;
+    this.viewPortY = window.innerHeight / ratio;
   }
 }
 

@@ -15,7 +15,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvas" class="canvas" moz-opaque></canvas>
+  <canvas ref="canvas" class="canvas" />
 </template>
 
 <style scoped lang="scss">

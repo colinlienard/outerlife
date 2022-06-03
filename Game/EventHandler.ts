@@ -9,16 +9,16 @@ class EventHandler {
   };
 
   constructor() {
-    window.addEventListener('keydown', (event) => this.#bindKeys(event));
-    window.addEventListener('keyup', (event) => this.#bindKeys(event));
+    window.addEventListener('keydown', (event) => this.bindKeys(event));
+    window.addEventListener('keyup', (event) => this.bindKeys(event));
   }
 
   destructor() {
-    window.removeEventListener('keydown', (event) => this.#bindKeys(event));
-    window.removeEventListener('keyup', (event) => this.#bindKeys(event));
+    window.removeEventListener('keydown', (event) => this.bindKeys(event));
+    window.removeEventListener('keyup', (event) => this.bindKeys(event));
   }
 
-  #bindKeys(event: KeyboardEvent) {
+  bindKeys(event: KeyboardEvent) {
     const keyState = event.type === 'keydown';
 
     switch (event.key) {

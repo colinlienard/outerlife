@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import Game from './Game';
-import { TRANSITION_DURATION } from './globals';
+import Game from '../Game';
+import { TRANSITION_DURATION } from '../globals';
+import PauseMenu from './PauseMenu.vue';
 
 const canvas = ref<HTMLCanvasElement>();
 const game = ref();
 const showTransition = ref(false);
 const transitionDuration = `${TRANSITION_DURATION}ms`;
+
+provide('game', game);
 
 const endTransition = () => {
   showTransition.value = false;
@@ -34,10 +37,11 @@ onUnmounted(() => {
 
 <template>
   <section class="container">
-    <canvas ref="canvas" class="canvas" moz-opaque />
+    <canvas ref="canvas" class="canvas" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
     </Transition>
+    <PauseMenu />
   </section>
 </template>
 
