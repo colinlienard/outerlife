@@ -27,12 +27,12 @@ class Renderer {
     this.context.imageSmoothingEnabled = false;
   }
 
-  render(options: { colliders: boolean }) {
+  render(options: { debug: boolean }) {
     this.renderTerrains(this.scene.terrains);
     this.renderShadows(this.scene.entities);
     this.renderEntities(this.scene.entities);
 
-    if (options.colliders) {
+    if (options.debug) {
       this.renderColliders(
         this.scene.colliders,
         this.scene.interactions,

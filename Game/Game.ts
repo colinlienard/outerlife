@@ -9,6 +9,8 @@ class Game {
 
   canvas: HTMLCanvasElement;
 
+  debug = false;
+
   eventHandler;
 
   paused = false;
@@ -65,7 +67,7 @@ class Game {
       this.camera?.getOffsetY() as number
     );
     this.renderer?.clear();
-    this.renderer?.render({ colliders: false });
+    this.renderer?.render({ debug: this.debug });
 
     if (!this.paused) {
       window.requestAnimationFrame(() => this.loop());

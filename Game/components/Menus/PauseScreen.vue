@@ -12,9 +12,20 @@ const paused = ref(false);
 const showOptions = ref(false);
 const game = inject<Ref<Game>>('game');
 
+const isFullScreen = () => document.fullscreenElement !== null;
+
 const enterFullScreen = () => document.body.requestFullscreen();
 
 const exitFullScreen = () => document.exitFullscreen();
+
+const getDebugMode = (): boolean => game?.value.debug || false;
+
+const setDebugMode = (state: boolean) => {
+  if (game?.value) {
+    game.value.debug = state;
+    game.value.loop();
+  }
+};
 
 // Avoid blank screen when changing screen mode
 const handleFullScreenChange = () => {
@@ -22,8 +33,6 @@ const handleFullScreenChange = () => {
     game?.value.loop();
   }
 };
-
-const isFullScreen = () => document.fullscreenElement !== null;
 
 const togglePause = () => {
   paused.value = !game?.value.paused;
@@ -70,7 +79,13 @@ onUnmounted(() => {
           >
             Full screen
           </MenuCheck>
-          <MenuCheck :default="false">Debug mode</MenuCheck>
+          <MenuCheck
+            :default="getDebugMode()"
+            @check="setDebugMode(true)"
+            @uncheck="setDebugMode(false)"
+          >
+            Debug mode
+          </MenuCheck>
           <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
         </MenuButtonsList>
       </article>
