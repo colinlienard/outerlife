@@ -80,8 +80,8 @@ class Renderer {
       const { collider } = organism;
       if (collider) {
         this.context.fillRect(
-          (organism.position.x + collider.x) * this.ratio,
-          (organism.position.y + collider.y) * this.ratio,
+          Math.round((organism.position.x + collider.x) * this.ratio),
+          Math.round((organism.position.y + collider.y) * this.ratio),
           collider.width * this.ratio,
           collider.height * this.ratio
         );
@@ -104,8 +104,8 @@ class Renderer {
           sprite.height * animator.row, // position y in the source image
           sprite.width, // width of the sprite in the source image
           sprite.height, // height of the sprite in the source image
-          position.x * this.ratio, // position x in the canvas
-          position.y * this.ratio, // position y in the canvas
+          Math.round(position.x * this.ratio), // position x in the canvas
+          Math.round(position.y * this.ratio), // position y in the canvas
           sprite.width * this.ratio, // width of the sprite in the canvas
           sprite.height * this.ratio // height of the sprite in the canvas
         );
@@ -119,8 +119,8 @@ class Renderer {
           sprite.sourceY as number, // position y in the source image
           sprite.width, // width of the sprite in the source image
           sprite.height, // height of the sprite in the source image
-          position.x * this.ratio, // position x in the canvas
-          position.y * this.ratio, // position y in the canvas
+          Math.round(position.x * this.ratio), // position x in the canvas
+          Math.round(position.y * this.ratio), // position y in the canvas
           sprite.width * this.ratio, // width of the sprite in the canvas
           sprite.height * this.ratio // height of the sprite in the canvas
         );
@@ -161,8 +161,8 @@ class Renderer {
           sprite.shadow.sourceY, // position y in the source image
           sprite.shadow.width, // width of the sprite in the source image
           sprite.shadow.height, // height of the sprite in the source image
-          (position.x + sprite.shadow.x) * this.ratio, // position x in the canvas
-          (position.y + sprite.shadow.y) * this.ratio, // position y in the canvas
+          Math.round((position.x + sprite.shadow.x) * this.ratio), // position x in the canvas
+          Math.round((position.y + sprite.shadow.y) * this.ratio), // position y in the canvas
           sprite.shadow.width * this.ratio, // width of the sprite in the canvas
           sprite.shadow.height * this.ratio // height of the sprite in the canvas
         );
