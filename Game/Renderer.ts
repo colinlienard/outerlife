@@ -29,7 +29,13 @@ class Renderer {
 
   render(options: { debug: boolean }) {
     this.renderTerrains(this.scene.terrains);
+
+    if (options.debug) {
+      this.renderGrid();
+    }
+
     this.renderShadows(this.scene.entities);
+
     this.renderEntities(this.scene.entities);
 
     if (options.debug) {
@@ -120,6 +126,29 @@ class Renderer {
         );
       }
     });
+  }
+
+  renderGrid() {
+    this.context.strokeStyle = 'white';
+
+    for (let index = 0; index < this.scene.tilemap.columns; index += 1) {
+      const x = index * TILE_SIZE * this.ratio;
+      this.context.beginPath();
+      this.context.moveTo(x, 0);
+      this.context.lineTo(x, this.scene.tilemap.rows * TILE_SIZE * this.ratio);
+      this.context.stroke();
+    }
+
+    for (let index = 0; index < this.scene.tilemap.rows; index += 1) {
+      const y = index * TILE_SIZE * this.ratio;
+      this.context.beginPath();
+      this.context.moveTo(0, y);
+      this.context.lineTo(
+        this.scene.tilemap.columns * TILE_SIZE * this.ratio,
+        y
+      );
+      this.context.stroke();
+    }
   }
 
   renderShadows(entities: Entity[]) {
