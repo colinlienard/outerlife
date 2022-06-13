@@ -5,7 +5,7 @@ import Scene from './Scene';
 import { Collider, Interaction } from './types';
 
 class Renderer {
-  context: CanvasRenderingContext2D;
+  environmentContext: CanvasRenderingContext2D;
 
   yPixelsNumber = 200;
 
@@ -13,18 +13,31 @@ class Renderer {
 
   scene;
 
-  constructor(context: CanvasRenderingContext2D, scene: Scene) {
-    this.context = context;
+  terrainContext: CanvasRenderingContext2D;
+
+  constructor(
+    terrainContext: CanvasRenderingContext2D,
+    environmentContext: CanvasRenderingContext2D,
+    scene: Scene
+  ) {
+    this.environmentContext = environmentContext;
+    this.terrainContext = terrainContext;
     this.scene = scene;
   }
 
   clear() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.environmentContext.clearRect(
+      0,
+      0,
+      this.scene.tilemap.columns * TILE_SIZE * this.ratio,
+      this.scene.tilemap.rows * TILE_SIZE * this.ratio
+    );
   }
 
   updateSize() {
     this.ratio = Math.round(window.innerHeight / this.yPixelsNumber);
-    this.context.imageSmoothingEnabled = false;
+    this.terrainContext.imageSmoothingEnabled = false;
+    this.environmentContext.imageSmoothingEnabled = false;
   }
 
   render(options: { debug: boolean }) {
@@ -53,9 +66,9 @@ class Renderer {
     organisms: Entity[]
   ) {
     // Render environments colliders
-    this.context.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    this.environmentContext.fillStyle = 'rgba(255, 0, 0, 0.5)';
     colliders.forEach((collider) => {
-      this.context.fillRect(
+      this.environmentContext.fillRect(
         collider.x * this.ratio,
         collider.y * this.ratio,
         collider.width * this.ratio,
@@ -64,9 +77,9 @@ class Renderer {
     });
 
     // Render interactions
-    this.context.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    this.environmentContext.fillStyle = 'rgba(0, 0, 255, 0.5)';
     interactions.forEach((interaction) => {
-      this.context.fillRect(
+      this.environmentContext.fillRect(
         interaction.x * this.ratio,
         interaction.y * this.ratio,
         interaction.width * this.ratio,
@@ -75,11 +88,11 @@ class Renderer {
     });
 
     // Render organisms colliders
-    this.context.fillStyle = 'rgba(0, 255, 0, 0.5)';
+    this.environmentContext.fillStyle = 'rgba(0, 255, 0, 0.5)';
     organisms.forEach((organism) => {
       const { collider } = organism;
       if (collider) {
-        this.context.fillRect(
+        this.environmentContext.fillRect(
           Math.round((organism.position.x + collider.x) * this.ratio),
           Math.round((organism.position.y + collider.y) * this.ratio),
           collider.width * this.ratio,
@@ -88,7 +101,7 @@ class Renderer {
       }
     });
 
-    this.context.fillStyle = 'transparent';
+    this.environmentContext.fillStyle = 'transparent';
   }
 
   renderEntities(entities: Entity[]) {
@@ -97,7 +110,7 @@ class Renderer {
 
       // If the entity is animated
       if (animator) {
-        this.context.drawImage(
+        this.environmentContext.drawImage(
           sprite.image,
           sprite.width *
             (animator.column + animator.currentAnimation.frameStart - 1), // position x in the source image
@@ -113,7 +126,7 @@ class Renderer {
 
       // If the entity is not animated
       else {
-        this.context.drawImage(
+        this.environmentContext.drawImage(
           sprite.image,
           sprite.sourceX as number, // position x in the source image
           sprite.sourceY as number, // position y in the source image
@@ -129,25 +142,28 @@ class Renderer {
   }
 
   renderGrid() {
-    this.context.strokeStyle = 'white';
+    this.environmentContext.strokeStyle = 'white';
 
     for (let index = 0; index < this.scene.tilemap.columns; index += 1) {
       const x = index * TILE_SIZE * this.ratio;
-      this.context.beginPath();
-      this.context.moveTo(x, 0);
-      this.context.lineTo(x, this.scene.tilemap.rows * TILE_SIZE * this.ratio);
-      this.context.stroke();
+      this.environmentContext.beginPath();
+      this.environmentContext.moveTo(x, 0);
+      this.environmentContext.lineTo(
+        x,
+        this.scene.tilemap.rows * TILE_SIZE * this.ratio
+      );
+      this.environmentContext.stroke();
     }
 
     for (let index = 0; index < this.scene.tilemap.rows; index += 1) {
       const y = index * TILE_SIZE * this.ratio;
-      this.context.beginPath();
-      this.context.moveTo(0, y);
-      this.context.lineTo(
+      this.environmentContext.beginPath();
+      this.environmentContext.moveTo(0, y);
+      this.environmentContext.lineTo(
         this.scene.tilemap.columns * TILE_SIZE * this.ratio,
         y
       );
-      this.context.stroke();
+      this.environmentContext.stroke();
     }
   }
 
@@ -155,7 +171,7 @@ class Renderer {
     entities.forEach((entity) => {
       const { position, sprite } = entity;
       if (sprite.shadow) {
-        this.context.drawImage(
+        this.environmentContext.drawImage(
           sprite.image,
           sprite.shadow.sourceX, // position x in the source image
           sprite.shadow.sourceY, // position y in the source image
@@ -173,7 +189,7 @@ class Renderer {
   renderTerrains(terrains: Terrain[]) {
     terrains.forEach((terrain) => {
       const { position, sprite } = terrain;
-      this.context.drawImage(
+      this.terrainContext.drawImage(
         sprite.image,
         sprite.x, // position x in the source image
         sprite.y, // position y in the source image
@@ -188,7 +204,16 @@ class Renderer {
   }
 
   translate(x: number, y: number) {
-    this.context.setTransform(
+    this.terrainContext.setTransform(
+      1,
+      0,
+      0,
+      1,
+      Math.round(x * this.ratio),
+      Math.round(y * this.ratio)
+    );
+
+    this.environmentContext.setTransform(
       1,
       0,
       0,

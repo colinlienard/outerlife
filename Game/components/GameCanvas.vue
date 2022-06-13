@@ -3,7 +3,8 @@ import Game from '../Game';
 import PauseScreen from './Menus/PauseScreen.vue';
 import { TRANSITION_DURATION } from '../globals';
 
-const canvas = ref<HTMLCanvasElement>();
+const terrainCanvas = ref<HTMLCanvasElement>();
+const environmentCanvas = ref<HTMLCanvasElement>();
 const game = ref();
 const showTransition = ref(false);
 const transitionDuration = `${TRANSITION_DURATION}ms`;
@@ -21,8 +22,8 @@ const performTransition = () => {
 };
 
 onMounted(() => {
-  if (canvas.value) {
-    game.value = new Game(canvas.value);
+  if (terrainCanvas.value && environmentCanvas.value) {
+    game.value = new Game(terrainCanvas.value, environmentCanvas.value);
   }
 
   window.addEventListener('transition', performTransition);
@@ -37,7 +38,8 @@ onUnmounted(() => {
 
 <template>
   <section class="container">
-    <canvas ref="canvas" class="canvas" />
+    <canvas ref="terrainCanvas" class="terrain-canvas" moz-opaque />
+    <canvas ref="environmentCanvas" class="environment-canvas" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
     </Transition>
@@ -48,6 +50,14 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .container {
   position: relative;
+  width: 100vw;
+  height: 100vh;
+
+  .environment-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 }
 
 .transition {

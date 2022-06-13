@@ -7,7 +7,7 @@ import { Keys } from './types';
 class Game {
   camera;
 
-  canvas: HTMLCanvasElement;
+  environmentCanvas: HTMLCanvasElement;
 
   debug = false;
 
@@ -19,14 +19,26 @@ class Game {
 
   scene;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-    const context = canvas.getContext('2d');
-    if (context) {
+  terrainCanvas: HTMLCanvasElement;
+
+  constructor(
+    terrainCanvas: HTMLCanvasElement,
+    environmentCanvas: HTMLCanvasElement
+  ) {
+    this.terrainCanvas = terrainCanvas;
+    this.environmentCanvas = environmentCanvas;
+    const terrainContext = terrainCanvas.getContext('2d');
+    const environmentContext = environmentCanvas.getContext('2d');
+
+    if (terrainContext && environmentContext) {
       this.scene = new Scene();
       this.scene.buildMap(300, 300);
 
-      this.renderer = new Renderer(context, this.scene);
+      this.renderer = new Renderer(
+        terrainContext,
+        environmentContext,
+        this.scene
+      );
 
       this.resizeCanvas();
       window.addEventListener('resize', () => this.resizeCanvas());
@@ -48,8 +60,11 @@ class Game {
   }
 
   resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.terrainCanvas.width = window.innerWidth;
+    this.terrainCanvas.height = window.innerHeight;
+
+    this.environmentCanvas.width = window.innerWidth;
+    this.environmentCanvas.height = window.innerHeight;
 
     this.renderer?.updateSize();
 
