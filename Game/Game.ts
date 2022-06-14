@@ -13,6 +13,8 @@ class Game {
 
   eventHandler;
 
+  fps = 0;
+
   paused = false;
 
   renderer;
@@ -49,7 +51,7 @@ class Game {
 
       this.camera.init(this.scene);
 
-      this.loop();
+      this.loop(0, 0);
     }
   }
 
@@ -76,7 +78,15 @@ class Game {
     );
   }
 
-  loop() {
+  loop(time: number, oldTime: number) {
+    // Get frames per second
+    if (this.debug) {
+      this.fps =
+        Math.round(
+          (1000 / (performance.now() - oldTime) + Number.EPSILON) * 10
+        ) / 10;
+    }
+
     this.scene?.updatePlayer(this.eventHandler?.keys as Keys);
     this.scene?.performCollisions();
     this.scene?.animate();
@@ -90,7 +100,7 @@ class Game {
     this.renderer?.render({ debug: this.debug });
 
     if (!this.paused) {
-      window.requestAnimationFrame(() => this.loop());
+      window.requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
     }
   }
 
@@ -100,7 +110,7 @@ class Game {
 
   resume() {
     this.paused = false;
-    this.loop();
+    this.loop(0, 0);
   }
 }
 

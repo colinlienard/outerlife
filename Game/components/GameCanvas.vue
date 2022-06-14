@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import Game from '../Game';
 import PauseScreen from './Menus/PauseScreen.vue';
+import FPSVisualizer from './FPSVisualizer.vue';
 import { TRANSITION_DURATION } from '../globals';
 
 const terrainCanvas = ref<HTMLCanvasElement>();
 const environmentCanvas = ref<HTMLCanvasElement>();
 const game = ref();
 const showTransition = ref(false);
+const showFPS = ref(false);
 const transitionDuration = `${TRANSITION_DURATION}ms`;
 
 provide('game', game);
+provide('showFPS', showFPS);
 
 const endTransition = () => {
   showTransition.value = false;
@@ -40,6 +43,7 @@ onUnmounted(() => {
   <section class="container">
     <canvas ref="terrainCanvas" class="terrain-canvas" moz-opaque />
     <canvas ref="environmentCanvas" class="environment-canvas" />
+    <FPSVisualizer v-if="showFPS" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
     </Transition>
