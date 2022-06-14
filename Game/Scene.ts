@@ -12,7 +12,7 @@ import {
 } from './types';
 import { TILE_SIZE, TRANSITION_DURATION } from './globals';
 import getDistance from './utils/getDistance';
-import map001 from './Tilemaps/map001';
+import map002 from './Tilemaps/map002';
 import tilemapIndex from './Tilemaps/tilemapIndex';
 
 class Scene {
@@ -28,7 +28,7 @@ class Scene {
 
   terrains: Terrain[] = [];
 
-  tilemap: Tilemap = map001;
+  tilemap: Tilemap = map002;
 
   constructor() {
     window.addEventListener('spawn', (event) =>

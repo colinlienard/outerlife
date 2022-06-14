@@ -11,19 +11,15 @@ class Camera {
 
   player = new Player(0, 0);
 
-  viewPortX = 0;
+  viewPortWidth = 0;
 
-  viewPortY = 0;
+  viewPortHeight = 0;
 
   x = 0;
 
   y = 0;
 
-  constructor(scene: Scene, ratio: number) {
-    this.updateViewPort(ratio);
-
-    this.init(scene);
-
+  constructor(scene: Scene) {
     window.addEventListener('scene-switch', () => this.init(scene));
   }
 
@@ -33,13 +29,15 @@ class Camera {
 
   getTargetX(): number {
     return (
-      (this.viewPortX - this.player.sprite.width) / 2 - this.player.position.x
+      (this.viewPortWidth - this.player.sprite.width) / 2 -
+      this.player.position.x
     );
   }
 
   getTargetY(): number {
     return (
-      (this.viewPortY - this.player.sprite.height) / 2 - this.player.position.y
+      (this.viewPortHeight - this.player.sprite.height) / 2 -
+      this.player.position.y
     );
   }
 
@@ -52,8 +50,8 @@ class Camera {
     }
 
     // No overflow on the right
-    else if (target < -this.mapWidth + this.viewPortX) {
-      target = -this.mapWidth + this.viewPortX;
+    else if (target < -this.mapWidth + this.viewPortWidth) {
+      target = -this.mapWidth + this.viewPortWidth;
     }
 
     // Easing
@@ -71,8 +69,8 @@ class Camera {
     }
 
     // No overflow on the bottom
-    else if (target < -this.mapHeight + this.viewPortY) {
-      target = -this.mapHeight + this.viewPortY;
+    else if (target < -this.mapHeight + this.viewPortHeight) {
+      target = -this.mapHeight + this.viewPortHeight;
     }
 
     // Easing
@@ -91,9 +89,9 @@ class Camera {
     this.y = this.getTargetY();
   }
 
-  updateViewPort(ratio: number) {
-    this.viewPortX = window.innerWidth / ratio;
-    this.viewPortY = window.innerHeight / ratio;
+  updateViewPort(viewPortWidth: number, viewPortHeight: number) {
+    this.viewPortWidth = viewPortWidth;
+    this.viewPortHeight = viewPortHeight;
   }
 }
 

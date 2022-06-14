@@ -34,18 +34,20 @@ class Game {
       this.scene = new Scene();
       this.scene.buildMap(300, 300);
 
+      this.eventHandler = new EventHandler();
+
       this.renderer = new Renderer(
         terrainContext,
         environmentContext,
         this.scene
       );
 
+      this.camera = new Camera(this.scene);
+
       this.resizeCanvas();
       window.addEventListener('resize', () => this.resizeCanvas());
 
-      this.camera = new Camera(this.scene, this.renderer.ratio);
-
-      this.eventHandler = new EventHandler();
+      this.camera.init(this.scene);
 
       this.loop();
     }
@@ -68,7 +70,10 @@ class Game {
 
     this.renderer?.updateSize();
 
-    this.camera?.updateViewPort(this.renderer?.ratio as number);
+    this.camera?.updateViewPort(
+      this.renderer?.viewPortWidth as number,
+      this.renderer?.viewPortHeight as number
+    );
   }
 
   loop() {
