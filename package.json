@@ -1,12 +1,15 @@
 {
   "private": true,
   "scripts": {
-    "dev": "nuxi dev",
-    "build": "nuxi build",
-    "preview": "node .output/server/index.mjs",
-    "lint": "eslint **/**.vue **/**.ts",
-    "lint:scss": "stylelint \"**/**.{vue,scss}\"",
-    "check": "prettier --check .",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "lint:ts": "eslint **/*.ts **/*.vue",
+    "lint:scss": "stylelint \"**/*.{vue,scss}\"",
+    "lint:prettier": "prettier --check .",
+    "lint": "pnpm lint:ts && pnpm lint:scss && pnpm lint:prettier",
+    "lintfix": "prettier --write .",
     "prepare": "husky install"
   },
   "devDependencies": {
@@ -20,14 +23,16 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.6.0",
     "husky": "^7.0.4",
-    "nuxt3": "3.0.0-27501460.04a72f8",
+    "nuxt": "3.0.0-rc.3",
     "postcss": "^8.4.12",
     "postcss-html": "^1.4.1",
     "prettier": "^2.6.2",
     "sass": "^1.50.0",
     "stylelint": "^14.7.1",
+    "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-config-standard-vue": "^1.0.0",
+    "stylelint-prettier": "^2.0.0",
     "typescript": "^4.6.3"
   }
 }

@@ -1,2 +1,4 @@
 .nuxt
-pnpm-lock.yaml
+.output
+dist
+node_modules
