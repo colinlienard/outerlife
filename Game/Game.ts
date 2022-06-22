@@ -7,11 +7,13 @@ import { Keys } from './types';
 class Game {
   camera;
 
-  canvas: HTMLCanvasElement;
+  environmentCanvas: HTMLCanvasElement;
 
   debug = false;
 
   eventHandler;
+
+  fps = 0;
 
   paused = false;
 
@@ -19,23 +21,37 @@ class Game {
 
   scene;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-    const context = canvas.getContext('2d');
-    if (context) {
+  terrainCanvas: HTMLCanvasElement;
+
+  constructor(
+    terrainCanvas: HTMLCanvasElement,
+    environmentCanvas: HTMLCanvasElement
+  ) {
+    this.terrainCanvas = terrainCanvas;
+    this.environmentCanvas = environmentCanvas;
+    const terrainContext = terrainCanvas.getContext('2d');
+    const environmentContext = environmentCanvas.getContext('2d');
+
+    if (terrainContext && environmentContext) {
       this.scene = new Scene();
       this.scene.buildMap(300, 300);
 
-      this.renderer = new Renderer(context, this.scene);
+      this.eventHandler = new EventHandler();
+
+      this.renderer = new Renderer(
+        terrainContext,
+        environmentContext,
+        this.scene
+      );
+
+      this.camera = new Camera(this.scene);
 
       this.resizeCanvas();
       window.addEventListener('resize', () => this.resizeCanvas());
 
-      this.camera = new Camera(this.scene, this.renderer.ratio);
+      this.camera.init(this.scene);
 
-      this.eventHandler = new EventHandler();
-
-      this.loop();
+      this.loop(0, 0);
     }
   }
 
@@ -48,15 +64,29 @@ class Game {
   }
 
   resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.terrainCanvas.width = window.innerWidth;
+    this.terrainCanvas.height = window.innerHeight;
+
+    this.environmentCanvas.width = window.innerWidth;
+    this.environmentCanvas.height = window.innerHeight;
 
     this.renderer?.updateSize();
 
-    this.camera?.updateViewPort(this.renderer?.ratio as number);
+    this.camera?.updateViewPort(
+      this.renderer?.viewPortWidth as number,
+      this.renderer?.viewPortHeight as number
+    );
   }
 
-  loop() {
+  loop(time: number, oldTime: number) {
+    // Get frames per second
+    if (this.debug) {
+      this.fps =
+        Math.round(
+          (1000 / (performance.now() - oldTime) + Number.EPSILON) * 10
+        ) / 10;
+    }
+
     this.scene?.updatePlayer(this.eventHandler?.keys as Keys);
     this.scene?.performCollisions();
     this.scene?.animate();
@@ -70,7 +100,7 @@ class Game {
     this.renderer?.render({ debug: this.debug });
 
     if (!this.paused) {
-      window.requestAnimationFrame(() => this.loop());
+      window.requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
     }
   }
 
@@ -80,7 +110,7 @@ class Game {
 
   resume() {
     this.paused = false;
-    this.loop();
+    this.loop(0, 0);
   }
 }
 
