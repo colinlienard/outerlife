@@ -1,3 +1,5 @@
+import Texture from '~~/Engine/Texture';
+import { TILE_SIZE } from '../globals';
 import { Animation, Collider, Direction, EntityLayer } from '../types';
 
 class Entity {
@@ -24,7 +26,6 @@ class Entity {
   };
 
   sprite!: {
-    image: HTMLImageElement;
     source: string;
     width: number;
     height: number;
@@ -35,11 +36,17 @@ class Entity {
     shadow?: EntityLayer;
   };
 
-  init(x: number, y: number) {
-    this.position.x = x - this.sprite.width / 2 + 8;
-    this.position.y = y - this.sprite.height + 8;
+  texture?: Texture;
 
-    this.sprite.image.src = `/sprites/${this.sprite.source}.png`;
+  init(x: number, y: number) {
+    this.position.x = x - this.sprite.width / 2 + TILE_SIZE / 2;
+    this.position.y = y - this.sprite.height + TILE_SIZE / 2;
+
+    this.texture = new Texture(
+      `/sprites/${this.sprite.source}.png`,
+      this.sprite.width,
+      this.sprite.height
+    );
   }
 }
 

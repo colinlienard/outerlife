@@ -4,8 +4,7 @@ import PauseScreen from './Menus/PauseScreen.vue';
 import FPSVisualizer from './FPSVisualizer.vue';
 import { TRANSITION_DURATION } from '../globals';
 
-const terrainCanvas = ref<HTMLCanvasElement>();
-const environmentCanvas = ref<HTMLCanvasElement>();
+const canvas = ref<HTMLCanvasElement>();
 const game = ref();
 const showTransition = ref(false);
 const showFPS = ref(false);
@@ -25,15 +24,15 @@ const performTransition = () => {
 };
 
 onMounted(() => {
-  if (terrainCanvas.value && environmentCanvas.value) {
-    game.value = new Game(terrainCanvas.value, environmentCanvas.value);
+  if (canvas.value) {
+    game.value = new Game(canvas.value);
   }
 
   window.addEventListener('transition', performTransition);
 });
 
 onUnmounted(() => {
-  game.value.destructor();
+  // game.value.destructor();
 
   window.removeEventListener('transition', performTransition);
 });
@@ -41,8 +40,7 @@ onUnmounted(() => {
 
 <template>
   <section class="container">
-    <canvas ref="terrainCanvas" class="terrain-canvas" moz-opaque />
-    <canvas ref="environmentCanvas" class="environment-canvas" />
+    <canvas ref="canvas" class="canvas"></canvas>
     <FPSVisualizer v-if="showFPS" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
@@ -56,12 +54,6 @@ onUnmounted(() => {
   position: relative;
   width: 100vw;
   height: 100vh;
-
-  .environment-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
 }
 
 .transition {

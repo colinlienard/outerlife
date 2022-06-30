@@ -1,4 +1,5 @@
 import Camera from './Camera';
+import State from './State';
 import EventHandler from './EventHandler';
 import Renderer from './Renderer';
 import Scene from './Scene';
@@ -7,7 +8,7 @@ import { Keys } from './types';
 class Game {
   camera;
 
-  environmentCanvas: HTMLCanvasElement;
+  canvas: HTMLCanvasElement;
 
   debug = false;
 
@@ -21,64 +22,49 @@ class Game {
 
   scene;
 
-  terrainCanvas: HTMLCanvasElement;
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
 
-  constructor(
-    terrainCanvas: HTMLCanvasElement,
-    environmentCanvas: HTMLCanvasElement
-  ) {
-    this.terrainCanvas = terrainCanvas;
-    this.environmentCanvas = environmentCanvas;
-    const terrainContext = terrainCanvas.getContext('2d');
-    const environmentContext = environmentCanvas.getContext('2d');
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
 
-    if (terrainContext && environmentContext) {
-      this.scene = new Scene();
-      this.scene.buildMap(300, 300);
+    const context = canvas.getContext('webgl2') as WebGL2RenderingContext;
+    State.context = context;
 
-      this.eventHandler = new EventHandler();
+    this.scene = new Scene();
+    this.scene.buildMap(0, 0);
 
-      this.renderer = new Renderer(
-        terrainContext,
-        environmentContext,
-        this.scene
-      );
+    this.eventHandler = new EventHandler();
 
-      this.camera = new Camera(this.scene);
+    this.renderer = new Renderer(context, this.scene);
 
-      this.resizeCanvas();
-      window.addEventListener('resize', () => this.resizeCanvas());
+    this.camera = new Camera(this.scene);
+    this.camera.init(this.scene);
 
-      this.camera.init(this.scene);
-
-      this.loop(0, 0);
-    }
+    this.loop(0, 0);
   }
 
   destructor() {
     window.removeEventListener('resize', () => this.resizeCanvas());
 
     this.scene?.destructor();
-    this.camera?.destructor(this.scene as Scene);
+    // this.camera?.destructor(this.scene as Scene);
     this.eventHandler?.destructor();
   }
 
   resizeCanvas() {
-    this.terrainCanvas.width = window.innerWidth;
-    this.terrainCanvas.height = window.innerHeight;
-
-    this.environmentCanvas.width = window.innerWidth;
-    this.environmentCanvas.height = window.innerHeight;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
 
     this.renderer?.updateSize();
 
-    this.camera?.updateViewPort(
-      this.renderer?.viewPortWidth as number,
-      this.renderer?.viewPortHeight as number
-    );
+    // this.camera?.updateViewPort(
+    //   this.renderer?.viewPortWidth as number,
+    //   this.renderer?.viewPortHeight as number
+    // );
   }
 
-  loop(time: number, oldTime: number) {
+  loop(time = 0, oldTime = 0) {
     // Get frames per second
     if (this.debug) {
       this.fps =
@@ -92,10 +78,10 @@ class Game {
     this.scene?.animate();
     this.scene?.ySort();
 
-    this.renderer?.translate(
-      this.camera?.getOffsetX() as number,
-      this.camera?.getOffsetY() as number
-    );
+    // this.renderer?.translate(
+    //   this.camera?.getOffsetX() as number,
+    //   this.camera?.getOffsetY() as number
+    // );
     this.renderer?.clear();
     this.renderer?.render({ debug: this.debug });
 
@@ -110,7 +96,7 @@ class Game {
 
   resume() {
     this.paused = false;
-    this.loop(0, 0);
+    this.loop();
   }
 }
 

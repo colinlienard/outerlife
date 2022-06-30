@@ -19,7 +19,7 @@ class Player extends Entity {
 
   animator = {
     currentAnimation: this.animations.idle,
-    row: 0,
+    row: 1,
     column: 0,
     frameWaiter: 0,
   };
@@ -45,7 +45,6 @@ class Player extends Entity {
   };
 
   sprite = {
-    image: new Image(),
     source: 'player',
     width: 32,
     height: 32,
@@ -63,8 +62,6 @@ class Player extends Entity {
   constructor(x: number, y: number) {
     super();
     super.init(x, y);
-
-    this.animator.row = 1;
   }
 
   update(keys: Keys) {
