@@ -1,12 +1,14 @@
-import WorldMatrix from '~~/Engine/WorldMatrix';
 // import Entity from './Entities/Entity';
 // import Terrain from './Entities/Terrains/Terrain';
+import Engine from '~~/Engine/Engine';
 import { TILE_SIZE, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';
 // import { Collider, Interaction } from './types';
 
 class Renderer {
   context: WebGL2RenderingContext;
+
+  engine: Engine;
 
   offsetX = 0;
 
@@ -16,66 +18,47 @@ class Renderer {
 
   scene;
 
-  sceneWidth = 0;
-
-  sceneHeight = 0;
-
-  viewPortWidth = 0;
-
-  viewPortHeight = 0;
-
-  test = null;
+  viewport = {
+    width: 0,
+    height: 0,
+  };
 
   constructor(context: WebGL2RenderingContext, scene: Scene) {
     this.context = context;
     this.scene = scene;
+    this.engine = new Engine();
 
-    this.context.clearColor(0, 0, 0, 1);
-    this.context.enable(this.context.BLEND);
-    this.context.blendFunc(
-      this.context.SRC_ALPHA,
-      this.context.ONE_MINUS_SRC_ALPHA
-    );
-
-    WorldMatrix.create();
+    this.resize();
   }
 
   clear() {
-    this.context.clear(this.context.COLOR_BUFFER_BIT);
+    this.engine.clear();
   }
 
   isVisible(x: number, y: number, width: number, height: number) {
     return (
       x + width > this.offsetX &&
-      x < this.offsetX + this.viewPortWidth &&
+      x < this.offsetX + this.viewport.width &&
       y + height > this.offsetY &&
-      y < this.offsetY + this.viewPortHeight
+      y < this.offsetY + this.viewport.height
     );
   }
 
-  updateSize() {
-    WorldMatrix.create();
+  resize() {
+    this.engine.resize();
 
     this.ratio = Math.round(window.innerHeight / Y_PIXELS_NUMBER);
 
-    // this.terrainContext.imageSmoothingEnabled = false;
-    // this.environmentContext.imageSmoothingEnabled = false;
-
-    this.sceneWidth = this.scene.tilemap.columns * TILE_SIZE * this.ratio;
-    this.sceneHeight = this.scene.tilemap.rows * TILE_SIZE * this.ratio;
-
-    this.viewPortWidth = window.innerWidth / this.ratio;
-    this.viewPortHeight = window.innerHeight / this.ratio;
+    this.viewport.width = window.innerWidth / this.ratio;
+    this.viewport.height = window.innerHeight / this.ratio;
   }
 
   render(options: { debug: boolean }) {
-    // this.renderTerrains(this.scene.terrains);
+    this.renderTerrains();
 
     if (options.debug) {
       //   this.renderGrid();
     }
-
-    // this.renderShadows(this.scene.entities);
 
     this.renderEntities();
 
@@ -136,28 +119,53 @@ class Renderer {
     this.scene.entities.forEach((entity) => {
       const { animator, position, sprite } = entity;
 
-      // if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
-      // If the entity is animated
-      if (animator) {
-        entity.texture?.render(
-          position.x,
-          position.y,
-          sprite.width *
-            (animator.column + animator.currentAnimation.frameStart - 1),
-          sprite.height * animator.row
-        );
-      }
+      if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
+        // Render a shadow if the entity has one
+        if (sprite.shadow) {
+          this.engine.renderTexture(
+            sprite.texture,
+            sprite.shadow.sourceX, // position x in the source image
+            sprite.shadow.sourceY, // position y in the source image
+            sprite.shadow.width, // width of the sprite in the source image
+            sprite.shadow.height, // height of the sprite in the source image
+            Math.floor((position.x + sprite.shadow.x) * this.ratio), // position x in the canvas
+            Math.floor((position.y + sprite.shadow.y) * this.ratio), // position y in the canvas
+            sprite.shadow.width * this.ratio, // width of the sprite in the canvas
+            sprite.shadow.height * this.ratio // height of the sprite in the canvas
+          );
+        }
 
-      // If the entity is not animated
-      else {
-        entity.texture?.render(
-          position.x,
-          position.y,
-          sprite.sourceX as number,
-          sprite.sourceY as number
-        );
+        // If the entity is animated
+        if (animator) {
+          this.engine.renderTexture(
+            sprite.texture,
+            sprite.width *
+              (animator.column + animator.currentAnimation.frameStart - 1), // position x in the source image
+            sprite.height * animator.row, // position y in the source image
+            sprite.width, // width of the sprite in the source image
+            sprite.height, // height of the sprite in the source image
+            Math.floor(position.x * this.ratio), // position x in the canvas
+            Math.floor(position.y * this.ratio), // position y in the canvas
+            sprite.width * this.ratio, // width of the sprite in the canvas
+            sprite.height * this.ratio // height of the sprite in the canvas
+          );
+        }
+
+        // If the entity is not animated
+        else {
+          this.engine.renderTexture(
+            sprite.texture,
+            sprite.sourceX as number, // position x in the source image
+            sprite.sourceY as number, // position y in the source image
+            sprite.width, // width of the sprite in the source image
+            sprite.height, // height of the sprite in the source image
+            Math.floor(position.x * this.ratio), // position x in the canvas
+            Math.floor(position.y * this.ratio), // position y in the canvas
+            sprite.width * this.ratio, // width of the sprite in the canvas
+            sprite.height * this.ratio // height of the sprite in the canvas
+          );
+        }
       }
-      // }
     });
   }
 
@@ -187,51 +195,24 @@ class Renderer {
   //   }
   // }
 
-  // renderShadows(entities: Entity[]) {
-  //   entities.forEach((entity) => {
-  //     const { position, sprite } = entity;
-  //     if (
-  //       sprite.shadow &&
-  //       this.isVisible(
-  //         position.x + sprite.shadow.x,
-  //         position.y + sprite.shadow.y,
-  //         sprite.shadow.width,
-  //         sprite.shadow.height
-  //       )
-  //     ) {
-  //       this.environmentContext.drawImage(
-  //         sprite.image,
-  //         sprite.shadow.sourceX, // position x in the source image
-  //         sprite.shadow.sourceY, // position y in the source image
-  //         sprite.shadow.width, // width of the sprite in the source image
-  //         sprite.shadow.height, // height of the sprite in the source image
-  //         Math.floor((position.x + sprite.shadow.x) * this.ratio), // position x in the canvas
-  //         Math.floor((position.y + sprite.shadow.y) * this.ratio), // position y in the canvas
-  //         sprite.shadow.width * this.ratio, // width of the sprite in the canvas
-  //         sprite.shadow.height * this.ratio // height of the sprite in the canvas
-  //       );
-  //     }
-  //   });
-  // }
-
-  // renderTerrains(terrains: Terrain[]) {
-  //   terrains.forEach((terrain) => {
-  //     const { position, sprite } = terrain;
-  //     if (this.isVisible(position.x, position.y, TILE_SIZE, TILE_SIZE)) {
-  //       this.terrainContext.drawImage(
-  //         sprite.image,
-  //         sprite.x, // position x in the source image
-  //         sprite.y, // position y in the source image
-  //         TILE_SIZE, // width of the sprite in the source image
-  //         TILE_SIZE, // height of the sprite in the source image
-  //         position.x * this.ratio, // position x in the canvas
-  //         position.y * this.ratio, // position y in the canvas
-  //         TILE_SIZE * this.ratio, // width of the sprite in the canvas
-  //         TILE_SIZE * this.ratio // height of the sprite in the canvas
-  //       );
-  //     }
-  //   });
-  // }
+  renderTerrains() {
+    this.scene.terrains.forEach((terrain) => {
+      const { position, sprite } = terrain;
+      if (this.isVisible(position.x, position.y, TILE_SIZE, TILE_SIZE)) {
+        this.engine.renderTexture(
+          sprite.texture,
+          sprite.x, // position x in the source image
+          sprite.y, // position y in the source image
+          TILE_SIZE, // width of the sprite in the source image
+          TILE_SIZE, // height of the sprite in the source image
+          position.x * this.ratio, // position x in the canvas
+          position.y * this.ratio, // position y in the canvas
+          TILE_SIZE * this.ratio, // width of the sprite in the canvas
+          TILE_SIZE * this.ratio // height of the sprite in the canvas
+        );
+      }
+    });
+  }
 
   // translate(offsetX: number, offsetY: number) {
   //   this.offsetX = Math.abs(Math.round(offsetX));

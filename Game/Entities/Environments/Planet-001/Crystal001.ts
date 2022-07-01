@@ -14,7 +14,7 @@ class Crystal001 extends Entity {
   };
 
   sprite = {
-    image: new Image(),
+    texture: null,
     source: 'environments-001',
     width: 48,
     height: 48,

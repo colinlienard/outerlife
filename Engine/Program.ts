@@ -40,7 +40,7 @@ class Material {
     return shader;
   }
 
-  getProgram() {
+  get() {
     return this.program;
   }
 }

@@ -32,7 +32,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // game.value.destructor();
+  game.value.destructor();
 
   window.removeEventListener('transition', performTransition);
 });
@@ -40,7 +40,7 @@ onUnmounted(() => {
 
 <template>
   <section class="container">
-    <canvas ref="canvas" class="canvas"></canvas>
+    <canvas ref="canvas" class="canvas" />
     <FPSVisualizer v-if="showFPS" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
@@ -54,6 +54,11 @@ onUnmounted(() => {
   position: relative;
   width: 100vw;
   height: 100vh;
+
+  .canvas {
+    width: 100vw;
+    height: 100vh;
+  }
 }
 
 .transition {

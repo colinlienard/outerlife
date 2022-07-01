@@ -26,6 +26,7 @@ class Entity {
   };
 
   sprite!: {
+    texture: Texture | null;
     source: string;
     width: number;
     height: number;
@@ -36,17 +37,11 @@ class Entity {
     shadow?: EntityLayer;
   };
 
-  texture?: Texture;
-
   init(x: number, y: number) {
     this.position.x = x - this.sprite.width / 2 + TILE_SIZE / 2;
     this.position.y = y - this.sprite.height + TILE_SIZE / 2;
 
-    this.texture = new Texture(
-      `/sprites/${this.sprite.source}.png`,
-      this.sprite.width,
-      this.sprite.height
-    );
+    this.sprite.texture = new Texture(`/sprites/${this.sprite.source}.png`);
   }
 }
 

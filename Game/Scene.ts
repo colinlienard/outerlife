@@ -1,8 +1,8 @@
 import Player from './Entities/Organisms/Player';
 import Entity from './Entities/Entity';
 import Terrain from './Entities/Terrains/Terrain';
-// import TerrainTiles from './Entities/Terrains/TerrainTiles';
-// import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
+import TerrainTiles from './Entities/Terrains/TerrainTiles';
+import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
 import {
   Collider,
   Interaction,
@@ -83,53 +83,53 @@ class Scene {
     this.terrains = [];
 
     // Build the scene
-    // for (let row = 0; row < this.tilemap.rows; row += 1) {
-    //   for (let column = 0; column < this.tilemap.columns; column += 1) {
-    //     const tile = row * this.tilemap.columns + column;
+    for (let row = 0; row < this.tilemap.rows; row += 1) {
+      for (let column = 0; column < this.tilemap.columns; column += 1) {
+        const tile = row * this.tilemap.columns + column;
 
-    //     // Build terrain
-    //     const terrain = TerrainTiles[this.tilemap.terrains[tile]];
-    //     this.terrains.push(
-    //       new Terrain(
-    //         column * TILE_SIZE,
-    //         row * TILE_SIZE,
-    //         terrain.source,
-    //         terrain.x,
-    //         terrain.y
-    //       )
-    //     );
-    //     if (terrain.collider) {
-    //       const { x, y, width, height } = terrain.collider;
-    //       this.colliders.push({
-    //         x: x + column * TILE_SIZE,
-    //         y: y + row * TILE_SIZE,
-    //         width,
-    //         height,
-    //       });
-    //     }
+        // Build terrain
+        const terrain = TerrainTiles[this.tilemap.terrains[tile]];
+        this.terrains.push(
+          new Terrain(
+            column * TILE_SIZE,
+            row * TILE_SIZE,
+            terrain.source,
+            terrain.x,
+            terrain.y
+          )
+        );
+        if (terrain.collider) {
+          const { x, y, width, height } = terrain.collider;
+          this.colliders.push({
+            x: x + column * TILE_SIZE,
+            y: y + row * TILE_SIZE,
+            width,
+            height,
+          });
+        }
 
-    //     // Build environments
-    //     const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
-    //     if (Environment) {
-    //       const environment = new Environment(
-    //         column * TILE_SIZE,
-    //         row * TILE_SIZE
-    //       );
-    //       this.entities.push(environment);
-    //       if (environment.collider) {
-    //         this.colliders.push({
-    //           x: environment.position.x + environment.collider.x,
-    //           y: environment.position.y + environment.collider.y,
-    //           width: environment.collider.width,
-    //           height: environment.collider.height,
-    //         });
-    //       }
-    //     }
-    //   }
-    // }
+        // Build environments
+        const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
+        if (Environment) {
+          const environment = new Environment(
+            column * TILE_SIZE,
+            row * TILE_SIZE
+          );
+          this.entities.push(environment);
+          if (environment.collider) {
+            this.colliders.push({
+              x: environment.position.x + environment.collider.x,
+              y: environment.position.y + environment.collider.y,
+              width: environment.collider.width,
+              height: environment.collider.height,
+            });
+          }
+        }
+      }
+    }
 
     // // Build interactions
-    // this.interactions = this.tilemap.interactions;
+    this.interactions = this.tilemap.interactions;
 
     // Add a new player instance
     this.player = new Player(playerX, playerY);

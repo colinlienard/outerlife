@@ -25,10 +25,13 @@ class Game {
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
 
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
 
-    const context = canvas.getContext('webgl2') as WebGL2RenderingContext;
+    const context = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+    }) as WebGL2RenderingContext;
     State.context = context;
 
     this.scene = new Scene();
@@ -45,18 +48,15 @@ class Game {
   }
 
   destructor() {
-    window.removeEventListener('resize', () => this.resizeCanvas());
+    window.removeEventListener('resize', () => this.resize());
 
     this.scene?.destructor();
     // this.camera?.destructor(this.scene as Scene);
     this.eventHandler?.destructor();
   }
 
-  resizeCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-
-    this.renderer?.updateSize();
+  resize() {
+    this.renderer?.resize();
 
     // this.camera?.updateViewPort(
     //   this.renderer?.viewPortWidth as number,
