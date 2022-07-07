@@ -170,6 +170,15 @@ class Engine {
   loadTextures(sources: string[]) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise<void>(async (resolve) => {
+      // Set the texture unit to 0 for mobile
+      this.gl.uniform1i(this.gl.getUniformLocation(this.program, 'sampler'), 0);
+
+      // Create and bind texture
+      const texture = this.gl.createTexture() as WebGLTexture;
+      this.gl.activeTexture(this.gl.TEXTURE0);
+      this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, texture);
+
+      // Load images
       const promises = sources.map((source) => this.loadImage(source));
       const images = await Promise.all(promises);
 
@@ -185,8 +194,6 @@ class Engine {
       this.MaxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
 
       // Create a texture array with the max size
-      const texture = this.gl.createTexture() as WebGLTexture;
-      this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, texture);
       this.gl.texStorage3D(
         this.gl.TEXTURE_2D_ARRAY,
         1,
