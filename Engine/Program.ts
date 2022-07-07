@@ -1,40 +1,39 @@
-import State from '~~/Game/State';
-
-class Material {
-  context: WebGL2RenderingContext;
+class Program {
+  gl: WebGL2RenderingContext;
 
   program: WebGLProgram;
 
-  constructor(vertexSource: string, fragmentSource: string) {
-    this.context = State.context;
+  constructor(
+    context: WebGL2RenderingContext,
+    vertexSource: string,
+    fragmentSource: string
+  ) {
+    this.gl = context;
 
-    const vertexShader = this.createShader(vertexSource, 'vertex');
-    const fragmentShader = this.createShader(fragmentSource, 'fragment');
+    const vertexShader = this.createShader(vertexSource, this.gl.VERTEX_SHADER);
+    const fragmentShader = this.createShader(
+      fragmentSource,
+      this.gl.FRAGMENT_SHADER
+    );
 
-    this.program = this.context.createProgram() as WebGLProgram;
-    this.context.attachShader(this.program, vertexShader);
-    this.context.attachShader(this.program, fragmentShader);
-    this.context.linkProgram(this.program);
+    this.program = this.gl.createProgram() as WebGLProgram;
+    this.gl.attachShader(this.program, vertexShader);
+    this.gl.attachShader(this.program, fragmentShader);
+    this.gl.linkProgram(this.program);
 
-    this.context.detachShader(this.program, vertexShader);
-    this.context.detachShader(this.program, fragmentShader);
-    this.context.deleteShader(vertexShader);
-    this.context.deleteShader(fragmentShader);
+    this.gl.detachShader(this.program, vertexShader);
+    this.gl.detachShader(this.program, fragmentShader);
+    this.gl.deleteShader(vertexShader);
+    this.gl.deleteShader(fragmentShader);
   }
 
-  createShader(source: string, type: 'vertex' | 'fragment') {
-    const shader = this.context.createShader(
-      type === 'vertex'
-        ? this.context.VERTEX_SHADER
-        : this.context.FRAGMENT_SHADER
-    ) as WebGLShader;
-    this.context.shaderSource(shader, source);
-    this.context.compileShader(shader);
+  createShader(source: string, type: number) {
+    const shader = this.gl.createShader(type) as WebGLShader;
+    this.gl.shaderSource(shader, source);
+    this.gl.compileShader(shader);
 
-    if (!this.context.getShaderParameter(shader, this.context.COMPILE_STATUS)) {
-      throw new Error(
-        `Shader error: \n${this.context.getShaderInfoLog(shader)}`
-      );
+    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+      throw new Error(`Shader error: \n${this.gl.getShaderInfoLog(shader)}`);
     }
 
     return shader;
@@ -45,4 +44,4 @@ class Material {
   }
 }
 
-export default Material;
+export default Program;

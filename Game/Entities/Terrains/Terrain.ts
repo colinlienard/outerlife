@@ -1,5 +1,3 @@
-import Texture from '~~/Engine/Texture';
-
 class Terrain {
   position = {
     x: 0,
@@ -7,7 +5,7 @@ class Terrain {
   };
 
   sprite = {
-    texture: <Texture | null>null,
+    source: '',
     x: 0,
     y: 0,
   };
@@ -22,10 +20,10 @@ class Terrain {
     this.position.x = x;
     this.position.y = y;
 
+    this.sprite.source = source;
+
     this.sprite.x = spriteX;
     this.sprite.y = spriteY;
-
-    this.sprite.texture = new Texture(`/sprites/${source}.png`);
   }
 }
 

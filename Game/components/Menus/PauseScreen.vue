@@ -22,7 +22,7 @@ const exitFullScreen = () => document.exitFullscreen();
 const setDebugMode = (state: boolean) => {
   if (game) {
     game.value.debug = state;
-    game.value.loop(0, 0);
+    game.value.loop();
   }
 
   if (showFPS) {
@@ -33,7 +33,7 @@ const setDebugMode = (state: boolean) => {
 // Avoid blank screen when changing screen mode
 const handleFullScreenChange = () => {
   if (paused.value) {
-    game?.value.loop(0, 0);
+    game?.value.loop();
   }
 };
 

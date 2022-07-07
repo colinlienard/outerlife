@@ -4,127 +4,127 @@ const TerrainTiles: {
   [key: string]: { source: string; x: number; y: number; collider?: Collider };
 } = {
   '001': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 0,
     y: 0,
   },
   '002': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 16,
     y: 0,
   },
   '003': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 32,
     y: 0,
   },
   '0035': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 48,
     y: 0,
   },
   '004': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 0,
     y: 16,
   },
   '005': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 16,
     y: 16,
   },
   '006': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 32,
     y: 16,
   },
   '007': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 48,
     y: 16,
   },
   '008': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 0,
     y: 32,
   },
   '009': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 16,
     y: 32,
   },
   '010': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 32,
     y: 32,
   },
   '011': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 48,
     y: 32,
   },
   '012': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 0,
     y: 48,
   },
   '013': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 16,
     y: 48,
   },
   '014': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 32,
     y: 48,
   },
   '015': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 48,
     y: 48,
   },
   '016': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 0,
     y: 64,
   },
   '017': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 16,
     y: 64,
   },
   '018': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 32,
     y: 64,
   },
   '020': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 48,
     y: 64,
   },
   '021': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 64,
     y: 0,
   },
   '022': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 80,
     y: 0,
   },
   '023': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 64,
     y: 16,
   },
   '024': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 80,
     y: 16,
   },
   '025': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 0,
     collider: {
@@ -135,7 +135,7 @@ const TerrainTiles: {
     },
   },
   '026': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 112,
     y: 0,
     collider: {
@@ -146,7 +146,7 @@ const TerrainTiles: {
     },
   },
   '027': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 128,
     y: 0,
     collider: {
@@ -157,7 +157,7 @@ const TerrainTiles: {
     },
   },
   '028': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 144,
     y: 0,
     collider: {
@@ -168,7 +168,7 @@ const TerrainTiles: {
     },
   },
   '0285': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 0,
     collider: {
@@ -179,7 +179,7 @@ const TerrainTiles: {
     },
   },
   '029': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 16,
     collider: {
@@ -190,12 +190,12 @@ const TerrainTiles: {
     },
   },
   '030': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 112,
     y: 16,
   },
   '031': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 128,
     y: 16,
     collider: {
@@ -206,7 +206,7 @@ const TerrainTiles: {
     },
   },
   '032': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 144,
     y: 16,
     collider: {
@@ -217,7 +217,7 @@ const TerrainTiles: {
     },
   },
   '0325': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 16,
     collider: {
@@ -228,7 +228,7 @@ const TerrainTiles: {
     },
   },
   '033': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 32,
     collider: {
@@ -239,22 +239,22 @@ const TerrainTiles: {
     },
   },
   '034': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 112,
     y: 32,
   },
   '035': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 128,
     y: 32,
   },
   '036': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 144,
     y: 32,
   },
   '0365': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 32,
     collider: {
@@ -265,7 +265,7 @@ const TerrainTiles: {
     },
   },
   '037': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 48,
     collider: {
@@ -276,7 +276,7 @@ const TerrainTiles: {
     },
   },
   '038': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 112,
     y: 48,
     collider: {
@@ -287,7 +287,7 @@ const TerrainTiles: {
     },
   },
   '039': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 128,
     y: 48,
     collider: {
@@ -298,7 +298,7 @@ const TerrainTiles: {
     },
   },
   '040': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 144,
     y: 48,
     collider: {
@@ -309,7 +309,7 @@ const TerrainTiles: {
     },
   },
   '0405': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 48,
     collider: {
@@ -320,7 +320,7 @@ const TerrainTiles: {
     },
   },
   '041': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 80,
     collider: {
@@ -331,7 +331,7 @@ const TerrainTiles: {
     },
   },
   '042': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 96,
     y: 64,
     collider: {
@@ -342,7 +342,7 @@ const TerrainTiles: {
     },
   },
   '043': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 112,
     y: 64,
     collider: {
@@ -353,7 +353,7 @@ const TerrainTiles: {
     },
   },
   '044': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 128,
     y: 64,
     collider: {
@@ -364,7 +364,7 @@ const TerrainTiles: {
     },
   },
   '045': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 144,
     y: 64,
     collider: {
@@ -375,7 +375,7 @@ const TerrainTiles: {
     },
   },
   '046': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 64,
     collider: {
@@ -386,7 +386,7 @@ const TerrainTiles: {
     },
   },
   '0465': {
-    source: 'terrain-001',
+    source: '/sprites/terrain-001.png',
     x: 160,
     y: 80,
     collider: {

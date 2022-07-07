@@ -7,8 +7,7 @@ class Grass001 extends Entity {
   };
 
   sprite = {
-    texture: null,
-    source: 'environments-001',
+    source: '/sprites/environments-001.png',
     width: 16,
     height: 16,
 

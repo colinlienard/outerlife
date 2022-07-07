@@ -46,7 +46,7 @@ class Player extends Entity {
 
   sprite = {
     texture: null,
-    source: 'player',
+    source: '/sprites/player.png',
     width: 32,
     height: 32,
 

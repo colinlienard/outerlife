@@ -6,8 +6,6 @@ import Scene from './Scene';
 // import { Collider, Interaction } from './types';
 
 class Renderer {
-  context: WebGL2RenderingContext;
-
   engine: Engine;
 
   offsetX = 0;
@@ -24,15 +22,26 @@ class Renderer {
   };
 
   constructor(context: WebGL2RenderingContext, scene: Scene) {
-    this.context = context;
+    this.engine = new Engine(context);
     this.scene = scene;
-    this.engine = new Engine();
 
     this.resize();
+
+    this.loadTextures();
   }
 
-  clear() {
-    this.engine.clear();
+  loadTextures() {
+    const requiredSources = ['/sprites/dust.png'];
+    const sources = [...this.scene.entities, ...this.scene.terrains].reduce(
+      (previous: string[], current) => {
+        if (previous.includes(current.sprite.source)) {
+          return previous;
+        }
+        return [...previous, current.sprite.source];
+      },
+      []
+    );
+    this.engine.loadTextures([...requiredSources, ...sources]);
   }
 
   isVisible(x: number, y: number, width: number, height: number) {
@@ -69,6 +78,10 @@ class Renderer {
     //     this.scene.organisms
     //   );
     // }
+
+    this.engine.clear();
+
+    this.engine.render();
   }
 
   // renderColliders(
@@ -122,8 +135,8 @@ class Renderer {
       if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
         // Render a shadow if the entity has one
         if (sprite.shadow) {
-          this.engine.renderTexture(
-            sprite.texture,
+          this.engine.queueRender(
+            sprite.source,
             sprite.shadow.sourceX, // position x in the source image
             sprite.shadow.sourceY, // position y in the source image
             sprite.shadow.width, // width of the sprite in the source image
@@ -137,8 +150,8 @@ class Renderer {
 
         // If the entity is animated
         if (animator) {
-          this.engine.renderTexture(
-            sprite.texture,
+          this.engine.queueRender(
+            sprite.source,
             sprite.width *
               (animator.column + animator.currentAnimation.frameStart - 1), // position x in the source image
             sprite.height * animator.row, // position y in the source image
@@ -153,8 +166,8 @@ class Renderer {
 
         // If the entity is not animated
         else {
-          this.engine.renderTexture(
-            sprite.texture,
+          this.engine.queueRender(
+            sprite.source,
             sprite.sourceX as number, // position x in the source image
             sprite.sourceY as number, // position y in the source image
             sprite.width, // width of the sprite in the source image
@@ -199,8 +212,8 @@ class Renderer {
     this.scene.terrains.forEach((terrain) => {
       const { position, sprite } = terrain;
       if (this.isVisible(position.x, position.y, TILE_SIZE, TILE_SIZE)) {
-        this.engine.renderTexture(
-          sprite.texture,
+        this.engine.queueRender(
+          sprite.source,
           sprite.x, // position x in the source image
           sprite.y, // position y in the source image
           TILE_SIZE, // width of the sprite in the source image
@@ -214,28 +227,15 @@ class Renderer {
     });
   }
 
-  // translate(offsetX: number, offsetY: number) {
-  //   this.offsetX = Math.abs(Math.round(offsetX));
-  //   this.offsetY = Math.abs(Math.round(offsetY));
+  translate(offsetX: number, offsetY: number) {
+    this.offsetX = Math.abs(Math.round(offsetX));
+    this.offsetY = Math.abs(Math.round(offsetY));
 
-  //   this.terrainContext.setTransform(
-  //     1,
-  //     0,
-  //     0,
-  //     1,
-  //     Math.floor(offsetX * this.ratio),
-  //     Math.floor(offsetY * this.ratio)
-  //   );
-
-  //   this.environmentContext.setTransform(
-  //     1,
-  //     0,
-  //     0,
-  //     1,
-  //     Math.floor(offsetX * this.ratio),
-  //     Math.floor(offsetY * this.ratio)
-  //   );
-  // }
+    this.engine.translate(
+      Math.floor(offsetX * this.ratio),
+      Math.floor(offsetY * this.ratio)
+    );
+  }
 }
 
 export default Renderer;

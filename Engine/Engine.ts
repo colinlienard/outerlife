@@ -1,125 +1,250 @@
 import { mat4, vec3 } from 'gl-matrix';
-import State from '~~/Game/State';
+import fragmentSource from './fragmentSource';
 import Program from './Program';
-import Texture from './Texture';
-
-const vertexSource = `#version 300 es
-  in vec4 a_position;
-  in vec2 a_texCoord;
-
-  uniform mat4 u_matrix;
-  uniform mat4 u_textureMatrix;
-
-  out vec2 v_texCoord;
-
-  void main() {
-    gl_Position = u_matrix * a_position;
-    v_texCoord = (u_textureMatrix * vec4(a_texCoord, 0, 1)).xy;
-  }
-`;
-
-const fragmentSource = `#version 300 es
-  precision highp float;
-
-  in vec2 v_texCoord;
-
-  uniform sampler2D u_texture;
-
-  out vec4 outColor;
-
-  void main() {
-    outColor = texture(u_texture, v_texCoord);
-  }
-`;
+import vertexSource from './vertexSource';
 
 class Engine {
-  context: WebGL2RenderingContext;
+  gl: WebGL2RenderingContext;
+
+  locations = {
+    position: 0,
+    textureCoord: 1,
+    depth: 2,
+    modelMatrix: 3,
+    textureMatrix: 7,
+  };
 
   program: WebGLProgram;
 
-  locations!: {
-    matrixLocation: WebGLUniformLocation;
-    textureLocation: WebGLUniformLocation;
-    textureMatrixLocation: WebGLUniformLocation;
+  renderData: number[] = [];
+
+  renderQueueLenght = 0;
+
+  sourcesIndex = <{ [key: string]: number }>{};
+
+  MaxTextureSize = 0;
+
+  translation = {
+    x: 0,
+    y: 0,
   };
 
-  vertexArray: WebGLVertexArrayObject;
+  constructor(context: WebGL2RenderingContext) {
+    this.gl = context;
 
-  constructor() {
-    this.context = State.context;
-    this.context.clearColor(0, 0, 0, 1);
-    this.context.enable(this.context.BLEND);
-    this.context.blendFunc(
-      this.context.SRC_ALPHA,
-      this.context.ONE_MINUS_SRC_ALPHA
+    // Context settings
+    this.gl.clearColor(0, 0, 0, 1);
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+
+    // Get a shader program
+    this.program = new Program(this.gl, vertexSource, fragmentSource).get();
+    this.gl.useProgram(this.program);
+
+    // Bind all attribute locations in the vertex shader
+    this.gl.bindAttribLocation(
+      this.program,
+      this.locations.position,
+      'position'
     );
-    this.context.colorMask(true, true, true, false);
-
-    this.program = new Program(vertexSource, fragmentSource).get();
-
-    this.vertexArray =
-      this.context.createVertexArray() as WebGLVertexArrayObject;
-    this.context.bindVertexArray(this.vertexArray);
-
-    const positionLocation = this.getAttributeLocation('a_position');
-    this.bindAttributeLocation(
-      [0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-      positionLocation
+    this.gl.bindAttribLocation(
+      this.program,
+      this.locations.textureCoord,
+      'textureCoord'
+    );
+    this.gl.bindAttribLocation(this.program, this.locations.depth, 'depth');
+    this.gl.bindAttribLocation(
+      this.program,
+      this.locations.modelMatrix,
+      'modelMatrix'
+    );
+    this.gl.bindAttribLocation(
+      this.program,
+      this.locations.textureMatrix,
+      'textureMatrix'
     );
 
-    const texCoordLocation = this.getAttributeLocation('a_texCoord');
-    this.bindAttributeLocation(
-      [0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1],
-      texCoordLocation
+    // Create a position for the vertices
+    const positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]),
+      this.gl.STATIC_DRAW
     );
-
-    const matrixLocation = this.getUniformLocation('u_matrix');
-    const textureLocation = this.getUniformLocation('u_texture');
-    const textureMatrixLocation = this.getUniformLocation('u_textureMatrix');
-
-    this.locations = {
-      matrixLocation,
-      textureLocation,
-      textureMatrixLocation,
-    };
-  }
-
-  bindAttributeLocation(rect: number[], location: number) {
-    const buffer = this.context.createBuffer();
-    this.context.bindBuffer(this.context.ARRAY_BUFFER, buffer);
-    this.context.bufferData(
-      this.context.ARRAY_BUFFER,
-      new Float32Array(rect),
-      this.context.STATIC_DRAW
-    );
-    this.context.enableVertexAttribArray(location);
-    this.context.vertexAttribPointer(
-      location,
+    this.gl.vertexAttribPointer(
+      this.locations.position,
       2,
-      this.context.FLOAT,
+      this.gl.FLOAT,
       false,
       0,
       0
     );
+    this.gl.enableVertexAttribArray(this.locations.position);
+
+    // Create texture coordinates
+    const textureCoordBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]),
+      this.gl.STATIC_DRAW
+    );
+    this.gl.vertexAttribPointer(
+      this.locations.textureCoord,
+      2,
+      this.gl.FLOAT,
+      false,
+      0,
+      0
+    );
+    this.gl.enableVertexAttribArray(this.locations.textureCoord);
+
+    // Create the buffer that will be used by the following attributes
+    const bufferData = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bufferData);
+
+    // Bind the depth attribute
+    this.gl.vertexAttribPointer(
+      this.locations.depth,
+      1,
+      this.gl.FLOAT,
+      false,
+      33 * 4,
+      0
+    );
+    this.gl.vertexAttribDivisor(this.locations.depth, 1);
+    this.gl.enableVertexAttribArray(this.locations.depth);
+
+    // Bind the model matrix attribute
+    for (let index = 0; index < 4; index += 1) {
+      const location = this.locations.modelMatrix + index;
+      this.gl.vertexAttribPointer(
+        location,
+        4,
+        this.gl.FLOAT,
+        false,
+        33 * 4,
+        index * 16 + 4
+      );
+      this.gl.vertexAttribDivisor(location, 1);
+      this.gl.enableVertexAttribArray(location);
+    }
+
+    // Bind the texture matrix attribute
+    for (let index = 0; index < 4; index += 1) {
+      const location = this.locations.textureMatrix + index;
+      this.gl.vertexAttribPointer(
+        location,
+        4,
+        this.gl.FLOAT,
+        false,
+        33 * 4,
+        index * 16 + 4 * 16 + 4
+      );
+      this.gl.vertexAttribDivisor(location, 1);
+      this.gl.enableVertexAttribArray(location);
+    }
   }
 
   clear() {
-    this.context.clear(this.context.COLOR_BUFFER_BIT);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
 
-  getAttributeLocation(name: string) {
-    return this.context.getAttribLocation(this.program, name);
+  // eslint-disable-next-line class-methods-use-this
+  loadImage(source: string) {
+    return new Promise((resolve: (image: HTMLImageElement) => void) => {
+      const image = new Image();
+      image.src = source;
+      image.onload = () => {
+        resolve(image);
+      };
+      image.onerror = () => {
+        throw new Error(
+          `\n⚠️ Image with a source of '${source}' cannot be loaded.`
+        );
+      };
+    });
   }
 
-  getUniformLocation(name: string) {
-    return this.context.getUniformLocation(
-      this.program,
-      name
-    ) as WebGLUniformLocation;
+  loadTextures(sources: string[]) {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise<void>(async (resolve) => {
+      const promises = sources.map((source) => this.loadImage(source));
+      const images = await Promise.all(promises);
+
+      // Get the max size of all the images
+      const textureMaxWidth = images.reduce(
+        (previous, current) => Math.max(previous, current.width),
+        0
+      );
+      const textureMaxHeight = images.reduce(
+        (previous, current) => Math.max(previous, current.height),
+        0
+      );
+      this.MaxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
+
+      // Create a texture array with the max size
+      const texture = this.gl.createTexture() as WebGLTexture;
+      this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, texture);
+      this.gl.texStorage3D(
+        this.gl.TEXTURE_2D_ARRAY,
+        1,
+        this.gl.RGBA8,
+        this.MaxTextureSize,
+        this.MaxTextureSize,
+        sources.length
+      );
+
+      // Add each image in the texture array
+      for (let index = 0; index < sources.length; index += 1) {
+        const image = images[index];
+        this.gl.texSubImage3D(
+          this.gl.TEXTURE_2D_ARRAY,
+          0,
+          0,
+          0,
+          index,
+          image.width,
+          image.height,
+          1,
+          this.gl.RGBA,
+          this.gl.UNSIGNED_BYTE,
+          image
+        );
+
+        // Save the depth of each source in the array
+        this.sourcesIndex[sources[index]] = index;
+      }
+
+      // Texture settings
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D_ARRAY,
+        this.gl.TEXTURE_WRAP_S,
+        this.gl.CLAMP_TO_EDGE
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D_ARRAY,
+        this.gl.TEXTURE_WRAP_T,
+        this.gl.CLAMP_TO_EDGE
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D_ARRAY,
+        this.gl.TEXTURE_MAG_FILTER,
+        this.gl.NEAREST
+      );
+      this.gl.texParameteri(
+        this.gl.TEXTURE_2D_ARRAY,
+        this.gl.TEXTURE_MIN_FILTER,
+        this.gl.NEAREST
+      );
+
+      resolve();
+    });
   }
 
-  renderTexture(
-    texture: Texture | null,
+  queueRender(
+    source: string,
     sourceX: number,
     sourceY: number,
     sourceWidth: number,
@@ -129,66 +254,78 @@ class Engine {
     width: number,
     height: number
   ) {
-    if (!texture || !texture.loaded) {
-      return;
-    }
+    const textureUnit = this.sourcesIndex[source];
 
-    this.context.useProgram(this.program);
-
-    this.context.bindVertexArray(this.vertexArray);
-
-    const textureUnit = 0;
-    this.context.uniform1i(this.locations.textureLocation, textureUnit);
-    this.context.activeTexture(this.context.TEXTURE0 + textureUnit);
-    this.context.bindTexture(this.context.TEXTURE_2D, texture.texture);
-
-    const matrix = mat4.create();
-    mat4.ortho(
-      matrix,
-      0,
-      this.context.canvas.clientWidth,
-      this.context.canvas.clientHeight,
-      0,
-      -1,
-      1
+    const modelMatrix = mat4.create();
+    mat4.ortho(modelMatrix, 0, window.innerWidth, window.innerHeight, 0, -1, 1);
+    mat4.translate(
+      modelMatrix,
+      modelMatrix,
+      vec3.fromValues(x + this.translation.x, y + this.translation.y, 0)
     );
-    mat4.translate(matrix, matrix, vec3.fromValues(x, y, 0));
-    mat4.scale(matrix, matrix, vec3.fromValues(width, height, 1));
-    this.context.uniformMatrix4fv(this.locations.matrixLocation, false, matrix);
+    mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(width, height, 1));
 
     const textureMatrix = mat4.create();
     mat4.translate(
       textureMatrix,
       textureMatrix,
-      vec3.fromValues(sourceX / texture.width, sourceY / texture.height, 0)
+      vec3.fromValues(
+        sourceX / this.MaxTextureSize,
+        sourceY / this.MaxTextureSize,
+        0
+      )
     );
     mat4.scale(
       textureMatrix,
       textureMatrix,
       vec3.fromValues(
-        sourceWidth / texture.width,
-        sourceHeight / texture.height,
+        sourceWidth / this.MaxTextureSize,
+        sourceHeight / this.MaxTextureSize,
         1
       )
     );
-    this.context.uniformMatrix4fv(
-      this.locations.textureMatrixLocation,
-      false,
-      textureMatrix
+
+    // Add all the data in the same array
+    this.renderData.push(textureUnit, ...modelMatrix, ...textureMatrix);
+
+    this.renderQueueLenght += 1;
+  }
+
+  render() {
+    // Use the new data
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(this.renderData),
+      this.gl.DYNAMIC_DRAW
     );
 
-    this.context.drawArrays(this.context.TRIANGLES, 0, 6);
+    // Render
+    this.gl.drawArraysInstanced(
+      this.gl.TRIANGLES,
+      0,
+      6,
+      this.renderQueueLenght
+    );
+
+    // Reset the data for the next render
+    this.renderData = [];
+    this.renderQueueLenght = 0;
   }
 
   resize() {
-    const { canvas } = this.context;
+    const { canvas } = this.gl;
     const { width, height } = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio;
 
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
 
-    this.context.viewport(0, 0, canvas.width, canvas.height);
+    this.gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  translate(x: number, y: number) {
+    this.translation.x = x;
+    this.translation.y = y;
   }
 }
 

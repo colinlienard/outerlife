@@ -128,7 +128,7 @@ class Scene {
       }
     }
 
-    // // Build interactions
+    // Build interactions
     this.interactions = this.tilemap.interactions;
 
     // Add a new player instance

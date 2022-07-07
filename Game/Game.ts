@@ -1,5 +1,4 @@
 import Camera from './Camera';
-import State from './State';
 import EventHandler from './EventHandler';
 import Renderer from './Renderer';
 import Scene from './Scene';
@@ -25,17 +24,13 @@ class Game {
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
 
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-
     const context = canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
     }) as WebGL2RenderingContext;
-    State.context = context;
 
     this.scene = new Scene();
-    this.scene.buildMap(0, 0);
+    this.scene.buildMap(300, 300);
 
     this.eventHandler = new EventHandler();
 
@@ -44,24 +39,27 @@ class Game {
     this.camera = new Camera(this.scene);
     this.camera.init(this.scene);
 
-    this.loop(0, 0);
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+
+    this.loop();
   }
 
   destructor() {
     window.removeEventListener('resize', () => this.resize());
 
-    this.scene?.destructor();
-    // this.camera?.destructor(this.scene as Scene);
-    this.eventHandler?.destructor();
+    this.scene.destructor();
+    this.camera.destructor(this.scene as Scene);
+    this.eventHandler.destructor();
   }
 
   resize() {
-    this.renderer?.resize();
+    this.renderer.resize();
 
-    // this.camera?.updateViewPort(
-    //   this.renderer?.viewPortWidth as number,
-    //   this.renderer?.viewPortHeight as number
-    // );
+    this.camera.updateViewPort(
+      this.renderer.viewport.width,
+      this.renderer.viewport.height
+    );
   }
 
   loop(time = 0, oldTime = 0) {
@@ -73,17 +71,16 @@ class Game {
         ) / 10;
     }
 
-    this.scene?.updatePlayer(this.eventHandler?.keys as Keys);
-    this.scene?.performCollisions();
-    this.scene?.animate();
-    this.scene?.ySort();
+    this.scene.updatePlayer(this.eventHandler.keys as Keys);
+    this.scene.performCollisions();
+    this.scene.animate();
+    this.scene.ySort();
 
-    // this.renderer?.translate(
-    //   this.camera?.getOffsetX() as number,
-    //   this.camera?.getOffsetY() as number
-    // );
-    this.renderer?.clear();
-    this.renderer?.render({ debug: this.debug });
+    this.renderer?.translate(
+      this.camera?.getOffsetX() as number,
+      this.camera?.getOffsetY() as number
+    );
+    this.renderer.render({ debug: this.debug });
 
     if (!this.paused) {
       window.requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
