@@ -22,18 +22,10 @@ const exitFullScreen = () => document.exitFullscreen();
 const setDebugMode = (state: boolean) => {
   if (game) {
     game.value.debug = state;
-    game.value.loop();
   }
 
   if (showFPS) {
     showFPS.value = state;
-  }
-};
-
-// Avoid blank screen when changing screen mode
-const handleFullScreenChange = () => {
-  if (paused.value) {
-    game?.value.loop();
   }
 };
 
@@ -48,14 +40,6 @@ watch(paused, (newPaused) => {
   } else {
     game?.value.resume();
   }
-});
-
-onMounted(() => {
-  document.addEventListener('fullscreenchange', handleFullScreenChange);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('fullscreenchange', handleFullScreenChange);
 });
 </script>
 

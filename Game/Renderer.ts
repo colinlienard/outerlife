@@ -48,8 +48,8 @@ class Renderer {
     return (
       x + width > this.offsetX &&
       x < this.offsetX + this.viewport.width &&
-      y + height > this.offsetY &&
-      y < this.offsetY + this.viewport.height
+      y + height + 10 > this.offsetY &&
+      y - 10 < this.offsetY + this.viewport.height
     );
   }
 

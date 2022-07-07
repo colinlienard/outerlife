@@ -37,6 +37,7 @@ class Game {
     this.renderer = new Renderer(context, this.scene);
 
     this.camera = new Camera(this.scene);
+    this.camera.updateViewPort(this.renderer.viewport);
     this.camera.init(this.scene);
 
     this.resize();
@@ -56,10 +57,7 @@ class Game {
   resize() {
     this.renderer.resize();
 
-    this.camera.updateViewPort(
-      this.renderer.viewport.width,
-      this.renderer.viewport.height
-    );
+    this.camera.updateViewPort(this.renderer.viewport);
   }
 
   loop(time = 0, oldTime = 0) {
@@ -71,20 +69,20 @@ class Game {
         ) / 10;
     }
 
-    this.scene.updatePlayer(this.eventHandler.keys as Keys);
-    this.scene.performCollisions();
-    this.scene.animate();
-    this.scene.ySort();
+    if (!this.paused) {
+      this.scene.updatePlayer(this.eventHandler.keys as Keys);
+      this.scene.performCollisions();
+      this.scene.animate();
+      this.scene.ySort();
+    }
 
     this.renderer?.translate(
-      this.camera?.getOffsetX() as number,
-      this.camera?.getOffsetY() as number
+      this.camera?.getCameraX(),
+      this.camera?.getCameraY()
     );
     this.renderer.render({ debug: this.debug });
 
-    if (!this.paused) {
-      window.requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
-    }
+    requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
   }
 
   pause() {
@@ -93,7 +91,6 @@ class Game {
 
   resume() {
     this.paused = false;
-    this.loop();
   }
 }
 
