@@ -11,7 +11,7 @@ import MenuCheck from './MenuCheck.vue';
 const paused = ref(false);
 const showOptions = ref(false);
 const game = inject<Ref<Game>>('game');
-const showFPS = inject<Ref<boolean>>('showFPS');
+const debugMode = inject<Ref<boolean>>('debugMode');
 
 const isFullScreen = () => document.fullscreenElement !== null;
 
@@ -20,13 +20,8 @@ const enterFullScreen = () => document.body.requestFullscreen();
 const exitFullScreen = () => document.exitFullscreen();
 
 const setDebugMode = (state: boolean) => {
-  if (game) {
-    game.value.debug = state;
-  }
-
-  if (showFPS) {
-    showFPS.value = state;
-  }
+  (debugMode as Ref<boolean>).value = state;
+  (game as Ref<Game>).value.debug = state;
 };
 
 const togglePause = () => {
@@ -67,7 +62,7 @@ watch(paused, (newPaused) => {
             Full screen
           </MenuCheck>
           <MenuCheck
-            :default="showFPS || false"
+            :default="debugMode || false"
             @check="setDebugMode(true)"
             @uncheck="setDebugMode(false)"
           >

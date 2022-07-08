@@ -1,11 +1,12 @@
-// import Entity from './Entities/Entity';
-// import Terrain from './Entities/Terrains/Terrain';
 import Engine from '~~/Engine/Engine';
+import Entity from './Entities/Entity';
 import { TILE_SIZE, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';
-// import { Collider, Interaction } from './types';
+import { Collider, Interaction } from './types';
 
 class Renderer {
+  debugContext: CanvasRenderingContext2D;
+
   engine: Engine;
 
   offsetX = 0;
@@ -21,8 +22,13 @@ class Renderer {
     height: 0,
   };
 
-  constructor(context: WebGL2RenderingContext, scene: Scene) {
-    this.engine = new Engine(context);
+  constructor(
+    gameContext: WebGL2RenderingContext,
+    debugContext: CanvasRenderingContext2D,
+    scene: Scene
+  ) {
+    this.engine = new Engine(gameContext);
+    this.debugContext = debugContext;
     this.scene = scene;
 
     this.resize();
@@ -56,6 +62,9 @@ class Renderer {
   resize() {
     this.engine.resize();
 
+    this.debugContext.canvas.width = window.innerWidth;
+    this.debugContext.canvas.height = window.innerHeight;
+
     this.ratio = Math.round(window.innerHeight / Y_PIXELS_NUMBER);
 
     this.viewport.width = window.innerWidth / this.ratio;
@@ -65,68 +74,76 @@ class Renderer {
   render(options: { debug: boolean }) {
     this.renderTerrains();
 
-    if (options.debug) {
-      //   this.renderGrid();
-    }
-
     this.renderEntities();
-
-    // if (options.debug) {
-    //   this.renderColliders(
-    //     this.scene.colliders,
-    //     this.scene.interactions,
-    //     this.scene.organisms
-    //   );
-    // }
 
     this.engine.clear();
 
     this.engine.render();
+
+    if (options.debug) {
+      this.debugContext.clearRect(0, 0, 9999, 9999);
+      this.renderGrid();
+      this.renderColliders(
+        this.scene.colliders,
+        this.scene.interactions,
+        this.scene.organisms
+      );
+    }
   }
 
-  // renderColliders(
-  //   colliders: Collider[],
-  //   interactions: Interaction[],
-  //   organisms: Entity[]
-  // ) {
-  //   // Render environments colliders
-  //   this.environmentContext.fillStyle = 'rgba(255, 0, 0, 0.5)';
-  //   colliders.forEach((collider) => {
-  //     this.environmentContext.fillRect(
-  //       collider.x * this.ratio,
-  //       collider.y * this.ratio,
-  //       collider.width * this.ratio,
-  //       collider.height * this.ratio
-  //     );
-  //   });
+  renderColliders(
+    colliders: Collider[],
+    interactions: Interaction[],
+    organisms: Entity[]
+  ) {
+    this.debugContext.lineWidth = 2;
 
-  //   // Render interactions
-  //   this.environmentContext.fillStyle = 'rgba(0, 0, 255, 0.5)';
-  //   interactions.forEach((interaction) => {
-  //     this.environmentContext.fillRect(
-  //       interaction.x * this.ratio,
-  //       interaction.y * this.ratio,
-  //       interaction.width * this.ratio,
-  //       interaction.height * this.ratio
-  //     );
-  //   });
+    // Render environments colliders
+    this.debugContext.strokeStyle = 'rgb(255, 0, 0)';
 
-  //   // Render organisms colliders
-  //   this.environmentContext.fillStyle = 'rgba(0, 255, 0, 0.5)';
-  //   organisms.forEach((organism) => {
-  //     const { collider } = organism;
-  //     if (collider) {
-  //       this.environmentContext.fillRect(
-  //         Math.floor((organism.position.x + collider.x) * this.ratio),
-  //         Math.floor((organism.position.y + collider.y) * this.ratio),
-  //         collider.width * this.ratio,
-  //         collider.height * this.ratio
-  //       );
-  //     }
-  //   });
+    colliders.forEach((collider) => {
+      this.debugContext.strokeRect(
+        collider.x * this.ratio,
+        collider.y * this.ratio,
+        collider.width * this.ratio,
+        collider.height * this.ratio
+      );
+    });
 
-  //   this.environmentContext.fillStyle = 'transparent';
-  // }
+    // Render interactions
+    this.debugContext.strokeStyle = 'rgb(0, 0, 255)';
+    interactions.forEach((interaction) => {
+      this.debugContext.strokeRect(
+        interaction.x * this.ratio,
+        interaction.y * this.ratio,
+        interaction.width * this.ratio,
+        interaction.height * this.ratio
+      );
+    });
+
+    // Render organisms colliders
+    this.debugContext.strokeStyle = 'rgb(0, 255, 0)';
+    this.debugContext.fillStyle = 'rgb(0, 255, 0)';
+    this.debugContext.font = '16px monospace';
+    organisms.forEach((organism) => {
+      // console.log(organism.constructor.name);
+
+      const { collider } = organism;
+      if (collider) {
+        const x = Math.floor((organism.position.x + collider.x) * this.ratio);
+        const y = Math.floor((organism.position.y + collider.y) * this.ratio);
+        this.debugContext.strokeRect(
+          x,
+          y,
+          collider.width * this.ratio,
+          collider.height * this.ratio
+        );
+        this.debugContext.fillText(organism.constructor.name, x, y - 6);
+      }
+    });
+
+    this.debugContext.fillStyle = 'transparent';
+  }
 
   renderEntities() {
     this.scene.entities.forEach((entity) => {
@@ -182,31 +199,32 @@ class Renderer {
     });
   }
 
-  // renderGrid() {
-  //   this.environmentContext.strokeStyle = 'white';
+  renderGrid() {
+    this.debugContext.lineWidth = 1;
+    this.debugContext.strokeStyle = 'rgba(255, 255, 255, 0.5)';
 
-  //   for (let index = 0; index < this.scene.tilemap.columns; index += 1) {
-  //     const x = index * TILE_SIZE * this.ratio;
-  //     this.environmentContext.beginPath();
-  //     this.environmentContext.moveTo(x, 0);
-  //     this.environmentContext.lineTo(
-  //       x,
-  //       this.scene.tilemap.rows * TILE_SIZE * this.ratio
-  //     );
-  //     this.environmentContext.stroke();
-  //   }
+    for (let index = 0; index < this.scene.tilemap.columns; index += 1) {
+      const x = index * TILE_SIZE * this.ratio;
+      this.debugContext.beginPath();
+      this.debugContext.moveTo(x, 0);
+      this.debugContext.lineTo(
+        x,
+        this.scene.tilemap.rows * TILE_SIZE * this.ratio
+      );
+      this.debugContext.stroke();
+    }
 
-  //   for (let index = 0; index < this.scene.tilemap.rows; index += 1) {
-  //     const y = index * TILE_SIZE * this.ratio;
-  //     this.environmentContext.beginPath();
-  //     this.environmentContext.moveTo(0, y);
-  //     this.environmentContext.lineTo(
-  //       this.scene.tilemap.columns * TILE_SIZE * this.ratio,
-  //       y
-  //     );
-  //     this.environmentContext.stroke();
-  //   }
-  // }
+    for (let index = 0; index < this.scene.tilemap.rows; index += 1) {
+      const y = index * TILE_SIZE * this.ratio;
+      this.debugContext.beginPath();
+      this.debugContext.moveTo(0, y);
+      this.debugContext.lineTo(
+        this.scene.tilemap.columns * TILE_SIZE * this.ratio,
+        y
+      );
+      this.debugContext.stroke();
+    }
+  }
 
   renderTerrains() {
     this.scene.terrains.forEach((terrain) => {
@@ -232,6 +250,15 @@ class Renderer {
     this.offsetY = Math.abs(Math.round(offsetY));
 
     this.engine.translate(
+      Math.floor(offsetX * this.ratio),
+      Math.floor(offsetY * this.ratio)
+    );
+
+    this.debugContext.setTransform(
+      1,
+      0,
+      0,
+      1,
       Math.floor(offsetX * this.ratio),
       Math.floor(offsetY * this.ratio)
     );

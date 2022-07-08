@@ -7,8 +7,6 @@ import { Keys } from './types';
 class Game {
   camera;
 
-  canvas: HTMLCanvasElement;
-
   debug = false;
 
   eventHandler;
@@ -21,20 +19,21 @@ class Game {
 
   scene;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-
-    const context = canvas.getContext('webgl2', {
+  constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
+    const gameContext = gameCanvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
     }) as WebGL2RenderingContext;
+    const debugContext = debugCanvas.getContext(
+      '2d'
+    ) as CanvasRenderingContext2D;
 
     this.scene = new Scene();
     this.scene.buildMap(300, 300);
 
     this.eventHandler = new EventHandler();
 
-    this.renderer = new Renderer(context, this.scene);
+    this.renderer = new Renderer(gameContext, debugContext, this.scene);
 
     this.camera = new Camera(this.scene);
     this.camera.updateViewPort(this.renderer.viewport);

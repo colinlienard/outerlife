@@ -4,14 +4,15 @@ import PauseScreen from './Menus/PauseScreen.vue';
 import FPSVisualizer from './FPSVisualizer.vue';
 import { TRANSITION_DURATION } from '../globals';
 
-const canvas = ref<HTMLCanvasElement>();
+const gameCanvas = ref<HTMLCanvasElement>();
+const debugCanvas = ref<HTMLCanvasElement>();
 const game = ref();
 const showTransition = ref(false);
-const showFPS = ref(false);
+const debugMode = ref(false);
 const transitionDuration = `${TRANSITION_DURATION}ms`;
 
 provide('game', game);
-provide('showFPS', showFPS);
+provide('debugMode', debugMode);
 
 const endTransition = () => {
   showTransition.value = false;
@@ -24,9 +25,10 @@ const performTransition = () => {
 };
 
 onMounted(() => {
-  if (canvas.value) {
-    game.value = new Game(canvas.value);
-  }
+  game.value = new Game(
+    gameCanvas.value as HTMLCanvasElement,
+    debugCanvas.value as HTMLCanvasElement
+  );
 
   window.addEventListener('transition', performTransition);
 });
@@ -40,8 +42,12 @@ onUnmounted(() => {
 
 <template>
   <section class="container">
-    <canvas ref="canvas" class="canvas" />
-    <FPSVisualizer v-if="showFPS" />
+    <canvas ref="gameCanvas" class="game-canvas" />
+    <canvas
+      ref="debugCanvas"
+      :class="['debug-canvas', { visible: debugMode }]"
+    />
+    <FPSVisualizer v-if="debugMode" />
     <Transition name="transition">
       <div v-if="showTransition" class="transition" />
     </Transition>
@@ -55,9 +61,21 @@ onUnmounted(() => {
   width: 100vw;
   height: 100vh;
 
-  .canvas {
+  .game-canvas {
     width: 100vw;
     height: 100vh;
+  }
+
+  .debug-canvas {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    &:not(.visible) {
+      opacity: 0;
+    }
   }
 }
 
