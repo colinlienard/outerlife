@@ -1,7 +1,7 @@
 import Entity from '../Entity';
 import { Direction, Keys } from '../../types';
 import Dust from '../Effects/Dust';
-import spawn from '~~/Game/utils/spawn';
+import spawn from '~~/core/utils/spawn';
 
 class Player extends Entity {
   animations = {

@@ -1,4 +1,4 @@
-import Engine from '~~/Engine/Engine';
+import Engine from '~~/core/engine';
 import Entity from './Entities/Entity';
 import { TILE_SIZE, TRANSITION_DURATION, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';

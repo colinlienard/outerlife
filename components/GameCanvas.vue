@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Game from '../Game';
-import PauseScreen from './Menus/PauseScreen.vue';
+import Game from '~~/core/Game';
 import FPSVisualizer from './FPSVisualizer.vue';
 import LoadingScreen from './LoadingScreen.vue';
+import PauseScreen from './menus/PauseScreen.vue';
 
 const gameCanvas = ref<HTMLCanvasElement>();
 const debugCanvas = ref<HTMLCanvasElement>();

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Editor from './Editor';
+import Editor from './editor';
 import EditorTile from './EditorTile.vue';
-import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
-import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
-import { Tilemap } from '~~/Game/types';
+import EnvironmentTiles from '~~/core/Entities/Environments/EnvironmentTiles';
+import TerrainTiles from '~~/core/Entities/Terrains/TerrainTiles';
+import { Tilemap } from '~~/core/types';
 
 const tileSize = 16;
 const rows = ref(10);

@@ -1,7 +1,7 @@
-import EnvironmentTiles from '~~/Game/Entities/Environments/EnvironmentTiles';
-import TerrainTiles from '~~/Game/Entities/Terrains/TerrainTiles';
-import { TILE_SIZE } from '~~/Game/globals';
-import { Tilemap } from '~~/Game/types';
+import EnvironmentTiles from '~~/core/Entities/Environments/EnvironmentTiles';
+import TerrainTiles from '~~/core/Entities/Terrains/TerrainTiles';
+import { TILE_SIZE } from '~~/core/globals';
+import { Tilemap } from '~~/core/types';
 
 class Editor {
   context: CanvasRenderingContext2D;

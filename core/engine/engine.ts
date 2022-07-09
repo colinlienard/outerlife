@@ -1,9 +1,9 @@
 import { mat4, vec3 } from 'gl-matrix';
 import fragmentSource from './fragmentSource';
-import Program from './Program';
+import Program from './program';
 import vertexSource from './vertexSource';
 
-class Engine {
+export default class Engine {
   gl: WebGL2RenderingContext;
 
   locations = {
@@ -335,5 +335,3 @@ class Engine {
     this.translation.y = y;
   }
 }
-
-export default Engine;
