@@ -11,7 +11,7 @@ import MenuCheck from './MenuCheck.vue';
 const paused = ref(false);
 const showOptions = ref(false);
 const game = inject<Ref<Game>>('game');
-const showFPS = inject<Ref<boolean>>('showFPS');
+const debugMode = inject<Ref<boolean>>('debugMode');
 
 const isFullScreen = () => document.fullscreenElement !== null;
 
@@ -20,21 +20,8 @@ const enterFullScreen = () => document.body.requestFullscreen();
 const exitFullScreen = () => document.exitFullscreen();
 
 const setDebugMode = (state: boolean) => {
-  if (game) {
-    game.value.debug = state;
-    game.value.loop(0, 0);
-  }
-
-  if (showFPS) {
-    showFPS.value = state;
-  }
-};
-
-// Avoid blank screen when changing screen mode
-const handleFullScreenChange = () => {
-  if (paused.value) {
-    game?.value.loop(0, 0);
-  }
+  (debugMode as Ref<boolean>).value = state;
+  (game as Ref<Game>).value.debug = state;
 };
 
 const togglePause = () => {
@@ -48,14 +35,6 @@ watch(paused, (newPaused) => {
   } else {
     game?.value.resume();
   }
-});
-
-onMounted(() => {
-  document.addEventListener('fullscreenchange', handleFullScreenChange);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('fullscreenchange', handleFullScreenChange);
 });
 </script>
 
@@ -83,7 +62,7 @@ onUnmounted(() => {
             Full screen
           </MenuCheck>
           <MenuCheck
-            :default="showFPS || false"
+            :default="debugMode || false"
             @check="setDebugMode(true)"
             @uncheck="setDebugMode(false)"
           >

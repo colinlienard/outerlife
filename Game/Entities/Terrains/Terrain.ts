@@ -5,7 +5,7 @@ class Terrain {
   };
 
   sprite = {
-    image: new Image(),
+    source: '',
     x: 0,
     y: 0,
   };
@@ -20,7 +20,8 @@ class Terrain {
     this.position.x = x;
     this.position.y = y;
 
-    this.sprite.image.src = `/sprites/${source}.png`;
+    this.sprite.source = source;
+
     this.sprite.x = spriteX;
     this.sprite.y = spriteY;
   }

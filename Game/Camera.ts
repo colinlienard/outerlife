@@ -1,80 +1,78 @@
 import Player from './Entities/Organisms/Player';
-import { TILE_SIZE } from './globals';
+import { CAMERA_EASING, TILE_SIZE } from './globals';
 import Scene from './Scene';
 
-const EASING = 0.08;
-
 class Camera {
-  mapHeight = 0;
+  map = {
+    width: 0,
+    height: 0,
+  };
 
-  mapWidth = 0;
+  player!: Player;
 
-  player = new Player(0, 0);
-
-  viewPortWidth = 0;
-
-  viewPortHeight = 0;
+  viewport = {
+    width: 0,
+    height: 0,
+  };
 
   x = 0;
 
   y = 0;
 
   constructor(scene: Scene) {
-    window.addEventListener('scene-switch', () => this.init(scene));
+    window.addEventListener('end-scene-switch', () => this.init(scene));
   }
 
   destructor(scene: Scene) {
-    window.removeEventListener('scene-switch', () => this.init(scene));
+    window.removeEventListener('end-scene-switch', () => this.init(scene));
   }
 
   getTargetX(): number {
-    return (
-      (this.viewPortWidth - this.player.sprite.width) / 2 -
-      this.player.position.x
-    );
-  }
-
-  getTargetY(): number {
-    return (
-      (this.viewPortHeight - this.player.sprite.height) / 2 -
-      this.player.position.y
-    );
-  }
-
-  getOffsetX(): number {
-    let target = this.getTargetX();
+    const target =
+      (this.viewport.width - this.player.sprite.width) / 2 -
+      this.player.position.x;
 
     // No overflow on the left
     if (target > 0) {
-      target = 0;
+      return 0;
     }
 
     // No overflow on the right
-    else if (target < -this.mapWidth + this.viewPortWidth) {
-      target = -this.mapWidth + this.viewPortWidth;
+    if (target < -this.map.width + this.viewport.width) {
+      return -this.map.width + this.viewport.width;
     }
 
+    return target;
+  }
+
+  getTargetY(): number {
+    const target =
+      (this.viewport.height - this.player.sprite.height) / 2 -
+      this.player.position.y;
+
+    // No overflow on the top
+    if (target > 0) {
+      return 0;
+    }
+
+    // No overflow on the bottom
+    if (target < -this.map.height + this.viewport.height) {
+      return -this.map.height + this.viewport.height;
+    }
+
+    return target;
+  }
+
+  getCameraX(): number {
     // Easing
-    this.x += (target - this.x) * EASING;
+    this.x += (this.getTargetX() - this.x) * CAMERA_EASING;
 
     return this.x;
   }
 
-  getOffsetY(): number {
-    let target = this.getTargetY();
-
-    // No overflow on the top
-    if (target > 0) {
-      target = 0;
-    }
-
-    // No overflow on the bottom
-    else if (target < -this.mapHeight + this.viewPortHeight) {
-      target = -this.mapHeight + this.viewPortHeight;
-    }
-
+  getCameraY(): number {
     // Easing
-    this.y += (target - this.y) * EASING;
+    this.y += (this.getTargetY() - this.y) * CAMERA_EASING;
 
     return this.y;
   }
@@ -82,16 +80,15 @@ class Camera {
   init(scene: Scene) {
     this.player = scene.player;
 
-    this.mapWidth = scene.tilemap.columns * TILE_SIZE;
-    this.mapHeight = scene.tilemap.rows * TILE_SIZE;
+    this.map.width = scene.tilemap.columns * TILE_SIZE;
+    this.map.height = scene.tilemap.rows * TILE_SIZE;
 
     this.x = this.getTargetX();
     this.y = this.getTargetY();
   }
 
-  updateViewPort(viewPortWidth: number, viewPortHeight: number) {
-    this.viewPortWidth = viewPortWidth;
-    this.viewPortHeight = viewPortHeight;
+  updateViewPort(viewport: { width: number; height: number }) {
+    this.viewport = viewport;
   }
 }
 

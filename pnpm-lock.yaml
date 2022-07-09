@@ -10,6 +10,7 @@ specifiers:
   eslint-plugin-import: 2.25.2
   eslint-plugin-prettier: ^4.0.0
   eslint-plugin-vue: ^8.6.0
+  gl-matrix: ^3.4.3
   husky: ^7.0.4
   nuxt: 3.0.0-rc.3
   postcss: ^8.4.12
@@ -22,6 +23,9 @@ specifiers:
   stylelint-config-standard-vue: ^1.0.0
   stylelint-prettier: ^2.0.0
   typescript: ^4.6.3
+
+dependencies:
+  gl-matrix: 3.4.3
 
 devDependencies:
   '@nuxtjs/eslint-config-typescript': 9.0.0_r7xq5zmhpc54m2m3dljljzbebe
@@ -4242,6 +4246,13 @@ packages:
       mkdirp: 0.5.6
       tar: 4.4.19
     dev: true
+
+  /gl-matrix/3.4.3:
+    resolution:
+      {
+        integrity: sha512-wcCp8vu8FT22BnvKVPjXa/ICBWRq/zjFfdofZy1WSpQZpphblv12/bOQLBC1rMM7SGOFS9ltVmKOHil5+Ml7gA==,
+      }
+    dev: false
 
   /glob-parent/5.1.2:
     resolution:

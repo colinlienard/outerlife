@@ -24,7 +24,7 @@ class Scene {
 
   organisms: Entity[] = [];
 
-  player = new Player(0, 0);
+  player!: Player;
 
   terrains: Terrain[] = [];
 
@@ -240,11 +240,10 @@ class Scene {
   }
 
   switchMap(newMap: Tilemap, playerX: number, playerY: number) {
-    window.dispatchEvent(new Event('transition'));
+    window.dispatchEvent(new Event('start-scene-switch'));
     setTimeout(() => {
       this.tilemap = newMap;
       this.buildMap(playerX, playerY);
-      window.dispatchEvent(new Event('scene-switch'));
     }, TRANSITION_DURATION);
   }
 

@@ -23,7 +23,7 @@ class Dust extends Entity {
   };
 
   sprite = {
-    image: new Image(),
+    texture: null,
     source: 'dust',
     width: 7,
     height: 3,

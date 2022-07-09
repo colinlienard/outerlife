@@ -7,8 +7,6 @@ import { Keys } from './types';
 class Game {
   camera;
 
-  environmentCanvas: HTMLCanvasElement;
-
   debug = false;
 
   eventHandler;
@@ -21,64 +19,47 @@ class Game {
 
   scene;
 
-  terrainCanvas: HTMLCanvasElement;
+  constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
+    const gameContext = gameCanvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+    }) as WebGL2RenderingContext;
+    const debugContext = debugCanvas.getContext(
+      '2d'
+    ) as CanvasRenderingContext2D;
 
-  constructor(
-    terrainCanvas: HTMLCanvasElement,
-    environmentCanvas: HTMLCanvasElement
-  ) {
-    this.terrainCanvas = terrainCanvas;
-    this.environmentCanvas = environmentCanvas;
-    const terrainContext = terrainCanvas.getContext('2d');
-    const environmentContext = environmentCanvas.getContext('2d');
+    this.scene = new Scene();
+    this.scene.buildMap(300, 300);
 
-    if (terrainContext && environmentContext) {
-      this.scene = new Scene();
-      this.scene.buildMap(300, 300);
+    this.eventHandler = new EventHandler();
 
-      this.eventHandler = new EventHandler();
+    this.renderer = new Renderer(gameContext, debugContext, this.scene);
 
-      this.renderer = new Renderer(
-        terrainContext,
-        environmentContext,
-        this.scene
-      );
+    this.camera = new Camera(this.scene);
+    this.camera.updateViewPort(this.renderer.viewport);
+    this.camera.init(this.scene);
 
-      this.camera = new Camera(this.scene);
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
 
-      this.resizeCanvas();
-      window.addEventListener('resize', () => this.resizeCanvas());
-
-      this.camera.init(this.scene);
-
-      this.loop(0, 0);
-    }
+    this.loop();
   }
 
   destructor() {
-    window.removeEventListener('resize', () => this.resizeCanvas());
+    window.removeEventListener('resize', () => this.resize());
 
-    this.scene?.destructor();
-    this.camera?.destructor(this.scene as Scene);
-    this.eventHandler?.destructor();
+    this.scene.destructor();
+    this.camera.destructor(this.scene as Scene);
+    this.eventHandler.destructor();
   }
 
-  resizeCanvas() {
-    this.terrainCanvas.width = window.innerWidth;
-    this.terrainCanvas.height = window.innerHeight;
+  resize() {
+    this.renderer.resize();
 
-    this.environmentCanvas.width = window.innerWidth;
-    this.environmentCanvas.height = window.innerHeight;
-
-    this.renderer?.updateSize();
-
-    this.camera?.updateViewPort(
-      this.renderer?.viewPortWidth as number,
-      this.renderer?.viewPortHeight as number
-    );
+    this.camera.updateViewPort(this.renderer.viewport);
   }
 
-  loop(time: number, oldTime: number) {
+  loop(time = 0, oldTime = 0) {
     // Get frames per second
     if (this.debug) {
       this.fps =
@@ -87,21 +68,20 @@ class Game {
         ) / 10;
     }
 
-    this.scene?.updatePlayer(this.eventHandler?.keys as Keys);
-    this.scene?.performCollisions();
-    this.scene?.animate();
-    this.scene?.ySort();
+    if (!this.paused) {
+      this.scene.updatePlayer(this.eventHandler.keys as Keys);
+      this.scene.performCollisions();
+      this.scene.animate();
+      this.scene.ySort();
+    }
 
     this.renderer?.translate(
-      this.camera?.getOffsetX() as number,
-      this.camera?.getOffsetY() as number
+      this.camera?.getCameraX(),
+      this.camera?.getCameraY()
     );
-    this.renderer?.clear();
-    this.renderer?.render({ debug: this.debug });
+    this.renderer.render({ debug: this.debug });
 
-    if (!this.paused) {
-      window.requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
-    }
+    requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
   }
 
   pause() {
@@ -110,7 +90,6 @@ class Game {
 
   resume() {
     this.paused = false;
-    this.loop(0, 0);
   }
 }
 

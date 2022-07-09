@@ -12,6 +12,9 @@
     "lintfix": "prettier --write .",
     "prepare": "husky install"
   },
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
+  },
   "devDependencies": {
     "@nuxtjs/eslint-config-typescript": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
