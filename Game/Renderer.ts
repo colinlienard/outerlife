@@ -1,6 +1,6 @@
 import Engine from '~~/Engine/Engine';
 import Entity from './Entities/Entity';
-import { TILE_SIZE, Y_PIXELS_NUMBER } from './globals';
+import { TILE_SIZE, TRANSITION_DURATION, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';
 import { Collider, Interaction } from './types';
 
@@ -34,20 +34,29 @@ class Renderer {
     this.resize();
 
     this.loadTextures();
+
+    window.addEventListener('start-scene-switch', () => {
+      setTimeout(async () => {
+        await this.loadTextures();
+        window.dispatchEvent(new Event('end-scene-switch'));
+      }, TRANSITION_DURATION + 1);
+    });
   }
 
   loadTextures() {
-    const requiredSources = ['/sprites/dust.png'];
-    const sources = [...this.scene.entities, ...this.scene.terrains].reduce(
-      (previous: string[], current) => {
-        if (previous.includes(current.sprite.source)) {
-          return previous;
-        }
-        return [...previous, current.sprite.source];
-      },
-      []
-    );
-    this.engine.loadTextures([...requiredSources, ...sources]);
+    return new Promise((resolve) => {
+      const requiredSources = ['/sprites/dust.png'];
+      const sources = [...this.scene.entities, ...this.scene.terrains].reduce(
+        (previous: string[], current) => {
+          if (previous.includes(current.sprite.source)) {
+            return previous;
+          }
+          return [...previous, current.sprite.source];
+        },
+        []
+      );
+      this.engine.loadTextures([...requiredSources, ...sources]).then(resolve);
+    });
   }
 
   isVisible(x: number, y: number, width: number, height: number) {

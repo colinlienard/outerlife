@@ -20,11 +20,11 @@ class Camera {
   y = 0;
 
   constructor(scene: Scene) {
-    window.addEventListener('scene-switch', () => this.init(scene));
+    window.addEventListener('end-scene-switch', () => this.init(scene));
   }
 
   destructor(scene: Scene) {
-    window.removeEventListener('scene-switch', () => this.init(scene));
+    window.removeEventListener('end-scene-switch', () => this.init(scene));
   }
 
   getTargetX(): number {
