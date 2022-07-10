@@ -2,7 +2,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Ref } from 'vue';
 import { navigateTo } from '~~/.nuxt/imports';
-import Game from '~~/core/Game';
+import Game from '~~/game/Game';
 import MenuButton from './MenuButton.vue';
 import MenuButtonsList from './MenuButtonsList.vue';
 import MenuTitle from './MenuTitle.vue';

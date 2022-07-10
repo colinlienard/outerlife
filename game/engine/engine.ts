@@ -3,7 +3,7 @@ import fragmentSource from './fragmentSource';
 import Program from './program';
 import vertexSource from './vertexSource';
 
-export default class Engine {
+export class Engine {
   gl: WebGL2RenderingContext;
 
   locations = {

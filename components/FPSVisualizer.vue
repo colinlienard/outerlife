@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Ref } from 'vue';
-import Game from '~~/core/Game';
+import Game from '~~/game/Game';
 
 const game = inject<Ref<Game>>('game');
 const fps = ref<number[]>([]);

@@ -1,4 +1,4 @@
-import { Collider } from '~~/core/types';
+import { Collider } from '~~/game/types';
 
 const TerrainTiles: {
   [key: string]: { source: string; x: number; y: number; collider?: Collider };
