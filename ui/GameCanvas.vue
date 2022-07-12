@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { Game } from '~~/game';
-// import FPSVisualizer from './FPSVisualizer.vue';
-// import LoadingScreen from './LoadingScreen.vue';
-// import PauseScreen from './menus/PauseScreen.vue';
 
 const gameCanvas = ref<HTMLCanvasElement>();
 // const debugCanvas = ref<HTMLCanvasElement>();
@@ -17,8 +14,7 @@ onMounted(() => {
   try {
     game.value = new Game(context as WebGL2RenderingContext);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
+    throw new Error(error as string);
   }
 });
 </script>
