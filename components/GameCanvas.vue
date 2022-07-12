@@ -14,7 +14,12 @@ provide('game', game);
 
 onMounted(() => {
   const context = (gameCanvas.value as HTMLCanvasElement).getContext('webgl2');
-  game.value = new Game(context as WebGL2RenderingContext);
+  try {
+    game.value = new Game(context as WebGL2RenderingContext);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
 });
 </script>
 

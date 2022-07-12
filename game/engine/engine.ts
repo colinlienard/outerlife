@@ -160,9 +160,7 @@ export class Engine {
         resolve(image);
       };
       image.onerror = () => {
-        throw new Error(
-          `\n⚠️ Image with a source of '${source}' cannot be loaded.`
-        );
+        throw new Error(`Image with a source of '${source}' cannot be loaded.`);
       };
     });
   }

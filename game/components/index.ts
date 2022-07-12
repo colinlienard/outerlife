@@ -1,4 +1,4 @@
-export * from './animator';
+export * from './animation';
 export * from './collider';
 export * from './position';
 export * from './movements';

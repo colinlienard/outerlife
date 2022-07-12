@@ -1,9 +1,8 @@
-// eslint-disable-next-line import/no-cycle
-import { Component, Lifecycle } from './index';
+import { Component, ComponentInstance } from './component';
 
 type ComponentClass<T extends Component> = new (...args: any[]) => T;
 
-export class Entity implements Lifecycle {
+export abstract class Entity {
   #components: Component[] = [];
 
   add(c: Component) {
@@ -20,7 +19,7 @@ export class Entity implements Lifecycle {
     throw new Error('Component not found.');
   }
 
-  has<T extends Component>(c: ComponentClass<T>) {
+  has(c: ComponentInstance) {
     for (const component of this.#components) {
       if (component instanceof c) {
         return true;
@@ -30,15 +29,19 @@ export class Entity implements Lifecycle {
     return false;
   }
 
-  remove<T extends Component>(c: ComponentClass<T>) {
+  hasMultiple(cs: ComponentInstance[]) {
+    for (const c of cs) {
+      if (!this.has(c)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  remove(c: ComponentInstance) {
     this.#components = this.#components.filter(
       (component) => !(component instanceof c)
     );
-  }
-
-  update() {
-    this.#components.forEach((component) => {
-      component.update();
-    });
   }
 }

@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/no-cycle
-import { Entity, Lifecycle } from './index';
+export abstract class Component {}
 
-export interface Component extends Lifecycle {
-  readonly entity?: Entity;
-}
+export type ComponentInstance = new (...args: any[]) => Component;

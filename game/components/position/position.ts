@@ -10,10 +10,6 @@ export class Position implements Component {
     this.y = y;
   }
 
-  update() {
-    return this.x;
-  }
-
   changeX(number: number) {
     this.x += number;
   }

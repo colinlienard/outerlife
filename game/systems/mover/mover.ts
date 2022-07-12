@@ -1,45 +1,21 @@
+import { Animation, Movements, Position } from '~~/game/components';
 import { Events } from '~~/game/organisms/player/components';
-import { Component, Entity } from '~~/game/utils';
-import { Animation } from '../animation';
-import { Position } from '../position';
+import { Entity, System } from '~~/game/utils';
 
-type Direction = {
-  x: null | 'left' | 'right';
-  y: null | 'up' | 'down';
-};
+export class Mover extends System {
+  readonly requiredComponents = [Position, Movements, Animation];
 
-export class Movements implements Component {
-  readonly entity: Entity;
-
-  direction: Direction = {
-    x: null,
-    y: null,
-  };
-
-  speed: number = 0;
-
-  readonly maxSpeed: number;
-
-  readonly acceleration: number;
-
-  readonly deceleration: number;
-
-  constructor(
-    entity: Entity,
-    maxSpeed: number,
-    acceleration: number,
-    deceleration: number
-  ) {
-    this.entity = entity;
-    this.maxSpeed = maxSpeed;
-    this.acceleration = acceleration;
-    this.deceleration = deceleration;
+  constructor(entities: Entity[]) {
+    super();
+    super.setEntities(entities);
   }
 
-  update() {
-    const animator = this.entity.get(Animation);
-    const position = this.entity.get(Position);
-    const { keys } = this.entity.get(Events);
+  // eslint-disable-next-line class-methods-use-this
+  updateEntity(entity: Entity): void {
+    const animator = entity.get(Animation);
+    const position = entity.get(Position);
+    const movements = entity.get(Movements);
+    const { keys } = entity.get(Events);
 
     // If a key is pressed
     const keyDown = Object.values(keys).reduce(
@@ -51,15 +27,15 @@ export class Movements implements Component {
 
     // Handle easing of the speed (acceleration and deceleration)
     if (keyDown) {
-      if (this.speed < this.maxSpeed) {
-        this.speed += this.acceleration;
+      if (movements.speed < movements.maxSpeed) {
+        movements.speed += movements.acceleration;
       } else {
-        this.speed = this.maxSpeed;
+        movements.speed = movements.maxSpeed;
       }
-    } else if (this.speed > 0) {
-      this.speed -= this.deceleration;
+    } else if (movements.speed > 0) {
+      movements.speed -= movements.deceleration;
     } else {
-      this.speed = 0;
+      movements.speed = 0;
     }
 
     // Spawn a dust when running
@@ -74,33 +50,33 @@ export class Movements implements Component {
     // }
 
     // Avoid player going too fast when running diagonally
-    let { speed } = this;
+    let { speed } = movements;
     if (speed > 0 && (keys.up || keys.down) && (keys.left || keys.right)) {
       speed /= 1.25;
     }
 
     // Handle the direction of the player
     if (keys.up) {
-      this.direction.y = 'up';
+      movements.direction.y = 'up';
       animator.row = 0;
     } else if (keys.down) {
-      this.direction.y = 'down';
+      movements.direction.y = 'down';
       animator.row = 1;
     } else if (keyDown) {
-      this.direction.y = null;
+      movements.direction.y = null;
     }
     if (keys.left) {
-      this.direction.x = 'left';
+      movements.direction.x = 'left';
       animator.row = 2;
     } else if (keys.right) {
-      this.direction.x = 'right';
+      movements.direction.x = 'right';
       animator.row = 3;
     } else if (keyDown) {
-      this.direction.x = null;
+      movements.direction.x = null;
     }
 
     // Update the position of the player
-    switch (this.direction.y) {
+    switch (movements.direction.y) {
       case 'up':
         position.changeY(-speed);
         break;
@@ -110,7 +86,7 @@ export class Movements implements Component {
       default:
         break;
     }
-    switch (this.direction.x) {
+    switch (movements.direction.x) {
       case 'left':
         position.changeX(-speed);
         break;

@@ -1,9 +1,10 @@
-import { Animator, Position, Sprite } from '~~/game/components';
+import { Animation, Position, Sprite } from '~~/game/components';
 import { Engine } from '~~/game/engine';
 import { Y_PIXELS_NUMBER } from '~~/game/globals';
-import { Entity } from '~~/game/utils';
+import { Entity, System } from '~~/game/utils';
 
-export class Renderer {
+export class Renderer extends System {
+  readonly requiredComponents = [Sprite];
   // debugContext: CanvasRenderingContext2D;
 
   engine: Engine;
@@ -19,7 +20,10 @@ export class Renderer {
     height: 0,
   };
 
-  constructor(gameContext: WebGL2RenderingContext) {
+  constructor(entities: Entity[], gameContext: WebGL2RenderingContext) {
+    super();
+    super.setEntities(entities);
+
     this.engine = new Engine(gameContext);
 
     this.resize();
@@ -70,39 +74,37 @@ export class Renderer {
     this.viewport.height = window.innerHeight / this.ratio;
   }
 
-  render(entities: Entity[]) {
-    entities.forEach((entity) => {
-      const sprite = entity.get(Sprite);
-      const position = entity.get(Position);
+  updateEntity(entity: Entity) {
+    const sprite = entity.get(Sprite);
+    const position = entity.get(Position);
 
-      if (entity.has(Animator)) {
-        const animator = entity.get(Animator);
-        this.engine.queueRender(
-          sprite.source,
-          sprite.width *
-            (animator.column + animator.currentAnimation.frameStart - 1),
-          sprite.height * animator.row,
-          sprite.width,
-          sprite.height,
-          Math.floor(position.x * this.ratio),
-          Math.floor(position.y * this.ratio),
-          sprite.width * this.ratio,
-          sprite.height * this.ratio
-        );
-      } else {
-        this.engine.queueRender(
-          sprite.source,
-          sprite.sourceX,
-          sprite.sourceY,
-          sprite.width,
-          sprite.width,
-          Math.floor(position.x * this.ratio),
-          Math.floor(position.y * this.ratio),
-          sprite.width * this.ratio,
-          sprite.width * this.ratio
-        );
-      }
-    });
+    if (entity.has(Animation)) {
+      const animator = entity.get(Animation);
+      this.engine.queueRender(
+        sprite.source,
+        sprite.width *
+          (animator.column + animator.currentAnimation.frameStart - 1),
+        sprite.height * animator.row,
+        sprite.width,
+        sprite.height,
+        Math.floor(position.x * this.ratio),
+        Math.floor(position.y * this.ratio),
+        sprite.width * this.ratio,
+        sprite.height * this.ratio
+      );
+    } else {
+      this.engine.queueRender(
+        sprite.source,
+        sprite.sourceX,
+        sprite.sourceY,
+        sprite.width,
+        sprite.width,
+        Math.floor(position.x * this.ratio),
+        Math.floor(position.y * this.ratio),
+        sprite.width * this.ratio,
+        sprite.width * this.ratio
+      );
+    }
 
     this.engine.render();
   }

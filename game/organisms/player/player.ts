@@ -1,5 +1,5 @@
 import {
-  Animator,
+  Animation,
   // Collider,
   Movements,
   Position,
@@ -10,7 +10,7 @@ import { Events } from './components';
 
 export class Player extends Entity {
   constructor() {
-    const animator = {
+    const animation = {
       idle: {
         frameStart: 1,
         frameNumber: 7,
@@ -25,9 +25,9 @@ export class Player extends Entity {
     // const collider = new Box(10, 26, 12, 8);
 
     super();
-    this.add(new Sprite(this, '/sprites/player.png', 0, 0, 32, 32));
+    this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));
     this.add(new Position(100, 100));
-    this.add(new Animator(animator));
+    this.add(new Animation(animation));
     this.add(new Events());
     this.add(new Movements(this, 1.5, 0.1, 0.15));
     // this.add(new Collider(collider));

@@ -1,4 +1,4 @@
-/* eslint-disable import/no-cycle */
 export * from './component';
+export * from './ecs';
 export * from './entity';
-export * from './lifecycle';
+export * from './system';
