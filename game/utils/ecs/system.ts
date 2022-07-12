@@ -1,8 +1,8 @@
-import { ComponentInstance } from './component';
+import { ComponentConstructor } from './component';
 import { Entity } from './entity';
 
 export abstract class System {
-  abstract readonly requiredComponents: ComponentInstance[];
+  abstract readonly requiredComponents: ComponentConstructor[];
 
   entities: Entity[] = [];
 
@@ -15,11 +15,5 @@ export abstract class System {
     }, []);
   }
 
-  abstract updateEntity(entity: Entity): void;
-
-  update() {
-    this.entities.forEach((entity) => {
-      this.updateEntity(entity);
-    });
-  }
+  abstract update(): void;
 }

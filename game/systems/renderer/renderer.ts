@@ -20,9 +20,8 @@ export class Renderer extends System {
     height: 0,
   };
 
-  constructor(entities: Entity[], gameContext: WebGL2RenderingContext) {
+  constructor(gameContext: WebGL2RenderingContext) {
     super();
-    super.setEntities(entities);
 
     this.engine = new Engine(gameContext);
 
@@ -74,37 +73,39 @@ export class Renderer extends System {
     this.viewport.height = window.innerHeight / this.ratio;
   }
 
-  updateEntity(entity: Entity) {
-    const sprite = entity.get(Sprite);
-    const position = entity.get(Position);
+  update() {
+    this.entities.forEach((entity) => {
+      const sprite = entity.get(Sprite);
+      const position = entity.get(Position);
 
-    if (entity.has(Animation)) {
-      const animator = entity.get(Animation);
-      this.engine.queueRender(
-        sprite.source,
-        sprite.width *
-          (animator.column + animator.currentAnimation.frameStart - 1),
-        sprite.height * animator.row,
-        sprite.width,
-        sprite.height,
-        Math.floor(position.x * this.ratio),
-        Math.floor(position.y * this.ratio),
-        sprite.width * this.ratio,
-        sprite.height * this.ratio
-      );
-    } else {
-      this.engine.queueRender(
-        sprite.source,
-        sprite.sourceX,
-        sprite.sourceY,
-        sprite.width,
-        sprite.width,
-        Math.floor(position.x * this.ratio),
-        Math.floor(position.y * this.ratio),
-        sprite.width * this.ratio,
-        sprite.width * this.ratio
-      );
-    }
+      if (entity.has(Animation)) {
+        const animator = entity.get(Animation);
+        this.engine.queueRender(
+          sprite.source,
+          sprite.width *
+            (animator.column + animator.currentAnimation.frameStart - 1),
+          sprite.height * animator.row,
+          sprite.width,
+          sprite.height,
+          Math.floor(position.x * this.ratio),
+          Math.floor(position.y * this.ratio),
+          sprite.width * this.ratio,
+          sprite.height * this.ratio
+        );
+      } else {
+        this.engine.queueRender(
+          sprite.source,
+          sprite.sourceX,
+          sprite.sourceY,
+          sprite.width,
+          sprite.width,
+          Math.floor(position.x * this.ratio),
+          Math.floor(position.y * this.ratio),
+          sprite.width * this.ratio,
+          sprite.width * this.ratio
+        );
+      }
+    });
 
     this.engine.render();
   }

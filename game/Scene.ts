@@ -4,7 +4,7 @@ import Terrain from './Entities/Terrains/Terrain';
 import TerrainTiles from './Entities/Terrains/TerrainTiles';
 import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
 import {
-  Collider,
+  Collision,
   Interaction,
   InteractionAction,
   Keys,
@@ -16,7 +16,7 @@ import map002 from './Tilemaps/map002';
 import tilemapIndex from './Tilemaps/tilemapIndex';
 
 class Scene {
-  colliders: Collider[] = [];
+  collisions: Collision[] = [];
 
   entities: Entity[] = []; // Environments + organisms
 
@@ -76,7 +76,7 @@ class Scene {
 
   buildMap(playerX: number, playerY: number) {
     // Reset the scene
-    this.colliders = [];
+    this.collisions = [];
     this.entities = [];
     this.interactions = [];
     this.organisms = [];
@@ -98,9 +98,9 @@ class Scene {
             terrain.y
           )
         );
-        if (terrain.collider) {
-          const { x, y, width, height } = terrain.collider;
-          this.colliders.push({
+        if (terrain.collision) {
+          const { x, y, width, height } = terrain.collision;
+          this.collisions.push({
             x: x + column * TILE_SIZE,
             y: y + row * TILE_SIZE,
             width,
@@ -116,12 +116,12 @@ class Scene {
             row * TILE_SIZE
           );
           this.entities.push(environment);
-          if (environment.collider) {
-            this.colliders.push({
-              x: environment.position.x + environment.collider.x,
-              y: environment.position.y + environment.collider.y,
-              width: environment.collider.width,
-              height: environment.collider.height,
+          if (environment.collision) {
+            this.collisions.push({
+              x: environment.position.x + environment.collision.x,
+              y: environment.position.y + environment.collision.y,
+              width: environment.collision.width,
+              height: environment.collision.height,
             });
           }
         }
@@ -149,31 +149,31 @@ class Scene {
 
   performCollisions() {
     this.organisms.forEach((organism) => {
-      this.colliders.forEach((collider) => {
-        // Perform collisions only on colliders close to the organism
+      this.collisions.forEach((collision) => {
+        // Perform collisions only on collisions close to the organism
         if (
           getDistance(
             organism.position.x,
             organism.position.y,
-            collider.x,
-            collider.y
+            collision.x,
+            collision.y
           ) < 48
         ) {
           // Distances between centers
           const distanceX =
             organism.position.x +
-            organism.collider.x +
-            organism.collider.width / 2 -
-            (collider.x + collider.width / 2);
+            organism.collision.x +
+            organism.collision.width / 2 -
+            (collision.x + collision.width / 2);
           const distanceY =
             organism.position.y +
-            organism.collider.y +
-            organism.collider.height / 2 -
-            (collider.y + collider.height / 2);
+            organism.collision.y +
+            organism.collision.height / 2 -
+            (collision.y + collision.height / 2);
 
           // Minimal distance between centers
-          const widthX = organism.collider.width / 2 + collider.width / 2;
-          const widthY = organism.collider.height / 2 + collider.height / 2;
+          const widthX = organism.collision.width / 2 + collision.width / 2;
+          const widthY = organism.collision.height / 2 + collision.height / 2;
 
           // Check if there is a collision
           if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
@@ -218,13 +218,13 @@ class Scene {
     this.player.update(keys);
 
     // Check interactions
-    const { collider, position } = this.player;
+    const { collision, position } = this.player;
     this.interactions.forEach((interaction) => {
       if (
-        position.x + collider.x + collider.width > interaction.x &&
-        position.x + collider.x < interaction.x + interaction.width &&
-        position.y + collider.y + collider.height > interaction.y &&
-        position.y + collider.y < interaction.y + interaction.height
+        position.x + collision.x + collision.width > interaction.x &&
+        position.x + collision.x < interaction.x + interaction.width &&
+        position.y + collision.y + collision.height > interaction.y &&
+        position.y + collision.y < interaction.y + interaction.height
       ) {
         if (!interaction.entered) {
           interaction.entered = true;

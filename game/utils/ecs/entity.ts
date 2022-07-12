@@ -1,4 +1,4 @@
-import { Component, ComponentInstance } from './component';
+import { Component, ComponentConstructor } from './component';
 
 type ComponentClass<T extends Component> = new (...args: any[]) => T;
 
@@ -19,7 +19,7 @@ export abstract class Entity {
     throw new Error('Component not found.');
   }
 
-  has(c: ComponentInstance) {
+  has(c: ComponentConstructor) {
     for (const component of this.#components) {
       if (component instanceof c) {
         return true;
@@ -29,7 +29,7 @@ export abstract class Entity {
     return false;
   }
 
-  hasMultiple(cs: ComponentInstance[]) {
+  hasMultiple(cs: ComponentConstructor[]) {
     for (const c of cs) {
       if (!this.has(c)) {
         return false;
@@ -39,7 +39,7 @@ export abstract class Entity {
     return true;
   }
 
-  remove(c: ComponentInstance) {
+  remove(c: ComponentConstructor) {
     this.#components = this.#components.filter(
       (component) => !(component instanceof c)
     );

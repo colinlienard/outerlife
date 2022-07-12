@@ -1,5 +1,5 @@
 import { TILE_SIZE } from '../globals';
-import { Animation, Collider, Direction, EntityLayer } from '../types';
+import { Animation, Collision, Direction, EntityLayer } from '../types';
 
 class Entity {
   animations?: { [key: string]: Animation };
@@ -11,7 +11,7 @@ class Entity {
     frameWaiter: number;
   };
 
-  collider!: Collider;
+  collision!: Collision;
 
   position!: {
     x: number;

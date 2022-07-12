@@ -5,7 +5,7 @@ type Animation = {
   once?: boolean;
 };
 
-type Collider = {
+type Collision = {
   x: number;
   y: number;
   width: number;
@@ -61,7 +61,7 @@ type Tilemap = {
 
 export {
   Animation,
-  Collider,
+  Collision,
   Direction,
   EntityLayer,
   Keys,

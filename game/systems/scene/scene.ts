@@ -1,7 +1,7 @@
 export class Scene {
   //   buildMap(playerX: number, playerY: number) {
   //   // Reset the scene
-  //   this.colliders = [];
+  //   this.collisions = [];
   //   this.entities = [];
   //   this.interactions = [];
   //   this.organisms = [];
@@ -21,9 +21,9 @@ export class Scene {
   //           terrain.y
   //         )
   //       );
-  //       if (terrain.collider) {
-  //         const { x, y, width, height } = terrain.collider;
-  //         this.colliders.push({
+  //       if (terrain.collision) {
+  //         const { x, y, width, height } = terrain.collision;
+  //         this.collisions.push({
   //           x: x + column * TILE_SIZE,
   //           y: y + row * TILE_SIZE,
   //           width,
@@ -38,12 +38,12 @@ export class Scene {
   //           row * TILE_SIZE
   //         );
   //         this.entities.push(environment);
-  //         if (environment.collider) {
-  //           this.colliders.push({
-  //             x: environment.position.x + environment.collider.x,
-  //             y: environment.position.y + environment.collider.y,
-  //             width: environment.collider.width,
-  //             height: environment.collider.height,
+  //         if (environment.collision) {
+  //           this.collisions.push({
+  //             x: environment.position.x + environment.collision.x,
+  //             y: environment.position.y + environment.collision.y,
+  //             width: environment.collision.width,
+  //             height: environment.collision.height,
   //           });
   //         }
   //       }

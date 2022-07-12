@@ -1,6 +1,8 @@
 import { Entity } from './entity';
 import { System } from './system';
 
+type SystemClass<T extends System> = new (...args: any[]) => T;
+
 export abstract class ECS {
   entities: Entity[] = [];
 
@@ -10,17 +12,21 @@ export abstract class ECS {
     this.systems.push(system);
   }
 
-  // get<T extends System>(c: ComponentClass<T>) {
-  //   for (const component of this.#components) {
-  //     if (component instanceof c) {
-  //       return component as T;
-  //     }
-  //   }
+  get<T extends System>(s: SystemClass<T>) {
+    for (const system of this.systems) {
+      if (system instanceof s) {
+        return system as T;
+      }
+    }
 
-  //   throw new Error('Component not found.');
-  // }
+    throw new Error('Component not found.');
+  }
 
-  // loop() {
-  //   requestAnimationFrame(() => this.loop())
-  // }
+  remove(s: new () => System) {
+    this.systems = this.systems.filter((system) => !(system instanceof s));
+  }
+
+  update() {
+    this.systems.forEach((system) => system.update());
+  }
 }

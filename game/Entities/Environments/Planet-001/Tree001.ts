@@ -1,7 +1,7 @@
 import Entity from '../../Entity';
 
 class Tree001 extends Entity {
-  collider = {
+  collision = {
     x: 20,
     y: 68,
     width: 14,

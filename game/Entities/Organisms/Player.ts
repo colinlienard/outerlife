@@ -24,7 +24,7 @@ class Player extends Entity {
     frameWaiter: 0,
   };
 
-  collider = {
+  collision = {
     x: 10,
     y: 26,
     width: 12,

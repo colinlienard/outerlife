@@ -1,33 +1,34 @@
 import { Animator, Mover, Renderer } from './systems';
 import { Player } from './organisms';
-import { Entity } from './utils';
+import { ECS } from './utils';
 
-export class Game {
-  entities: Entity[] = [];
-
-  renderer: Renderer;
-
-  animator: Animator;
-
-  mover: Mover;
-
+export class Game extends ECS {
   constructor(gameContext: WebGL2RenderingContext) {
+    super();
+
+    this.add(new Mover());
+    this.add(new Animator());
+    this.add(new Renderer(gameContext));
+
     this.entities.push(new Player());
 
-    this.renderer = new Renderer(this.entities, gameContext);
-    this.animator = new Animator(this.entities);
-    this.mover = new Mover(this.entities);
+    this.setSystemsEntities();
 
-    this.renderer.loadTextures(this.entities);
-
-    this.loop();
+    (async () => {
+      await this.get(Renderer).loadTextures(this.entities);
+      this.loop();
+    })();
   }
 
   loop() {
-    this.mover.update();
-    this.animator.update();
-    this.renderer.update();
+    this.update();
 
     requestAnimationFrame(() => this.loop());
+  }
+
+  setSystemsEntities() {
+    this.systems.forEach((system) => {
+      system.setEntities(this.entities);
+    });
   }
 }

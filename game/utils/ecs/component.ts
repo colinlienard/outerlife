@@ -1,3 +1,3 @@
 export abstract class Component {}
 
-export type ComponentInstance = new (...args: any[]) => Component;
+export type ComponentConstructor = new (...args: any[]) => Component;

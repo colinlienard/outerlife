@@ -1,5 +1,5 @@
 export * from './animation';
-export * from './collider';
+export * from './collision';
 export * from './position';
-export * from './movements';
 export * from './sprite';
+export * from './velocity';

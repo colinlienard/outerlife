@@ -1,7 +1,12 @@
-import { Collider } from '~~/game/types';
+import { Collision } from '~~/game/types';
 
 const TerrainTiles: {
-  [key: string]: { source: string; x: number; y: number; collider?: Collider };
+  [key: string]: {
+    source: string;
+    x: number;
+    y: number;
+    collision?: Collision;
+  };
 } = {
   '001': {
     source: '/sprites/terrain-001.png',
@@ -127,7 +132,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 0,
-    collider: {
+    collision: {
       x: 8,
       y: 0,
       width: 8,
@@ -138,7 +143,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 112,
     y: 0,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -149,7 +154,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 128,
     y: 0,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,
@@ -160,7 +165,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 144,
     y: 0,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -171,7 +176,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 0,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,
@@ -182,7 +187,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 16,
-    collider: {
+    collision: {
       x: 8,
       y: 0,
       width: 8,
@@ -198,7 +203,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 128,
     y: 16,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -209,7 +214,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 144,
     y: 16,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -220,7 +225,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 16,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,
@@ -231,7 +236,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 32,
-    collider: {
+    collision: {
       x: 8,
       y: 0,
       width: 8,
@@ -257,7 +262,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 32,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,
@@ -268,7 +273,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 48,
-    collider: {
+    collision: {
       x: 8,
       y: 0,
       width: 8,
@@ -279,7 +284,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 112,
     y: 48,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -290,7 +295,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 128,
     y: 48,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -301,7 +306,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 144,
     y: 48,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 16,
@@ -312,7 +317,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 48,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,
@@ -323,7 +328,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 80,
-    collider: {
+    collision: {
       x: 8,
       y: 0,
       width: 8,
@@ -334,7 +339,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 96,
     y: 64,
-    collider: {
+    collision: {
       x: 8,
       y: 8,
       width: 8,
@@ -345,7 +350,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 112,
     y: 64,
-    collider: {
+    collision: {
       x: 0,
       y: 8,
       width: 16,
@@ -356,7 +361,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 128,
     y: 64,
-    collider: {
+    collision: {
       x: 4,
       y: 4,
       width: 12,
@@ -367,7 +372,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 144,
     y: 64,
-    collider: {
+    collision: {
       x: 0,
       y: 4,
       width: 12,
@@ -378,7 +383,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 64,
-    collider: {
+    collision: {
       x: 0,
       y: 8,
       width: 8,
@@ -389,7 +394,7 @@ const TerrainTiles: {
     source: '/sprites/terrain-001.png',
     x: 160,
     y: 80,
-    collider: {
+    collision: {
       x: 0,
       y: 0,
       width: 8,

@@ -1,7 +1,7 @@
 import { Box } from '~~/game/utils/2d';
 import { Component } from '~~/game/utils/ecs';
 
-export class Collider implements Component {
+export class Collision implements Component {
   readonly box: Box;
 
   constructor(box: Box) {
@@ -10,30 +10,30 @@ export class Collider implements Component {
 
   // eslint-disable-next-line class-methods-use-this
   update() {
-    // this.colliders.forEach((collider) => {
-    //   // Perform collisions only on colliders close to the organism
+    // this.collisions.forEach((collision) => {
+    //   // Perform collisions only on collisions close to the organism
     //   if (
     //     getDistance(
     //       organism.position.x,
     //       organism.position.y,
-    //       collider.x,
-    //       collider.y
+    //       collision.x,
+    //       collision.y
     //     ) < 48
     //   ) {
     //     // Distances between centers
     //     const distanceX =
     //       organism.position.x +
-    //       organism.collider.x +
-    //       organism.collider.width / 2 -
-    //       (collider.x + collider.width / 2);
+    //       organism.collision.x +
+    //       organism.collision.width / 2 -
+    //       (collision.x + collision.width / 2);
     //     const distanceY =
     //       organism.position.y +
-    //       organism.collider.y +
-    //       organism.collider.height / 2 -
-    //       (collider.y + collider.height / 2);
+    //       organism.collision.y +
+    //       organism.collision.height / 2 -
+    //       (collision.y + collision.height / 2);
     //     // Minimal distance between centers
-    //     const widthX = organism.collider.width / 2 + collider.width / 2;
-    //     const widthY = organism.collider.height / 2 + collider.height / 2;
+    //     const widthX = organism.collision.width / 2 + collision.width / 2;
+    //     const widthY = organism.collision.height / 2 + collision.height / 2;
     //     // Check if there is a collision
     //     if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
     //       const overlapX = widthX - Math.abs(distanceX);

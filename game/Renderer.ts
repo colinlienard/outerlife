@@ -2,7 +2,7 @@ import Engine from '~~/game/engine';
 import Entity from './Entities/Entity';
 import { TILE_SIZE, TRANSITION_DURATION, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';
-import { Collider, Interaction } from './types';
+import { Collision, Interaction } from './types';
 
 class Renderer {
   debugContext: CanvasRenderingContext2D;
@@ -92,30 +92,30 @@ class Renderer {
     if (options.debug) {
       this.debugContext.clearRect(0, 0, 9999, 9999);
       this.renderGrid();
-      this.renderColliders(
-        this.scene.colliders,
+      this.renderCollisions(
+        this.scene.collisions,
         this.scene.interactions,
         this.scene.organisms
       );
     }
   }
 
-  renderColliders(
-    colliders: Collider[],
+  renderCollisions(
+    collisions: Collision[],
     interactions: Interaction[],
     organisms: Entity[]
   ) {
     this.debugContext.lineWidth = 2;
 
-    // Render environments colliders
+    // Render environments collisions
     this.debugContext.strokeStyle = 'rgb(255, 0, 0)';
 
-    colliders.forEach((collider) => {
+    collisions.forEach((collision) => {
       this.debugContext.strokeRect(
-        collider.x * this.ratio,
-        collider.y * this.ratio,
-        collider.width * this.ratio,
-        collider.height * this.ratio
+        collision.x * this.ratio,
+        collision.y * this.ratio,
+        collision.width * this.ratio,
+        collision.height * this.ratio
       );
     });
 
@@ -130,22 +130,22 @@ class Renderer {
       );
     });
 
-    // Render organisms colliders
+    // Render organisms collisions
     this.debugContext.strokeStyle = 'rgb(0, 255, 0)';
     this.debugContext.fillStyle = 'rgb(0, 255, 0)';
     this.debugContext.font = '16px monospace';
     organisms.forEach((organism) => {
       // console.log(organism.constructor.name);
 
-      const { collider } = organism;
-      if (collider) {
-        const x = Math.floor((organism.position.x + collider.x) * this.ratio);
-        const y = Math.floor((organism.position.y + collider.y) * this.ratio);
+      const { collision } = organism;
+      if (collision) {
+        const x = Math.floor((organism.position.x + collision.x) * this.ratio);
+        const y = Math.floor((organism.position.y + collision.y) * this.ratio);
         this.debugContext.strokeRect(
           x,
           y,
-          collider.width * this.ratio,
-          collider.height * this.ratio
+          collision.width * this.ratio,
+          collision.height * this.ratio
         );
         this.debugContext.fillText(organism.constructor.name, x, y - 6);
       }
