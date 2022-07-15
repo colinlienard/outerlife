@@ -4,6 +4,7 @@ type Anim = {
   frameStart: number;
   frameNumber: number;
   framesPerSecond: number;
+  once?: boolean;
 };
 
 type Anims = {

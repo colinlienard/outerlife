@@ -1,16 +1,15 @@
-import { Animation, Velocity, Position } from '~~/game/components';
-import { Events } from '~~/game/organisms/player/components';
+import { Animation, Velocity, Position, Input } from '~~/game/components';
 import { System } from '~~/game/utils';
 
 export class Mover extends System {
-  readonly requiredComponents = [Position, Velocity, Animation];
+  readonly requiredComponents = [Position, Velocity, Animation, Input];
 
   update() {
     this.entities.forEach((entity) => {
       const animator = entity.get(Animation);
       const position = entity.get(Position);
       const velocity = entity.get(Velocity);
-      const { keys: input } = entity.get(Events);
+      const { input } = entity.get(Input);
 
       // If a key is pressed
       const moving = Object.values(input).reduce(

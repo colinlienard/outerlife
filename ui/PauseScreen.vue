@@ -2,11 +2,12 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Ref } from 'vue';
 import { navigateTo } from '~~/.nuxt/imports';
-import Game from '~~/game/Game';
-import MenuButton from './MenuButton.vue';
-import MenuButtonsList from './MenuButtonsList.vue';
-import MenuTitle from './MenuTitle.vue';
-import MenuCheck from './MenuCheck.vue';
+import { Game } from '~~/game';
+import MenuButton from './menus/MenuButton.vue';
+import MenuButtonsList from './menus/MenuButtonsList.vue';
+import MenuTitle from './menus/MenuTitle.vue';
+import MenuCheck from './menus/MenuCheck.vue';
+import { Settings } from '~~/game/settings';
 
 const paused = ref(false);
 const showOptions = ref(false);
@@ -21,7 +22,7 @@ const exitFullScreen = () => document.exitFullscreen();
 
 const setDebugMode = (state: boolean) => {
   (debugMode as Ref<boolean>).value = state;
-  (game as Ref<Game>).value.debug = state;
+  Settings.debug = state;
 };
 
 const togglePause = () => {

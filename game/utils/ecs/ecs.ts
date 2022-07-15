@@ -19,14 +19,14 @@ export abstract class ECS {
       }
     }
 
-    throw new Error('Component not found.');
+    throw new Error('System not found.');
   }
 
   remove(s: new () => System) {
     this.systems = this.systems.filter((system) => !(system instanceof s));
   }
 
-  update() {
+  updateSystems() {
     this.systems.forEach((system) => system.update());
   }
 }

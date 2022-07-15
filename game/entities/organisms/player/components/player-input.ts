@@ -1,48 +1,38 @@
-import { Component } from '~~/game/utils';
+import { Input } from '~~/game/components';
 
-export class Events implements Component {
-  keys = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-  };
-
+export class PlayerInput extends Input {
   constructor() {
+    super();
     window.addEventListener('keydown', (event) => this.bindKeys(event));
     window.addEventListener('keyup', (event) => this.bindKeys(event));
   }
 
   bindKeys(event: KeyboardEvent) {
-    const keyState = event.type === 'keydown';
+    const inputState = event.type === 'keydown';
 
     switch (event.key) {
       case 'z':
       case 'ArrowUp':
-        this.keys.up = keyState;
+        this.input.up = inputState;
         break;
 
       case 's':
       case 'ArrowDown':
-        this.keys.down = keyState;
+        this.input.down = inputState;
         break;
 
       case 'q':
       case 'ArrowLeft':
-        this.keys.left = keyState;
+        this.input.left = inputState;
         break;
 
       case 'd':
       case 'ArrowRight':
-        this.keys.right = keyState;
+        this.input.right = inputState;
         break;
 
       default:
         break;
     }
-  }
-
-  update() {
-    return this.keys;
   }
 }

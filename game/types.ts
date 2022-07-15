@@ -51,6 +51,14 @@ type Keys = {
   right: boolean;
 };
 
+type Terrain = {
+  source: string;
+  sourceX: number;
+  sourceY: number;
+  x: number;
+  y: number;
+};
+
 type Tilemap = {
   rows: number;
   columns: number;
@@ -67,5 +75,6 @@ export {
   Keys,
   Interaction,
   InteractionAction,
+  Terrain,
   Tilemap,
 };

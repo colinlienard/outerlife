@@ -1,8 +1,8 @@
-import Player from './Entities/Organisms/Player';
-import Entity from './Entities/Entity';
-import Terrain from './Entities/Terrains/Terrain';
-import TerrainTiles from './Entities/Terrains/TerrainTiles';
-import EnvironmentTiles from './Entities/Environments/EnvironmentTiles';
+import Player from './oldEntities/Organisms/Player';
+import Entity from './oldEntities/Entity';
+import Terrain from './oldEntities/Terrains/Terrain';
+import TerrainTiles from './oldEntities/Terrains/TerrainTiles';
+import EnvironmentTiles from './oldEntities/Environments/EnvironmentTiles';
 import {
   Collision,
   Interaction,

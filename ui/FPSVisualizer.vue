@@ -12,8 +12,6 @@ const getCurrentFPS = () => fps.value[fps.value.length - 1];
 
 const getPlotColor = (number: number): string => {
   switch (true) {
-    case number > 59:
-      return '#90FFE4';
     case number > 50:
       return '#5EFB14';
     case number > 40:

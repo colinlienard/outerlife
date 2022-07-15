@@ -1,4 +1,4 @@
-import Player from './Entities/Organisms/Player';
+import Player from './oldEntities/Organisms/Player';
 import { CAMERA_EASING, TILE_SIZE } from './globals';
 import Scene from './Scene';
 

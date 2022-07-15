@@ -15,5 +15,9 @@ export abstract class System {
     }, []);
   }
 
+  addEntity(entity: Entity) {
+    this.entities.push(entity);
+  }
+
   abstract update(): void;
 }

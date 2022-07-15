@@ -1,5 +1,5 @@
 import Engine from '~~/game/engine';
-import Entity from './Entities/Entity';
+import Entity from './oldEntities/Entity';
 import { TILE_SIZE, TRANSITION_DURATION, Y_PIXELS_NUMBER } from './globals';
 import Scene from './Scene';
 import { Collision, Interaction } from './types';

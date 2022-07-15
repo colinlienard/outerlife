@@ -16,7 +16,7 @@ export abstract class Entity {
       }
     }
 
-    throw new Error('Component not found.');
+    throw new Error(`Component '${c}' not found.`);
   }
 
   has(c: ComponentConstructor) {

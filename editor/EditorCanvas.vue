@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Editor from './editor';
 import EditorTile from './EditorTile.vue';
-import EnvironmentTiles from '~~/game/Entities/Environments/EnvironmentTiles';
-import TerrainTiles from '~~/game/Entities/Terrains/TerrainTiles';
+import EnvironmentTiles from '~~/game/oldEntities/Environments/EnvironmentTiles';
+import TerrainTiles from '~~/game/oldEntities/Terrains/TerrainTiles';
 import { Tilemap } from '~~/game/types';
 
 const tileSize = 16;
