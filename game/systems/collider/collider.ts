@@ -1,59 +1,62 @@
-import { Collision, Position } from '~~/game/components';
+import { Collision, Position, Sprite } from '~~/game/components';
+import { Interaction } from '~~/game/entities';
+import { TILE_SIZE } from '~~/game/globals';
+import { Settings } from '~~/game/settings';
 import { Entity, System } from '~~/game/utils';
-
-type EntityCollision = { collision: Collision; position: Position };
 
 export class Collider extends System {
   readonly requiredComponents = [Collision, Position];
 
-  environments: EntityCollision[] = [];
+  environments: Entity[] = [];
 
-  organisms: EntityCollision[] = [];
+  interactions: Interaction[] = [];
+
+  organisms: Entity[] = [];
 
   setEntities(entities: Entity[]) {
     super.setEntities(entities);
 
     this.entities.forEach((entity) => {
-      const collision = entity.get(Collision);
-      const position = entity.get(Position);
+      const { type } = entity.get(Collision);
 
-      switch (collision.type) {
+      switch (type) {
         case 'environment':
-          this.environments.push({ collision, position });
+          this.environments.push(entity);
+          return;
+        case 'interaction':
+          this.interactions.push(entity as Interaction);
           return;
         case 'organism':
-          this.organisms.push({ collision, position });
+          this.organisms.push(entity);
           return;
         default:
-          throw new Error(`Invalid collision type: '${collision.type}'`);
+          throw new Error(`Invalid collision type: '${type}'`);
       }
     });
   }
 
   update() {
     this.organisms.forEach((organism) => {
+      const oPos = organism.get(Position);
+      const oCol = organism.get(Collision);
+
+      // Handle collisions with environments
       this.environments.forEach((environment) => {
+        const ePos = environment.get(Position);
+        const eCol = environment.get(Collision);
+
         // Distances between centers
         const distanceX =
-          organism.position.x +
-          organism.collision.x +
-          organism.collision.width / 2 -
-          (environment.position.x +
-            environment.collision.x +
-            environment.collision.width / 2);
+          oPos.x + oCol.x + oCol.width / 2 - (ePos.x + eCol.x + eCol.width / 2);
         const distanceY =
-          organism.position.y +
-          organism.collision.y +
-          organism.collision.height / 2 -
-          (environment.position.y +
-            environment.collision.y +
-            environment.collision.height / 2);
+          oPos.y +
+          oCol.y +
+          oCol.height / 2 -
+          (ePos.y + eCol.y + eCol.height / 2);
 
         // Minimal distance between centers
-        const widthX =
-          organism.collision.width / 2 + environment.collision.width / 2;
-        const widthY =
-          organism.collision.height / 2 + environment.collision.height / 2;
+        const widthX = oCol.width / 2 + eCol.width / 2;
+        const widthY = oCol.height / 2 + eCol.height / 2;
 
         // Check if there is a collision
         if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
@@ -62,34 +65,55 @@ export class Collider extends System {
 
           // Remove overlap
           if (overlapX < overlapY) {
-            organism.position.x += distanceX > 0 ? overlapX : -overlapX;
+            oPos.x += distanceX > 0 ? overlapX : -overlapX;
             return;
           }
-          organism.position.y += distanceY > 0 ? overlapY : -overlapY;
+          oPos.y += distanceY > 0 ? overlapY : -overlapY;
         }
       });
 
-      // // Scene limits on the x axis
-      // if (organism.position.x < 0) {
-      //   organism.position.x = 0;
-      // } else if (
-      //   organism.position.x >
-      //   this.tilemap.columns * TILE_SIZE - organism.sprite.width
-      // ) {
-      //   organism.position.x =
-      //     this.tilemap.columns * TILE_SIZE - organism.sprite.width;
-      // }
+      // Handle collisions with interactions
+      this.interactions.forEach((interaction) => {
+        const iPos = interaction.get(Position);
+        const iCol = interaction.get(Collision);
 
-      // // Scene limits on the y axis
-      // if (organism.position.y < 0) {
-      //   organism.position.y = 0;
-      // } else if (
-      //   organism.position.y >
-      //   this.tilemap.rows * TILE_SIZE - organism.sprite.height
-      // ) {
-      //   organism.position.y =
-      //     this.tilemap.rows * TILE_SIZE - organism.sprite.height;
-      // }
+        if (
+          oPos.x + oCol.x + oCol.width > iPos.x &&
+          oPos.x + oCol.x < iPos.x + iCol.width &&
+          oPos.y + oCol.y + oCol.height > iPos.y &&
+          oPos.y + oCol.y < iPos.y + iCol.height
+        ) {
+          if (!interaction.entered) {
+            interaction.entered = true;
+            console.log('enter');
+
+            // this.interact(interaction.enter);
+          }
+        } else if (interaction.entered) {
+          interaction.entered = false;
+          console.log('leave');
+
+          // if (interaction.leave) {
+          // this.interact(interaction.leave);
+          // }
+        }
+      });
+
+      // Scene limits on the x axis
+      const width = organism.has(Sprite) ? organism.get(Sprite).width / 2 : 0;
+      if (oPos.x < 0 - width) {
+        oPos.x = -width;
+      } else if (oPos.x > Settings.scene.columns * TILE_SIZE - width) {
+        oPos.x = Settings.scene.columns * TILE_SIZE - width;
+      }
+
+      // Scene limits on the y axis
+      const height = organism.has(Sprite) ? organism.get(Sprite).height / 2 : 0;
+      if (oPos.y < 0 - height) {
+        oPos.y = -height;
+      } else if (oPos.y > Settings.scene.rows * TILE_SIZE - height) {
+        oPos.y = Settings.scene.rows * TILE_SIZE - height;
+      }
     });
   }
 }

@@ -8,7 +8,8 @@ type Anim = {
 };
 
 type Anims = {
-  [key: string]: Anim;
+  idle: Anim;
+  run: Anim;
 };
 
 export class Animation implements Component {
@@ -16,14 +17,20 @@ export class Animation implements Component {
 
   currentAnimation: Anim;
 
-  row = 1;
+  row = 0;
 
   column = 0;
 
   frameWaiter = 0;
 
-  constructor(animations: Anims) {
-    this.animations = animations;
-    this.currentAnimation = this.animations.idle;
+  constructor(animations: Anims | Anim, defaultRow = 0) {
+    if ('idle' in animations) {
+      this.animations = animations as Anims;
+      this.currentAnimation = this.animations.idle;
+    } else {
+      this.currentAnimation = animations as Anim;
+    }
+
+    this.row = defaultRow;
   }
 }

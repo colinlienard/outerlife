@@ -5,4 +5,11 @@ export abstract class Settings {
     columns: 0,
     rows: 0,
   };
+
+  static ratio = 0;
+
+  static cameraOffset = {
+    x: 0,
+    y: 0,
+  };
 }

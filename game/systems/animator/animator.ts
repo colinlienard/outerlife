@@ -1,5 +1,5 @@
 import { Animation, Sprite } from '~~/game/components';
-import { System } from '~~/game/utils';
+import { Emitter, System } from '~~/game/utils';
 
 export class Animator extends System {
   readonly requiredComponents = [Animation, Sprite];
@@ -21,9 +21,9 @@ export class Animator extends System {
         }
 
         // Delete instance after its animation
-        // else if (this.currentAnimation.once) {
-        //   delete this.entities[this.entities.indexOf(entity)];
-        // }
+        else if (animation.currentAnimation.once) {
+          Emitter.emit('despawn', entity);
+        }
 
         // Reset animation
         else {

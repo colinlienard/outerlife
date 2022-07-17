@@ -13,16 +13,18 @@ import { Entity, System } from '~~/game/utils';
 
 type Collisions = {
   environments: Collision[];
+  interactions: Collision[];
   organisms: Collision[];
 };
 
 export class Renderer extends System {
   readonly requiredComponents = [Position, Sprite];
 
-  collisions: Collisions = {
-    organisms: [],
-    environments: [],
-  };
+  // collisions: Collisions = {
+  //   environments: [],
+  //   interactions: [],
+  //   organisms: [],
+  // };
 
   debugContext: CanvasRenderingContext2D;
 
@@ -31,8 +33,6 @@ export class Renderer extends System {
   offsetX = 0;
 
   offsetY = 0;
-
-  ratio = 1;
 
   terrains: Terrain[] = [];
 
@@ -51,29 +51,35 @@ export class Renderer extends System {
     this.debugContext = debugContext;
 
     this.resize();
-    window.addEventListener('resize', () => this.resize());
-  }
-
-  setEntities(entities: Entity[]) {
-    super.setEntities(entities);
-
-    this.entities.forEach((entity) => {
-      if (entity.has(Collision)) {
-        const collision = entity.get(Collision);
-
-        switch (collision.type) {
-          case 'environment':
-            this.collisions.environments.push(collision);
-            return;
-          case 'organism':
-            this.collisions.organisms.push(collision);
-            return;
-          default:
-            throw new Error(`Invalid collision type: '${collision.type}'`);
-        }
-      }
+    window.addEventListener('resize', () => {
+      this.resize();
+      this.render();
     });
   }
+
+  // setEntities(entities: Entity[]) {
+  //   super.setEntities(entities);
+
+  //   this.entities.forEach((entity) => {
+  //     if (entity.has(Collision)) {
+  //       const collision = entity.get(Collision);
+
+  //       switch (collision.type) {
+  //         case 'environment':
+  //           this.collisions.environments.push(collision);
+  //           return;
+  //         case 'interaction':
+  //           this.collisions.interactions.push(collision);
+  //           return;
+  //         case 'organism':
+  //           this.collisions.organisms.push(collision);
+  //           return;
+  //         default:
+  //           throw new Error(`Invalid collision type: '${collision.type}'`);
+  //       }
+  //     }
+  //   });
+  // }
 
   loadTextures(entities: Entity[]) {
     return new Promise((resolve) => {
@@ -121,14 +127,15 @@ export class Renderer extends System {
     this.debugContext.canvas.width = window.innerWidth;
     this.debugContext.canvas.height = window.innerHeight;
 
-    this.ratio = Math.round(window.innerHeight / Y_PIXELS_NUMBER);
+    Settings.ratio = Math.round(window.innerHeight / Y_PIXELS_NUMBER);
 
-    this.viewport.width = window.innerWidth / this.ratio;
-    this.viewport.height = window.innerHeight / this.ratio;
+    this.viewport.width = window.innerWidth / Settings.ratio;
+    this.viewport.height = window.innerHeight / Settings.ratio;
   }
 
   update() {
     this.ySort();
+    this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
     this.render();
 
     if (Settings.debug) {
@@ -156,10 +163,10 @@ export class Renderer extends System {
         terrain.sourceY,
         TILE_SIZE,
         TILE_SIZE,
-        terrain.x * this.ratio,
-        terrain.y * this.ratio,
-        TILE_SIZE * this.ratio,
-        TILE_SIZE * this.ratio
+        terrain.x * Settings.ratio,
+        terrain.y * Settings.ratio,
+        TILE_SIZE * Settings.ratio,
+        TILE_SIZE * Settings.ratio
       );
     });
 
@@ -177,10 +184,10 @@ export class Renderer extends System {
           shadow.sourceY,
           shadow.width,
           shadow.height,
-          Math.floor((position.x + shadow.x) * this.ratio),
-          Math.floor((position.y + shadow.y) * this.ratio),
-          shadow.width * this.ratio,
-          shadow.height * this.ratio
+          Math.floor((position.x + shadow.x) * Settings.ratio),
+          Math.floor((position.y + shadow.y) * Settings.ratio),
+          shadow.width * Settings.ratio,
+          shadow.height * Settings.ratio
         );
       }
 
@@ -194,10 +201,10 @@ export class Renderer extends System {
           sprite.height * animator.row,
           sprite.width,
           sprite.height,
-          Math.floor(position.x * this.ratio),
-          Math.floor(position.y * this.ratio),
-          sprite.width * this.ratio,
-          sprite.height * this.ratio
+          Math.floor(position.x * Settings.ratio),
+          Math.floor(position.y * Settings.ratio),
+          sprite.width * Settings.ratio,
+          sprite.height * Settings.ratio
         );
       }
 
@@ -209,10 +216,10 @@ export class Renderer extends System {
           sprite.sourceY,
           sprite.width,
           sprite.height,
-          Math.floor(position.x * this.ratio),
-          Math.floor(position.y * this.ratio),
-          sprite.width * this.ratio,
-          sprite.height * this.ratio
+          Math.floor(position.x * Settings.ratio),
+          Math.floor(position.y * Settings.ratio),
+          sprite.width * Settings.ratio,
+          sprite.height * Settings.ratio
         );
       }
     });
@@ -222,35 +229,42 @@ export class Renderer extends System {
 
   renderCollisions() {
     // Get collisions of environments and organisms
-    const { environments, organisms } = this.entities.reduce<{
-      environments: Collision[];
-      organisms: Collision[];
-    }>(
-      (previous, current) => {
-        if (current.has(Collision) && current.has(Position)) {
-          const collision = current.get(Collision);
-          const position = current.get(Position);
+    const { environments, interactions, organisms } =
+      this.entities.reduce<Collisions>(
+        (previous, current) => {
+          if (current.has(Collision) && current.has(Position)) {
+            const collision = current.get(Collision);
+            const position = current.get(Position);
 
-          const c = {
-            ...collision,
-            x: collision.x + position.x,
-            y: collision.y + position.y,
-          };
+            const c: Collision = {
+              ...collision,
+              x: collision.x + position.x,
+              y: collision.y + position.y,
+            };
 
-          if (collision.type === 'environment') {
-            previous.environments.push(c);
-          } else {
-            previous.organisms.push(c);
+            switch (collision.type) {
+              case 'environment':
+                previous.environments.push(c);
+                break;
+              case 'interaction':
+                previous.interactions.push(c);
+                break;
+              case 'organism':
+                previous.organisms.push(c);
+                break;
+              default:
+                throw new Error(`Invalid collision type: '${collision.type}'`);
+            }
           }
-        }
 
-        return previous;
-      },
-      {
-        environments: [],
-        organisms: [],
-      }
-    );
+          return previous;
+        },
+        {
+          environments: [],
+          interactions: [],
+          organisms: [],
+        }
+      );
 
     this.debugContext.lineWidth = 2;
 
@@ -258,32 +272,32 @@ export class Renderer extends System {
     this.debugContext.strokeStyle = 'rgb(255, 0, 0)';
     environments.forEach((environment) => {
       this.debugContext.strokeRect(
-        environment.x * this.ratio,
-        environment.y * this.ratio,
-        environment.width * this.ratio,
-        environment.height * this.ratio
+        environment.x * Settings.ratio,
+        environment.y * Settings.ratio,
+        environment.width * Settings.ratio,
+        environment.height * Settings.ratio
       );
     });
 
     // Render interactions
-    // this.debugContext.strokeStyle = 'rgb(0, 0, 255)';
-    // interactions.forEach((interaction) => {
-    //   this.debugContext.strokeRect(
-    //     interaction.x * this.ratio,
-    //     interaction.y * this.ratio,
-    //     interaction.width * this.ratio,
-    //     interaction.height * this.ratio
-    //   );
-    // });
+    this.debugContext.strokeStyle = 'rgb(0, 0, 255)';
+    interactions.forEach((interaction) => {
+      this.debugContext.strokeRect(
+        interaction.x * Settings.ratio,
+        interaction.y * Settings.ratio,
+        interaction.width * Settings.ratio,
+        interaction.height * Settings.ratio
+      );
+    });
 
     // Render organisms collisions
     this.debugContext.strokeStyle = 'rgb(0, 255, 0)';
     organisms.forEach((organism) => {
       this.debugContext.strokeRect(
-        organism.x * this.ratio,
-        organism.y * this.ratio,
-        organism.width * this.ratio,
-        organism.height * this.ratio
+        organism.x * Settings.ratio,
+        organism.y * Settings.ratio,
+        organism.width * Settings.ratio,
+        organism.height * Settings.ratio
       );
     });
 
@@ -295,19 +309,22 @@ export class Renderer extends System {
     this.debugContext.strokeStyle = 'rgba(255, 255, 255, 0.5)';
 
     for (let index = 0; index < Settings.scene.columns; index += 1) {
-      const x = index * TILE_SIZE * this.ratio;
+      const x = index * TILE_SIZE * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(x, 0);
-      this.debugContext.lineTo(x, Settings.scene.rows * TILE_SIZE * this.ratio);
+      this.debugContext.lineTo(
+        x,
+        Settings.scene.rows * TILE_SIZE * Settings.ratio
+      );
       this.debugContext.stroke();
     }
 
     for (let index = 0; index < Settings.scene.rows; index += 1) {
-      const y = index * TILE_SIZE * this.ratio;
+      const y = index * TILE_SIZE * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(0, y);
       this.debugContext.lineTo(
-        Settings.scene.columns * TILE_SIZE * this.ratio,
+        Settings.scene.columns * TILE_SIZE * Settings.ratio,
         y
       );
       this.debugContext.stroke();
@@ -316,5 +333,24 @@ export class Renderer extends System {
 
   setTerrains(terrains: Terrain[]) {
     this.terrains = terrains;
+  }
+
+  translate(offsetX: number, offsetY: number) {
+    this.offsetX = Math.abs(Math.round(offsetX));
+    this.offsetY = Math.abs(Math.round(offsetY));
+
+    this.engine.translate(
+      Math.floor(offsetX * Settings.ratio),
+      Math.floor(offsetY * Settings.ratio)
+    );
+
+    this.debugContext.setTransform(
+      1,
+      0,
+      0,
+      1,
+      Math.floor(offsetX * Settings.ratio),
+      Math.floor(offsetY * Settings.ratio)
+    );
   }
 }

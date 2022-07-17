@@ -1,5 +1,6 @@
 import { Animation, Velocity, Position, Input } from '~~/game/components';
-import { System } from '~~/game/utils';
+import { Dust } from '~~/game/entities';
+import { Emitter, System } from '~~/game/utils';
 
 export class Mover extends System {
   readonly requiredComponents = [Position, Velocity, Animation, Input];
@@ -32,16 +33,15 @@ export class Mover extends System {
         velocity.speed = 0;
       }
 
+      // TODO: only for the player
       // Spawn a dust when running
-      // if (
-      //   keyDown &&
-      //   animator.frameWaiter === 0 &&
-      //   (animator.column === 0 || animator.column === 4)
-      // ) {
-      //   spawn(
-      //     new Dust(position.x + 8, position.y + this.sprite.height - 8)
-      //   );
-      // }
+      if (
+        moving &&
+        animator.frameWaiter === 0 &&
+        (animator.column === 0 || animator.column === 4)
+      ) {
+        Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
+      }
 
       // Avoid player going too fast when running diagonally
       let { speed } = velocity;

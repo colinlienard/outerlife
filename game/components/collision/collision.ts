@@ -1,6 +1,6 @@
 import { Component } from '~~/game/utils/ecs';
 
-type Type = 'organism' | 'environment';
+type Type = 'environment' | 'interaction' | 'organism';
 
 export class Collision implements Component {
   readonly type: Type;

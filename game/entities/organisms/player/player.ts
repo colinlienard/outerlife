@@ -13,18 +13,21 @@ export class Player extends Entity {
   constructor(x: number, y: number) {
     super();
     this.add(
-      new Animation({
-        idle: {
-          frameStart: 1,
-          frameNumber: 7,
-          framesPerSecond: 8,
+      new Animation(
+        {
+          idle: {
+            frameStart: 1,
+            frameNumber: 7,
+            framesPerSecond: 8,
+          },
+          run: {
+            frameStart: 8,
+            frameNumber: 8,
+            framesPerSecond: 12,
+          },
         },
-        run: {
-          frameStart: 8,
-          frameNumber: 8,
-          framesPerSecond: 12,
-        },
-      })
+        1
+      )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
     this.add(new PlayerInput());

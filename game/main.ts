@@ -1,14 +1,16 @@
-import { InvisibleWall, Player } from './entities';
+import { Interaction, InvisibleWall, Player } from './entities';
 import { TILE_SIZE } from './globals';
 import EnvironmentTiles from './oldEntities/Environments/EnvironmentTiles';
 import TerrainTiles from './oldEntities/Terrains/TerrainTiles';
 import { Settings } from './settings';
-import { Animator, Collider, Mover, Renderer } from './systems';
+import { Animator, Camera, Collider, Mover, Renderer } from './systems';
 import map001 from './Tilemaps/map001';
 import { Terrain, Tilemap } from './types';
-import { ECS } from './utils';
+import { ECS, Emitter, Entity } from './utils';
 
 export class Game extends ECS {
+  entities: Entity[] = [];
+
   paused = false;
 
   fps = 0;
@@ -29,6 +31,7 @@ export class Game extends ECS {
     this.add(new Mover());
     this.add(new Collider());
     this.add(new Animator());
+    this.add(new Camera());
     this.add(
       new Renderer(
         gameContext as WebGL2RenderingContext,
@@ -40,10 +43,24 @@ export class Game extends ECS {
 
     this.setSystemsEntities();
 
+    this.setEvents();
+
     (async () => {
       await this.get(Renderer).loadTextures(this.entities);
       this.loop();
     })();
+  }
+
+  setEvents() {
+    Emitter.on('spawn', (entity: Entity) => {
+      this.entities.push(entity);
+      this.setSystemsEntities();
+    });
+
+    Emitter.on('despawn', (entity: Entity) => {
+      delete this.entities[this.entities.indexOf(entity)];
+      this.setSystemsEntities();
+    });
   }
 
   loop(time = 0, oldTime = 0) {
@@ -69,9 +86,14 @@ export class Game extends ECS {
   }
 
   buildMap(playerX: number, playerY: number) {
+    // Set scene settings
+    Settings.scene.columns = this.tilemap.columns;
+    Settings.scene.rows = this.tilemap.rows;
+
     // Reset the scene
     this.entities = [];
 
+    // Prepare terrains for the renderer
     const terrains: Terrain[] = [];
 
     // Build the scene
@@ -115,13 +137,25 @@ export class Game extends ECS {
     this.get(Renderer).setTerrains(terrains);
 
     // Build interactions
-    // this.interactions = this.tilemap.interactions;
+    this.tilemap.interactions.forEach((interaction) => {
+      this.entities.push(
+        new Interaction(
+          interaction.x,
+          interaction.y,
+          interaction.width,
+          interaction.height
+        )
+      );
+    });
 
     // Add a new player instance
-    this.entities.push(new Player(playerX, playerY));
+    const player = new Player(playerX, playerY);
+    this.entities.push(player);
 
-    Settings.scene.columns = this.tilemap.columns;
-    Settings.scene.rows = this.tilemap.rows;
+    // Setup camera
+    const camera = this.get(Camera);
+    camera.setPlayer(player);
+    camera.init();
   }
 
   pause() {

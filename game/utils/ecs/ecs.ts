@@ -1,11 +1,8 @@
-import { Entity } from './entity';
 import { System } from './system';
 
 type SystemClass<T extends System> = new (...args: any[]) => T;
 
 export abstract class ECS {
-  entities: Entity[] = [];
-
   systems: System[] = [];
 
   add(system: System) {
