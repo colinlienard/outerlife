@@ -40,8 +40,7 @@ type Interaction = {
   width: number;
   height: number;
   entered?: boolean;
-  enter: InteractionAction;
-  leave?: InteractionAction;
+  enter: () => void;
 };
 
 type Keys = {

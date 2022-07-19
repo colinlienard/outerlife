@@ -1,4 +1,5 @@
 import { Tilemap } from '../types';
+import { Emitter } from '../utils';
 
 const map001: Tilemap = {
   rows: 30,
@@ -2413,7 +2414,12 @@ const map001: Tilemap = {
       y: 32,
       width: 16,
       height: 16,
-      enter: { sceneSwitch: { map: '002', playerX: 100, playerY: 100 } },
+      enter: () =>
+        Emitter.emit('switch-map', {
+          map: '002',
+          playerX: 100,
+          playerY: 100,
+        }),
     },
   ],
 };

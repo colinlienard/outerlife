@@ -157,17 +157,19 @@ export class Renderer extends System {
   render() {
     // Render terrains
     this.terrains.forEach((terrain) => {
-      this.engine.queueRender(
-        terrain.source,
-        terrain.sourceX,
-        terrain.sourceY,
-        TILE_SIZE,
-        TILE_SIZE,
-        terrain.x * Settings.ratio,
-        terrain.y * Settings.ratio,
-        TILE_SIZE * Settings.ratio,
-        TILE_SIZE * Settings.ratio
-      );
+      if ((terrain.x, terrain.y, TILE_SIZE, TILE_SIZE)) {
+        this.engine.queueRender(
+          terrain.source,
+          terrain.sourceX,
+          terrain.sourceY,
+          TILE_SIZE,
+          TILE_SIZE,
+          terrain.x * Settings.ratio,
+          terrain.y * Settings.ratio,
+          TILE_SIZE * Settings.ratio,
+          TILE_SIZE * Settings.ratio
+        );
+      }
     });
 
     // Render entities
@@ -175,52 +177,54 @@ export class Renderer extends System {
       const sprite = entity.get(Sprite);
       const position = entity.get(Position);
 
-      // Render shadow
-      if (entity.has(Shadow)) {
-        const shadow = entity.get(Shadow);
-        this.engine.queueRender(
-          sprite.source,
-          shadow.sourceX,
-          shadow.sourceY,
-          shadow.width,
-          shadow.height,
-          Math.floor((position.x + shadow.x) * Settings.ratio),
-          Math.floor((position.y + shadow.y) * Settings.ratio),
-          shadow.width * Settings.ratio,
-          shadow.height * Settings.ratio
-        );
-      }
+      if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
+        // Render shadow
+        if (entity.has(Shadow)) {
+          const shadow = entity.get(Shadow);
+          this.engine.queueRender(
+            sprite.source,
+            shadow.sourceX,
+            shadow.sourceY,
+            shadow.width,
+            shadow.height,
+            Math.floor((position.x + shadow.x) * Settings.ratio),
+            Math.floor((position.y + shadow.y) * Settings.ratio),
+            shadow.width * Settings.ratio,
+            shadow.height * Settings.ratio
+          );
+        }
 
-      // Render animated entity
-      if (entity.has(Animation)) {
-        const animator = entity.get(Animation);
-        this.engine.queueRender(
-          sprite.source,
-          sprite.width *
-            (animator.column + animator.currentAnimation.frameStart - 1),
-          sprite.height * animator.row,
-          sprite.width,
-          sprite.height,
-          Math.floor(position.x * Settings.ratio),
-          Math.floor(position.y * Settings.ratio),
-          sprite.width * Settings.ratio,
-          sprite.height * Settings.ratio
-        );
-      }
+        // Render animated entity
+        if (entity.has(Animation)) {
+          const animator = entity.get(Animation);
+          this.engine.queueRender(
+            sprite.source,
+            sprite.width *
+              (animator.column + animator.currentAnimation.frameStart - 1),
+            sprite.height * animator.row,
+            sprite.width,
+            sprite.height,
+            Math.floor(position.x * Settings.ratio),
+            Math.floor(position.y * Settings.ratio),
+            sprite.width * Settings.ratio,
+            sprite.height * Settings.ratio
+          );
+        }
 
-      // Render non animated entity
-      else {
-        this.engine.queueRender(
-          sprite.source,
-          sprite.sourceX,
-          sprite.sourceY,
-          sprite.width,
-          sprite.height,
-          Math.floor(position.x * Settings.ratio),
-          Math.floor(position.y * Settings.ratio),
-          sprite.width * Settings.ratio,
-          sprite.height * Settings.ratio
-        );
+        // Render non animated entity
+        else {
+          this.engine.queueRender(
+            sprite.source,
+            sprite.sourceX,
+            sprite.sourceY,
+            sprite.width,
+            sprite.height,
+            Math.floor(position.x * Settings.ratio),
+            Math.floor(position.y * Settings.ratio),
+            sprite.width * Settings.ratio,
+            sprite.height * Settings.ratio
+          );
+        }
       }
     });
 

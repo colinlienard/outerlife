@@ -4,7 +4,8 @@ import EnvironmentTiles from './oldEntities/Environments/EnvironmentTiles';
 import TerrainTiles from './oldEntities/Terrains/TerrainTiles';
 import { Settings } from './settings';
 import { Animator, Camera, Collider, Mover, Renderer } from './systems';
-import map001 from './Tilemaps/map001';
+import map002 from './Tilemaps/map002';
+import tilemapIndex from './Tilemaps/tilemapIndex';
 import { Terrain, Tilemap } from './types';
 import { ECS, Emitter, Entity } from './utils';
 
@@ -15,7 +16,7 @@ export class Game extends ECS {
 
   fps = 0;
 
-  tilemap: Tilemap = map001;
+  tilemap: Tilemap = map002;
 
   constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
     super();
@@ -39,7 +40,7 @@ export class Game extends ECS {
       )
     );
 
-    this.buildMap(100, 100);
+    this.buildMap(300, 300);
 
     this.setSystemsEntities();
 
@@ -52,15 +53,33 @@ export class Game extends ECS {
   }
 
   setEvents() {
+    // Add entity to the scene
     Emitter.on('spawn', (entity: Entity) => {
       this.entities.push(entity);
       this.setSystemsEntities();
     });
 
+    // Remove entity from the scene
     Emitter.on('despawn', (entity: Entity) => {
       delete this.entities[this.entities.indexOf(entity)];
       this.setSystemsEntities();
     });
+
+    // Switch map
+    Emitter.on(
+      'switch-map',
+      ({
+        map,
+        playerX,
+        playerY,
+      }: {
+        map: string;
+        playerX: number;
+        playerY: number;
+      }) => {
+        this.switchMap(map, playerX, playerY);
+      }
+    );
   }
 
   loop(time = 0, oldTime = 0) {
@@ -143,7 +162,8 @@ export class Game extends ECS {
           interaction.x,
           interaction.y,
           interaction.width,
-          interaction.height
+          interaction.height,
+          interaction.enter
         )
       );
     });
@@ -164,5 +184,14 @@ export class Game extends ECS {
 
   resume() {
     this.paused = false;
+  }
+
+  switchMap(map: string, playerX: number, playerY: number) {
+    this.entities = [];
+    this.setSystemsEntities();
+
+    this.tilemap = tilemapIndex[map];
+    this.buildMap(playerX, playerY);
+    this.setSystemsEntities();
   }
 }

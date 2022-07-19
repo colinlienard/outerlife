@@ -6,6 +6,10 @@ export class Position implements Component {
 
   y: number;
 
+  oldX = 0;
+
+  oldY = 0;
+
   constructor(x: number, y: number, width?: number, height?: number) {
     if (width && height) {
       this.x = x - width / 2 + TILE_SIZE / 2;

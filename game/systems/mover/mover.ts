@@ -73,7 +73,11 @@ export class Mover extends System {
         velocity.direction.x = null;
       }
 
-      // Update the position of the player
+      // Store the old position
+      position.oldX = position.x;
+      position.oldY = position.y;
+
+      // Update the position
       switch (velocity.direction.y) {
         case 'up':
           position.y -= speed;
