@@ -166,7 +166,6 @@ export class Engine {
   }
 
   loadTextures(sources: string[]) {
-    // eslint-disable-next-line no-async-promise-executor
     return new Promise<void>(async (resolve) => {
       // Set the texture unit to 0 for mobile
       this.gl.uniform1i(this.gl.getUniformLocation(this.program, 'sampler'), 0);

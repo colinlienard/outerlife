@@ -10,6 +10,7 @@ provide('game', game);
 provide('debugMode', debugMode);
 
 onMounted(() => {
+  // Create the game
   try {
     game.value = new Game(
       gameCanvas.value as HTMLCanvasElement,
@@ -28,6 +29,7 @@ onMounted(() => {
       ref="debugCanvas"
       :class="['debug-canvas', { visible: debugMode }]"
     />
+    <GameTransition />
     <FPSVisualizer v-if="debugMode" />
     <LoadingScreen />
     <PauseScreen />

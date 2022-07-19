@@ -19,6 +19,7 @@
     "no-restricted-exports": "off",
     "no-restricted-syntax": "off",
     "prettier/prettier": "error",
+    "no-async-promise-executor": "off",
     "@typescript-eslint/no-unused-vars": ["error"]
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
