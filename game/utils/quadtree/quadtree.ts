@@ -2,27 +2,37 @@ import { Box } from '../types';
 import { IQuadTree } from './types';
 
 const MAX_ITEMS = 4;
+const MAX_DEPTH = 4;
 
 export class QuadTree<T extends Box> implements IQuadTree<T> {
+  private items: T[] | null = [];
+
   private nodes:
     | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
     | null = null;
 
-  private items: T[] | null = [];
+  readonly x: number;
 
-  x = 0;
+  readonly y: number;
 
-  y = 0;
+  readonly width: number;
 
-  width = 0;
+  readonly height: number;
 
-  height = 0;
+  readonly depth: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    depth: number = 0
+  ) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
+    this.depth = depth;
   }
 
   private addToNode(item: T) {
@@ -48,25 +58,35 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
 
     const splitWidth = this.width / 2;
     const splitHeight = this.height / 2;
+    const depth = this.depth + 1;
 
-    const topLeft = new QuadTree<T>(this.x, this.y, splitWidth, splitHeight);
+    const topLeft = new QuadTree<T>(
+      this.x,
+      this.y,
+      splitWidth,
+      splitHeight,
+      depth
+    );
     const topRight = new QuadTree<T>(
       this.x + splitWidth,
       this.y,
       splitWidth,
-      splitHeight
+      splitHeight,
+      depth
     );
     const bottomLeft = new QuadTree<T>(
       this.x,
       this.y + splitHeight,
       splitWidth,
-      splitHeight
+      splitHeight,
+      depth
     );
     const bottomRight = new QuadTree<T>(
       this.x + splitWidth,
       this.y + splitHeight,
       splitWidth,
-      splitHeight
+      splitHeight,
+      depth
     );
 
     this.nodes = [topLeft, topRight, bottomLeft, bottomRight];
@@ -82,7 +102,7 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     }
 
     if (this.items) {
-      if (this.items.length < MAX_ITEMS) {
+      if (this.items.length < MAX_ITEMS || this.depth === MAX_DEPTH) {
         this.items.push(item);
         return;
       }
@@ -95,8 +115,8 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
   }
 
   clear() {
-    this.nodes = null;
     this.items = [];
+    this.nodes = null;
   }
 
   get(x: number, y: number, width: number, height: number) {
@@ -113,5 +133,10 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
       result.push(...node.get(x, y, width, height));
     });
     return result;
+  }
+
+  getWithoutDuplicates(x: number, y: number, width: number, height: number) {
+    const items = this.get(x, y, width, height);
+    return [...new Set(items)];
   }
 }

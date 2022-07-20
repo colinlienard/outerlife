@@ -62,6 +62,7 @@ class Editor {
           ];
         if (Tile) {
           const instance = new Tile(0, 0);
+          // @ts-ignore
           const { sprite } = instance;
           const x = column * Settings.tileSize - sprite.width / 2 + 8;
           const y = row * Settings.tileSize - sprite.height + 8;

@@ -19,5 +19,8 @@ export abstract class Settings {
   static scene = {
     columns: 0,
     rows: 0,
+
+    width: 0,
+    height: 0,
   };
 }

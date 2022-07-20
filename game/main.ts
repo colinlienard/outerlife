@@ -4,13 +4,13 @@ import { Animator, Camera, Collider, Mover, Renderer } from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
-  entities: Entity[] = [];
+  protected entities: Entity[] = [];
 
-  paused = false;
+  private tilemap: Tilemap = map002;
 
   fps = 0;
 
-  tilemap: Tilemap = map002;
+  paused = false;
 
   constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
     super();
@@ -45,62 +45,13 @@ export class Game extends ECS {
     })();
   }
 
-  setEvents() {
-    // Add entity to the scene
-    Emitter.on('spawn', (entity: Entity) => {
-      this.entities.push(entity);
-      this.setSystemsEntities();
-    });
-
-    // Remove entity from the scene
-    Emitter.on('despawn', (entity: Entity) => {
-      delete this.entities[this.entities.indexOf(entity)];
-      this.setSystemsEntities();
-    });
-
-    // Switch map
-    Emitter.on(
-      'switch-map',
-      ({
-        map,
-        playerX,
-        playerY,
-      }: {
-        map: string;
-        playerX: number;
-        playerY: number;
-      }) => {
-        this.switchMap(map, playerX, playerY);
-      }
-    );
-
-    window.addEventListener('resize', () => {
-      this.get(Renderer).resize();
-      this.get(Camera).resize();
-    });
-  }
-
-  loop(time = 0, oldTime = 0) {
-    // Get frames per second
-    if (Settings.debug) {
-      this.fps =
-        Math.round(
-          (1000 / (performance.now() - oldTime) + Number.EPSILON) * 10
-        ) / 10;
-    }
-
-    if (!this.paused) {
-      this.updateSystems();
-    }
-
-    requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
-  }
-
-  buildMap(playerX: number, playerY: number) {
+  private buildMap(playerX: number, playerY: number) {
     return new Promise((resolve) => {
       // Set scene settings
       Settings.scene.columns = this.tilemap.columns;
       Settings.scene.rows = this.tilemap.rows;
+      Settings.scene.width = this.tilemap.columns * Settings.tileSize;
+      Settings.scene.height = this.tilemap.rows * Settings.tileSize;
 
       // Reset the scene
       this.entities = [];
@@ -180,15 +131,59 @@ export class Game extends ECS {
     });
   }
 
-  pause() {
-    this.paused = true;
+  private loop(time = 0, oldTime = 0) {
+    // Get frames per second
+    if (Settings.debug) {
+      this.fps =
+        Math.round(
+          (1000 / (performance.now() - oldTime) + Number.EPSILON) * 10
+        ) / 10;
+    }
+
+    if (!this.paused) {
+      this.updateSystems();
+    }
+
+    requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
   }
 
-  resume() {
-    this.paused = false;
+  private setEvents() {
+    // Add entity to the scene
+    Emitter.on('spawn', (entity: Entity) => {
+      this.entities.push(entity);
+      this.setSystemsEntities();
+    });
+
+    // Remove entity from the scene
+    Emitter.on('despawn', (entity: Entity) => {
+      delete this.entities[this.entities.indexOf(entity)];
+      this.setSystemsEntities();
+    });
+
+    // Switch map
+    Emitter.on(
+      'switch-map',
+      ({
+        map,
+        playerX,
+        playerY,
+      }: {
+        map: string;
+        playerX: number;
+        playerY: number;
+      }) => {
+        this.switchMap(map, playerX, playerY);
+      }
+    );
+
+    // Resize
+    window.addEventListener('resize', () => {
+      this.get(Renderer).resize();
+      this.get(Camera).resize();
+    });
   }
 
-  switchMap(map: string, playerX: number, playerY: number) {
+  private switchMap(map: string, playerX: number, playerY: number) {
     setTimeout(() => {
       this.entities = [];
       this.setSystemsEntities();
@@ -197,5 +192,13 @@ export class Game extends ECS {
       this.buildMap(playerX, playerY);
       this.setSystemsEntities();
     }, Settings.transitionDuration);
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
   }
 }

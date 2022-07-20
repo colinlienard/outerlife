@@ -6,13 +6,28 @@ import {
   Sprite,
 } from '~~/game/components';
 import { Engine } from '~~/game/engine';
-import { Entity, Settings, System, Terrain } from '~~/game/utils';
+import {
+  Box,
+  Entity,
+  QuadTree,
+  Settings,
+  System,
+  Terrain,
+} from '~~/game/utils';
 
 type Collisions = {
   environments: Collision[];
   interactions: Collision[];
   organisms: Collision[];
 };
+
+interface EntityLeaf extends Box {
+  entity: Entity;
+}
+
+interface TerrainLeaf extends Box {
+  terrain: Terrain;
+}
 
 export class Renderer extends System {
   protected readonly requiredComponents = [Position, Sprite];
@@ -21,11 +36,15 @@ export class Renderer extends System {
 
   private readonly engine: Engine;
 
+  private entityTree!: QuadTree<EntityLeaf>;
+
   private offsetX = 0;
 
   private offsetY = 0;
 
   private terrains: Terrain[] = [];
+
+  private terrainTree!: QuadTree<TerrainLeaf>;
 
   private viewport = {
     width: 0,
@@ -44,19 +63,33 @@ export class Renderer extends System {
     this.resize();
   }
 
-  private isVisible(x: number, y: number, width: number, height: number) {
-    return (
-      x + width > this.offsetX &&
-      x < this.offsetX + this.viewport.width &&
-      y + height + 10 > this.offsetY &&
-      y - 10 < this.offsetY + this.viewport.height
+  private getSortedEntities() {
+    const entities = this.entityTree
+      .getWithoutDuplicates(
+        this.offsetX,
+        this.offsetY,
+        this.viewport.width,
+        this.viewport.height
+      )
+      .map((leaf) => leaf.entity);
+    return entities.sort((previous, current) =>
+      previous.get(Position).y + previous.get(Sprite).height >
+      current.get(Position).y + current.get(Sprite).height
+        ? 1
+        : -1
     );
   }
 
   private render() {
     // Render terrains
-    this.terrains.forEach((terrain) => {
-      if ((terrain.x, terrain.y, Settings.tileSize, Settings.tileSize)) {
+    this.terrainTree
+      .getWithoutDuplicates(
+        this.offsetX,
+        this.offsetY,
+        this.viewport.width,
+        this.viewport.height
+      )
+      .forEach(({ terrain }) => {
         this.engine.queueRender(
           terrain.source,
           terrain.sourceX,
@@ -68,63 +101,62 @@ export class Renderer extends System {
           Settings.tileSize * Settings.ratio,
           Settings.tileSize * Settings.ratio
         );
-      }
-    });
+      });
 
     // Render entities
-    this.entities.forEach((entity) => {
+    this.getSortedEntities().forEach((entity) => {
       const sprite = entity.get(Sprite);
       const position = entity.get(Position);
 
-      if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
-        // Render shadow
-        if (entity.has(Shadow)) {
-          const shadow = entity.get(Shadow);
-          this.engine.queueRender(
-            sprite.source,
-            shadow.sourceX,
-            shadow.sourceY,
-            shadow.width,
-            shadow.height,
-            Math.floor((position.x + shadow.x) * Settings.ratio),
-            Math.floor((position.y + shadow.y) * Settings.ratio),
-            shadow.width * Settings.ratio,
-            shadow.height * Settings.ratio
-          );
-        }
-
-        // Render animated entity
-        if (entity.has(Animation)) {
-          const animator = entity.get(Animation);
-          this.engine.queueRender(
-            sprite.source,
-            sprite.width *
-              (animator.column + animator.currentAnimation.frameStart - 1),
-            sprite.height * animator.row,
-            sprite.width,
-            sprite.height,
-            Math.floor(position.x * Settings.ratio),
-            Math.floor(position.y * Settings.ratio),
-            sprite.width * Settings.ratio,
-            sprite.height * Settings.ratio
-          );
-        }
-
-        // Render non animated entity
-        else {
-          this.engine.queueRender(
-            sprite.source,
-            sprite.sourceX,
-            sprite.sourceY,
-            sprite.width,
-            sprite.height,
-            Math.floor(position.x * Settings.ratio),
-            Math.floor(position.y * Settings.ratio),
-            sprite.width * Settings.ratio,
-            sprite.height * Settings.ratio
-          );
-        }
+      // if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
+      // Render shadow
+      if (entity.has(Shadow)) {
+        const shadow = entity.get(Shadow);
+        this.engine.queueRender(
+          sprite.source,
+          shadow.sourceX,
+          shadow.sourceY,
+          shadow.width,
+          shadow.height,
+          Math.floor((position.x + shadow.x) * Settings.ratio),
+          Math.floor((position.y + shadow.y) * Settings.ratio),
+          shadow.width * Settings.ratio,
+          shadow.height * Settings.ratio
+        );
       }
+
+      // Render animated entity
+      if (entity.has(Animation)) {
+        const animator = entity.get(Animation);
+        this.engine.queueRender(
+          sprite.source,
+          sprite.width *
+            (animator.column + animator.currentAnimation.frameStart - 1),
+          sprite.height * animator.row,
+          sprite.width,
+          sprite.height,
+          Math.floor(position.x * Settings.ratio),
+          Math.floor(position.y * Settings.ratio),
+          sprite.width * Settings.ratio,
+          sprite.height * Settings.ratio
+        );
+      }
+
+      // Render non animated entity
+      else {
+        this.engine.queueRender(
+          sprite.source,
+          sprite.sourceX,
+          sprite.sourceY,
+          sprite.width,
+          sprite.height,
+          Math.floor(position.x * Settings.ratio),
+          Math.floor(position.y * Settings.ratio),
+          sprite.width * Settings.ratio,
+          sprite.height * Settings.ratio
+        );
+      }
+      // }
     });
 
     this.engine.render();
@@ -215,10 +247,7 @@ export class Renderer extends System {
       const x = index * Settings.tileSize * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(x, 0);
-      this.debugContext.lineTo(
-        x,
-        Settings.scene.rows * Settings.tileSize * Settings.ratio
-      );
+      this.debugContext.lineTo(x, Settings.scene.height * Settings.ratio);
       this.debugContext.stroke();
     }
 
@@ -226,10 +255,7 @@ export class Renderer extends System {
       const y = index * Settings.tileSize * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(0, y);
-      this.debugContext.lineTo(
-        Settings.scene.columns * Settings.tileSize * Settings.ratio,
-        y
-      );
+      this.debugContext.lineTo(Settings.scene.width * Settings.ratio, y);
       this.debugContext.stroke();
     }
   }
@@ -250,15 +276,6 @@ export class Renderer extends System {
       1,
       Math.floor(offsetX * Settings.ratio),
       Math.floor(offsetY * Settings.ratio)
-    );
-  }
-
-  private ySort() {
-    this.entities.sort((previous, current) =>
-      previous.get(Position).y + previous.get(Sprite).height >
-      current.get(Position).y + current.get(Sprite).height
-        ? 1
-        : -1
     );
   }
 
@@ -305,17 +322,64 @@ export class Renderer extends System {
     this.viewport.height = window.innerHeight / Settings.ratio;
   }
 
+  setEntities(entities: Entity[]) {
+    const oldEntities = this.entities;
+
+    super.setEntities(entities);
+
+    // If the entities have changed
+    if (oldEntities.length !== this.entities.length) {
+      this.entityTree = new QuadTree(
+        0,
+        0,
+        Settings.scene.width,
+        Settings.scene.height
+      );
+
+      this.entities.forEach((entity) => {
+        const { x, y } = entity.get(Position);
+        const { width, height } = entity.get(Sprite);
+        this.entityTree.add({
+          x,
+          y,
+          width,
+          height,
+          entity,
+        });
+      });
+    }
+  }
+
   setTerrains(terrains: Terrain[]) {
     this.terrains = terrains;
+    this.terrainTree = new QuadTree(
+      0,
+      0,
+      Settings.scene.width,
+      Settings.scene.height
+    );
+    this.terrains.forEach((terrain) => {
+      this.terrainTree.add({
+        x: terrain.x,
+        y: terrain.y,
+        width: Settings.tileSize,
+        height: Settings.tileSize,
+        terrain,
+      });
+    });
   }
 
   update() {
-    this.ySort();
     this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
     this.render();
 
     if (Settings.debug) {
-      this.debugContext.clearRect(0, 0, 9999, 9999);
+      this.debugContext.clearRect(
+        0,
+        0,
+        Settings.scene.width * Settings.ratio,
+        Settings.scene.height * Settings.ratio
+      );
       this.renderCollisions();
       this.renderGrid();
     }

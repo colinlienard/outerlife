@@ -72,8 +72,8 @@ export class Camera extends System {
   }
 
   init() {
-    this.map.width = Settings.scene.columns * Settings.tileSize;
-    this.map.height = Settings.scene.rows * Settings.tileSize;
+    this.map.width = Settings.scene.width;
+    this.map.height = Settings.scene.height;
 
     this.resize();
 

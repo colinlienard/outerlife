@@ -14,41 +14,46 @@ export class Collider extends System {
   private organisms: Entity[] = [];
 
   setEntities(entities: Entity[]) {
+    const oldEntities = this.entities;
+
     super.setEntities(entities);
 
-    this.colliders = new QuadTree(
-      0,
-      0,
-      Settings.scene.columns * Settings.tileSize,
-      Settings.scene.rows * Settings.tileSize
-    );
-    this.organisms = [];
+    // If the entities have changed
+    if (oldEntities.length !== this.entities.length) {
+      this.colliders = new QuadTree(
+        0,
+        0,
+        Settings.scene.width,
+        Settings.scene.height
+      );
+      this.organisms = [];
 
-    this.entities.forEach((entity) => {
-      const { type, x, y, width, height } = entity.get(Collision);
-      const { x: positionX, y: positionY } = entity.get(Position);
+      this.entities.forEach((entity) => {
+        const { type, x, y, width, height } = entity.get(Collision);
+        const { x: positionX, y: positionY } = entity.get(Position);
 
-      switch (type) {
-        case 'environment':
-        case 'interaction': {
-          const collider = {
-            entity,
-            type,
-            x: x + positionX,
-            y: y + positionY,
-            width,
-            height,
-          };
-          this.colliders?.add(collider);
-          return;
+        switch (type) {
+          case 'environment':
+          case 'interaction': {
+            const collider = {
+              entity,
+              type,
+              x: x + positionX,
+              y: y + positionY,
+              width,
+              height,
+            };
+            this.colliders?.add(collider);
+            return;
+          }
+          case 'organism':
+            this.organisms.push(entity);
+            return;
+          default:
+            throw new Error(`Invalid collision type: '${type}'`);
         }
-        case 'organism':
-          this.organisms.push(entity);
-          return;
-        default:
-          throw new Error(`Invalid collision type: '${type}'`);
-      }
-    });
+      });
+    }
   }
 
   update() {
@@ -57,7 +62,12 @@ export class Collider extends System {
       const oCol = organism.get(Collision);
 
       this.colliders
-        ?.get(oPos.x + oCol.x, oPos.y + oCol.y, oCol.width, oCol.height)
+        ?.getWithoutDuplicates(
+          oPos.x + oCol.x,
+          oPos.y + oCol.y,
+          oCol.width,
+          oCol.height
+        )
         .forEach((collider) => {
           // Distances between centers
           const distanceX =
@@ -104,16 +114,16 @@ export class Collider extends System {
       const width = organism.has(Sprite) ? organism.get(Sprite).width / 2 : 0;
       if (oPos.x < 0 - width) {
         oPos.x = -width;
-      } else if (oPos.x > Settings.scene.columns * Settings.tileSize - width) {
-        oPos.x = Settings.scene.columns * Settings.tileSize - width;
+      } else if (oPos.x > Settings.scene.width - width) {
+        oPos.x = Settings.scene.width - width;
       }
 
       // Scene limits on the y axis
       const height = organism.has(Sprite) ? organism.get(Sprite).height / 2 : 0;
       if (oPos.y < 0 - height) {
         oPos.y = -height;
-      } else if (oPos.y > Settings.scene.rows * Settings.tileSize - height) {
-        oPos.y = Settings.scene.rows * Settings.tileSize - height;
+      } else if (oPos.y > Settings.scene.height - height) {
+        oPos.y = Settings.scene.height - height;
       }
     });
   }

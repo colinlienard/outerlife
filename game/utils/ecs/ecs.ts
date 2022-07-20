@@ -4,25 +4,25 @@ import { System, SystemContructor } from './system';
 export abstract class ECS {
   private systems: Map<SystemContructor, System> = new Map();
 
-  abstract entities: Entity[];
+  protected abstract entities: Entity[];
 
-  add(system: System) {
+  protected add(system: System) {
     this.systems.set(system.constructor as SystemContructor, system);
   }
 
-  delete(system: SystemContructor) {
+  protected delete(system: SystemContructor) {
     this.systems.delete(system);
   }
 
-  get<T extends System>(system: new (...args: any[]) => T) {
+  protected get<T extends System>(system: new (...args: any[]) => T) {
     return this.systems.get(system) as T;
   }
 
-  updateSystems() {
+  protected updateSystems() {
     this.systems.forEach((system) => system.update());
   }
 
-  setSystemsEntities() {
+  protected setSystemsEntities() {
     this.systems.forEach((system) => {
       system.setEntities(this.entities);
     });
