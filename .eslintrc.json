@@ -11,10 +11,15 @@
   },
   "plugins": ["vue", "@typescript-eslint", "prettier"],
   "rules": {
+    "import/prefer-default-export": "off",
     "import/extensions": ["error", { "ts": "never" }],
     "linebreak-style": ["error", "windows"],
+    "node/no-callback-literal": "off",
     "no-param-reassign": ["error", { "props": false }],
+    "no-restricted-exports": "off",
+    "no-restricted-syntax": "off",
     "prettier/prettier": "error",
+    "no-async-promise-executor": "off",
     "@typescript-eslint/no-unused-vars": ["error"]
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
