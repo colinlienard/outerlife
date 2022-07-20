@@ -27,7 +27,7 @@ export class Camera extends System {
     this.map.width = Settings.scene.columns * TILE_SIZE;
     this.map.height = Settings.scene.rows * TILE_SIZE;
 
-    this.updateViewport();
+    this.resize();
 
     this.x = this.getTargetX();
     this.y = this.getTargetY();
@@ -90,7 +90,7 @@ export class Camera extends System {
     return this.y;
   }
 
-  updateViewport() {
+  resize() {
     this.viewport.width = window.innerWidth / Settings.ratio;
     this.viewport.height = window.innerHeight / Settings.ratio;
   }

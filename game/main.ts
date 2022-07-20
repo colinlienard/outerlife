@@ -79,6 +79,11 @@ export class Game extends ECS {
         this.switchMap(map, playerX, playerY);
       }
     );
+
+    window.addEventListener('resize', () => {
+      this.get(Renderer).resize();
+      this.get(Camera).resize();
+    });
   }
 
   loop(time = 0, oldTime = 0) {

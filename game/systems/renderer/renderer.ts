@@ -51,10 +51,6 @@ export class Renderer extends System {
     this.debugContext = debugContext;
 
     this.resize();
-    window.addEventListener('resize', () => {
-      this.resize();
-      this.render();
-    });
   }
 
   // setEntities(entities: Entity[]) {
