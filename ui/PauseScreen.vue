@@ -7,7 +7,7 @@ import MenuButton from './menus/MenuButton.vue';
 import MenuButtonsList from './menus/MenuButtonsList.vue';
 import MenuTitle from './menus/MenuTitle.vue';
 import MenuCheck from './menus/MenuCheck.vue';
-import { Settings } from '~~/game/settings';
+import { Settings } from '~~/game/utils';
 
 const paused = ref(false);
 const showOptions = ref(false);

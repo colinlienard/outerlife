@@ -6,8 +6,7 @@ import {
   Sprite,
 } from '~~/game/components';
 import { Engine } from '~~/game/engine';
-import { Settings } from '~~/game/settings';
-import { Entity, System, Terrain } from '~~/game/utils';
+import { Entity, Settings, System, Terrain } from '~~/game/utils';
 
 type Collisions = {
   environments: Collision[];
@@ -16,25 +15,19 @@ type Collisions = {
 };
 
 export class Renderer extends System {
-  readonly requiredComponents = [Position, Sprite];
+  protected readonly requiredComponents = [Position, Sprite];
 
-  // collisions: Collisions = {
-  //   environments: [],
-  //   interactions: [],
-  //   organisms: [],
-  // };
+  private readonly debugContext: CanvasRenderingContext2D;
 
-  debugContext: CanvasRenderingContext2D;
+  private readonly engine: Engine;
 
-  engine: Engine;
+  private offsetX = 0;
 
-  offsetX = 0;
+  private offsetY = 0;
 
-  offsetY = 0;
+  private terrains: Terrain[] = [];
 
-  terrains: Terrain[] = [];
-
-  viewport = {
+  private viewport = {
     width: 0,
     height: 0,
   };
@@ -51,62 +44,7 @@ export class Renderer extends System {
     this.resize();
   }
 
-  // setEntities(entities: Entity[]) {
-  //   super.setEntities(entities);
-
-  //   this.entities.forEach((entity) => {
-  //     if (entity.has(Collision)) {
-  //       const collision = entity.get(Collision);
-
-  //       switch (collision.type) {
-  //         case 'environment':
-  //           this.collisions.environments.push(collision);
-  //           return;
-  //         case 'interaction':
-  //           this.collisions.interactions.push(collision);
-  //           return;
-  //         case 'organism':
-  //           this.collisions.organisms.push(collision);
-  //           return;
-  //         default:
-  //           throw new Error(`Invalid collision type: '${collision.type}'`);
-  //       }
-  //     }
-  //   });
-  // }
-
-  loadTextures(entities: Entity[]) {
-    return new Promise((resolve) => {
-      const requiredSources = ['/sprites/dust.png'];
-
-      const entitiesSources = entities.reduce((previous: string[], current) => {
-        if (current.has(Sprite)) {
-          return [...previous, current.get(Sprite).source];
-        }
-        return previous;
-      }, []);
-
-      const terrainsSources = this.terrains.reduce(
-        (previous: string[], current) => {
-          if (previous.includes(current.source)) {
-            return previous;
-          }
-          return [...previous, current.source];
-        },
-        []
-      );
-
-      this.engine
-        .loadTextures([
-          ...requiredSources,
-          ...entitiesSources,
-          ...terrainsSources,
-        ])
-        .then(resolve);
-    });
-  }
-
-  isVisible(x: number, y: number, width: number, height: number) {
+  private isVisible(x: number, y: number, width: number, height: number) {
     return (
       x + width > this.offsetX &&
       x < this.offsetX + this.viewport.width &&
@@ -115,40 +53,7 @@ export class Renderer extends System {
     );
   }
 
-  resize() {
-    this.engine.resize();
-
-    this.debugContext.canvas.width = window.innerWidth;
-    this.debugContext.canvas.height = window.innerHeight;
-
-    Settings.ratio = Math.round(window.innerHeight / Settings.yPixelsNumber);
-
-    this.viewport.width = window.innerWidth / Settings.ratio;
-    this.viewport.height = window.innerHeight / Settings.ratio;
-  }
-
-  update() {
-    this.ySort();
-    this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
-    this.render();
-
-    if (Settings.debug) {
-      this.debugContext.clearRect(0, 0, 9999, 9999);
-      this.renderCollisions();
-      this.renderGrid();
-    }
-  }
-
-  ySort() {
-    this.entities.sort((previous, current) =>
-      previous.get(Position).y + previous.get(Sprite).height >
-      current.get(Position).y + current.get(Sprite).height
-        ? 1
-        : -1
-    );
-  }
-
-  render() {
+  private render() {
     // Render terrains
     this.terrains.forEach((terrain) => {
       if ((terrain.x, terrain.y, Settings.tileSize, Settings.tileSize)) {
@@ -225,7 +130,7 @@ export class Renderer extends System {
     this.engine.render();
   }
 
-  renderCollisions() {
+  private renderCollisions() {
     // Get collisions of environments and organisms
     const { environments, interactions, organisms } =
       this.entities.reduce<Collisions>(
@@ -302,7 +207,7 @@ export class Renderer extends System {
     this.debugContext.fillStyle = 'transparent';
   }
 
-  renderGrid() {
+  private renderGrid() {
     this.debugContext.lineWidth = 1;
     this.debugContext.strokeStyle = 'rgba(255, 255, 255, 0.5)';
 
@@ -329,11 +234,7 @@ export class Renderer extends System {
     }
   }
 
-  setTerrains(terrains: Terrain[]) {
-    this.terrains = terrains;
-  }
-
-  translate(offsetX: number, offsetY: number) {
+  private translate(offsetX: number, offsetY: number) {
     this.offsetX = Math.abs(Math.round(offsetX));
     this.offsetY = Math.abs(Math.round(offsetY));
 
@@ -350,5 +251,73 @@ export class Renderer extends System {
       Math.floor(offsetX * Settings.ratio),
       Math.floor(offsetY * Settings.ratio)
     );
+  }
+
+  private ySort() {
+    this.entities.sort((previous, current) =>
+      previous.get(Position).y + previous.get(Sprite).height >
+      current.get(Position).y + current.get(Sprite).height
+        ? 1
+        : -1
+    );
+  }
+
+  loadTextures(entities: Entity[]) {
+    return new Promise((resolve) => {
+      const requiredSources = ['/sprites/dust.png'];
+
+      const entitiesSources = entities.reduce((previous: string[], current) => {
+        if (current.has(Sprite)) {
+          return [...previous, current.get(Sprite).source];
+        }
+        return previous;
+      }, []);
+
+      const terrainsSources = this.terrains.reduce(
+        (previous: string[], current) => {
+          if (previous.includes(current.source)) {
+            return previous;
+          }
+          return [...previous, current.source];
+        },
+        []
+      );
+
+      this.engine
+        .loadTextures([
+          ...requiredSources,
+          ...entitiesSources,
+          ...terrainsSources,
+        ])
+        .then(resolve);
+    });
+  }
+
+  resize() {
+    this.engine.resize();
+
+    this.debugContext.canvas.width = window.innerWidth;
+    this.debugContext.canvas.height = window.innerHeight;
+
+    Settings.ratio = Math.round(window.innerHeight / Settings.yPixelsNumber);
+
+    this.viewport.width = window.innerWidth / Settings.ratio;
+    this.viewport.height = window.innerHeight / Settings.ratio;
+  }
+
+  setTerrains(terrains: Terrain[]) {
+    this.terrains = terrains;
+  }
+
+  update() {
+    this.ySort();
+    this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
+    this.render();
+
+    if (Settings.debug) {
+      this.debugContext.clearRect(0, 0, 9999, 9999);
+      this.renderCollisions();
+      this.renderGrid();
+    }
   }
 }

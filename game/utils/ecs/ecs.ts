@@ -1,29 +1,30 @@
-import { System } from './system';
-
-type SystemClass<T extends System> = new (...args: any[]) => T;
+import { Entity } from './entity';
+import { System, SystemContructor } from './system';
 
 export abstract class ECS {
-  systems: System[] = [];
+  private systems: Map<SystemContructor, System> = new Map();
+
+  abstract entities: Entity[];
 
   add(system: System) {
-    this.systems.push(system);
+    this.systems.set(system.constructor as SystemContructor, system);
   }
 
-  get<T extends System>(s: SystemClass<T>) {
-    for (const system of this.systems) {
-      if (system instanceof s) {
-        return system as T;
-      }
-    }
-
-    throw new Error('System not found.');
+  delete(system: SystemContructor) {
+    this.systems.delete(system);
   }
 
-  remove(s: new () => System) {
-    this.systems = this.systems.filter((system) => !(system instanceof s));
+  get<T extends System>(system: new (...args: any[]) => T) {
+    return this.systems.get(system) as T;
   }
 
   updateSystems() {
     this.systems.forEach((system) => system.update());
+  }
+
+  setSystemsEntities() {
+    this.systems.forEach((system) => {
+      system.setEntities(this.entities);
+    });
   }
 }

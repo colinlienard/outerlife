@@ -1,6 +1,7 @@
 import {
   Animation,
   Collision,
+  Input,
   Position,
   Shadow,
   Sprite,
@@ -30,7 +31,7 @@ export class Player extends Entity {
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new PlayerInput());
+    this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
     this.add(new Shadow(0, 128, 12, 4, 10, 30));
     this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));

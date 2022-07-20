@@ -1,45 +1,41 @@
-import { System } from '~~/game/utils';
-import { Settings } from '~~/game/settings';
+import { Settings, System } from '~~/game/utils';
 import { Player } from '~~/game/entities';
 import { Position, Sprite } from '~~/game/components';
 
 export class Camera extends System {
-  readonly requiredComponents = null;
+  protected readonly requiredComponents = null;
 
-  player!: Player;
+  private player!: Player;
 
-  map = {
+  private map = {
     width: 0,
     height: 0,
   };
 
-  viewport = {
+  private viewport = {
     width: 0,
     height: 0,
   };
 
-  x = 0;
+  private x = 0;
 
-  y = 0;
+  private y = 0;
 
-  init() {
-    this.map.width = Settings.scene.columns * Settings.tileSize;
-    this.map.height = Settings.scene.rows * Settings.tileSize;
+  private getCameraX(): number {
+    // Easing
+    this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
 
-    this.resize();
-
-    this.x = this.getTargetX();
-    this.y = this.getTargetY();
+    return this.x;
   }
 
-  update() {
-    Settings.cameraOffset = {
-      x: this.getCameraX(),
-      y: this.getCameraY(),
-    };
+  private getCameraY(): number {
+    // Easing
+    this.y += (this.getTargetY() - this.y) * Settings.cameraEasing;
+
+    return this.y;
   }
 
-  getTargetX(): number {
+  private getTargetX(): number {
     const target =
       (this.viewport.width - this.player.get(Sprite).width) / 2 -
       this.player.get(Position).x;
@@ -57,7 +53,7 @@ export class Camera extends System {
     return target;
   }
 
-  getTargetY(): number {
+  private getTargetY(): number {
     const target =
       (this.viewport.height - this.player.get(Sprite).height) / 2 -
       this.player.get(Position).y;
@@ -75,18 +71,14 @@ export class Camera extends System {
     return target;
   }
 
-  getCameraX(): number {
-    // Easing
-    this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
+  init() {
+    this.map.width = Settings.scene.columns * Settings.tileSize;
+    this.map.height = Settings.scene.rows * Settings.tileSize;
 
-    return this.x;
-  }
+    this.resize();
 
-  getCameraY(): number {
-    // Easing
-    this.y += (this.getTargetY() - this.y) * Settings.cameraEasing;
-
-    return this.y;
+    this.x = this.getTargetX();
+    this.y = this.getTargetY();
   }
 
   resize() {
@@ -96,5 +88,12 @@ export class Camera extends System {
 
   setPlayer(player: Player) {
     this.player = player;
+  }
+
+  update() {
+    Settings.cameraOffset = {
+      x: this.getCameraX(),
+      y: this.getCameraY(),
+    };
   }
 }

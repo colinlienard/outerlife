@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Settings } from '~~/game/settings';
-import { Emitter } from '~~/game/utils';
+import { Emitter, Settings } from '~~/game/utils';
 
 const showTransition = ref(true);
 const transitionDuration = `${Settings.transitionDuration}ms`;

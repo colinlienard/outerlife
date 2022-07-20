@@ -2,9 +2,15 @@ import { ComponentConstructor } from './component';
 import { Entity } from './entity';
 
 export abstract class System {
-  abstract readonly requiredComponents: ComponentConstructor[] | null;
+  protected abstract readonly requiredComponents: ComponentConstructor[] | null;
 
-  entities: Entity[] = [];
+  protected entities: Entity[] = [];
+
+  abstract update(): void;
+
+  addEntity(entity: Entity) {
+    this.entities.push(entity);
+  }
 
   setEntities(entities: Entity[]) {
     this.entities = entities.reduce((previous: Entity[], current) => {
@@ -17,10 +23,6 @@ export abstract class System {
       return previous;
     }, []);
   }
-
-  addEntity(entity: Entity) {
-    this.entities.push(entity);
-  }
-
-  abstract update(): void;
 }
+
+export type SystemContructor = new (...args: any[]) => System;

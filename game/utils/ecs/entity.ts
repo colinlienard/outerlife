@@ -1,47 +1,34 @@
 import { Component, ComponentConstructor } from './component';
 
-type ComponentClass<T extends Component> = new (...args: any[]) => T;
-
 export abstract class Entity {
-  #components: Component[] = [];
+  private components: Map<ComponentConstructor, Component> = new Map();
 
-  add(c: Component) {
-    this.#components.push(c);
+  add(component: Component, as?: ComponentConstructor) {
+    this.components.set(
+      as || (component.constructor as ComponentConstructor),
+      component
+    );
   }
 
-  get<T extends Component>(c: ComponentClass<T>) {
-    for (const component of this.#components) {
-      if (component instanceof c) {
-        return component as T;
-      }
-    }
-
-    throw new Error(`Component '${c}' not found.`);
+  delete(constructor: ComponentConstructor) {
+    this.components.delete(constructor);
   }
 
-  has(c: ComponentConstructor) {
-    for (const component of this.#components) {
-      if (component instanceof c) {
-        return true;
-      }
-    }
-
-    return false;
+  get<T extends Component>(component: new (...args: any[]) => T) {
+    return this.components.get(component) as T;
   }
 
-  hasMultiple(cs: ComponentConstructor[]) {
-    for (const c of cs) {
-      if (!this.has(c)) {
+  has(constructor: ComponentConstructor) {
+    return this.components.has(constructor);
+  }
+
+  hasMultiple(constructors: ComponentConstructor[]) {
+    for (const constructor of constructors) {
+      if (!this.has(constructor)) {
         return false;
       }
     }
 
     return true;
-  }
-
-  remove(c: ComponentConstructor) {
-    this.#components = this.#components.filter(
-      (component) => !(component instanceof c)
-    );
   }
 }

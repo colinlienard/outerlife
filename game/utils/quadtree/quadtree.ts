@@ -4,6 +4,12 @@ import { IQuadTree } from './types';
 const MAX_ITEMS = 4;
 
 export class QuadTree<T extends Box> implements IQuadTree<T> {
+  private nodes:
+    | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
+    | null = null;
+
+  private items: T[] | null = [];
+
   x = 0;
 
   y = 0;
@@ -12,35 +18,11 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
 
   height = 0;
 
-  private nodes:
-    | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
-    | null = null;
-
-  private items: T[] | null = [];
-
   constructor(x: number, y: number, width: number, height: number) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-  }
-
-  add(item: T) {
-    if (!this.intersects(item.x, item.y, item.width, item.height)) {
-      return;
-    }
-
-    if (this.items) {
-      if (this.items.length < MAX_ITEMS) {
-        this.items.push(item);
-        return;
-      }
-
-      this.split(item);
-      return;
-    }
-
-    this.addToNode(item);
   }
 
   private addToNode(item: T) {
@@ -58,27 +40,6 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
       y + height > this.y &&
       y < this.y + this.height
     );
-  }
-
-  clear() {
-    this.nodes = null;
-    this.items = [];
-  }
-
-  get(x: number, y: number, width: number, height: number) {
-    if (!this.intersects(x, y, width, height)) {
-      return [];
-    }
-
-    if (this.items) {
-      return this.items;
-    }
-
-    const result: T[] = [];
-    this.nodes?.forEach((node) => {
-      result.push(...node.get(x, y, width, height));
-    });
-    return result;
   }
 
   private split(item: T) {
@@ -113,5 +74,44 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     items.forEach((i) => {
       this.addToNode(i);
     });
+  }
+
+  add(item: T) {
+    if (!this.intersects(item.x, item.y, item.width, item.height)) {
+      return;
+    }
+
+    if (this.items) {
+      if (this.items.length < MAX_ITEMS) {
+        this.items.push(item);
+        return;
+      }
+
+      this.split(item);
+      return;
+    }
+
+    this.addToNode(item);
+  }
+
+  clear() {
+    this.nodes = null;
+    this.items = [];
+  }
+
+  get(x: number, y: number, width: number, height: number) {
+    if (!this.intersects(x, y, width, height)) {
+      return [];
+    }
+
+    if (this.items) {
+      return this.items;
+    }
+
+    const result: T[] = [];
+    this.nodes?.forEach((node) => {
+      result.push(...node.get(x, y, width, height));
+    });
+    return result;
   }
 }

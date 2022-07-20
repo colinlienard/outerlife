@@ -1,5 +1,5 @@
-export class Emitter {
-  protected static events = new Map<string, ((...args: any[]) => void)[]>();
+export abstract class Emitter {
+  private static events = new Map<string, ((...args: any[]) => void)[]>();
 
   static emit(event: string, ...args: any[]) {
     if (!this.events.has(event)) {

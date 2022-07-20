@@ -3,7 +3,12 @@ import { Dust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
 
 export class Mover extends System {
-  readonly requiredComponents = [Position, Velocity, Animation, Input];
+  protected readonly requiredComponents = [
+    Position,
+    Velocity,
+    Animation,
+    Input,
+  ];
 
   update() {
     this.entities.forEach((entity) => {
@@ -72,10 +77,6 @@ export class Mover extends System {
       } else if (moving) {
         velocity.direction.x = null;
       }
-
-      // Store the old position
-      position.oldX = position.x;
-      position.oldY = position.y;
 
       // Update the position
       switch (velocity.direction.y) {

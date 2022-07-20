@@ -1,8 +1,7 @@
 import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Player } from './entities';
-import { Settings } from './settings';
 import { Animator, Camera, Collider, Mover, Renderer } from './systems';
-import { ECS, Emitter, Entity, Terrain, Tilemap } from './utils';
+import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
   entities: Entity[] = [];
@@ -95,12 +94,6 @@ export class Game extends ECS {
     }
 
     requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
-  }
-
-  setSystemsEntities() {
-    this.systems.forEach((system) => {
-      system.setEntities(this.entities);
-    });
   }
 
   buildMap(playerX: number, playerY: number) {

@@ -2,7 +2,7 @@ import { Animation, Sprite } from '~~/game/components';
 import { Emitter, System } from '~~/game/utils';
 
 export class Animator extends System {
-  readonly requiredComponents = [Animation, Sprite];
+  protected readonly requiredComponents = [Animation, Sprite];
 
   update() {
     this.entities.forEach((entity) => {

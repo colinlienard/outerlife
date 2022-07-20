@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Settings } from '~~/game/settings';
+import { Settings } from '~~/game/utils';
 
 const showTransition = ref(false);
 const transitionDuration = `${Settings.transitionDuration}ms`;

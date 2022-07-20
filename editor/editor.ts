@@ -1,6 +1,5 @@
 import { environmentTiles, terrainTiles } from '~~/game/data';
-import { Settings } from '~~/game/settings';
-import { Tilemap } from '~~/game/utils';
+import { Settings, Tilemap } from '~~/game/utils';
 
 class Editor {
   context: CanvasRenderingContext2D;

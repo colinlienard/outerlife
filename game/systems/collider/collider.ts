@@ -1,18 +1,17 @@
 import { Collision, Position, Sprite } from '~~/game/components';
 import { Interaction } from '~~/game/entities';
-import { Settings } from '~~/game/settings';
-import { Entity, QuadTree, System } from '~~/game/utils';
+import { Entity, QuadTree, Settings, System } from '~~/game/utils';
 
 interface Leaf extends Collision {
   entity: Entity;
 }
 
 export class Collider extends System {
-  readonly requiredComponents = [Collision, Position];
+  protected readonly requiredComponents = [Collision, Position];
 
-  colliders: QuadTree<Leaf> | null = null;
+  private colliders: QuadTree<Leaf> | null = null;
 
-  organisms: Entity[] = [];
+  private organisms: Entity[] = [];
 
   setEntities(entities: Entity[]) {
     super.setEntities(entities);
