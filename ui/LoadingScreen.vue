@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { TRANSITION_DURATION } from '~~/game/globals';
+import { Settings } from '~~/game/settings';
 
 const showTransition = ref(false);
-const transitionDuration = `${TRANSITION_DURATION}ms`;
+const transitionDuration = `${Settings.transitionDuration}ms`;
 
 const endTransition = () => {
   showTransition.value = false;

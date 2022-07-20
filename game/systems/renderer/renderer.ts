@@ -6,10 +6,8 @@ import {
   Sprite,
 } from '~~/game/components';
 import { Engine } from '~~/game/engine';
-import { TILE_SIZE, Y_PIXELS_NUMBER } from '~~/game/globals';
 import { Settings } from '~~/game/settings';
-import { Terrain } from '~~/game/types';
-import { Entity, System } from '~~/game/utils';
+import { Entity, System, Terrain } from '~~/game/utils';
 
 type Collisions = {
   environments: Collision[];
@@ -123,7 +121,7 @@ export class Renderer extends System {
     this.debugContext.canvas.width = window.innerWidth;
     this.debugContext.canvas.height = window.innerHeight;
 
-    Settings.ratio = Math.round(window.innerHeight / Y_PIXELS_NUMBER);
+    Settings.ratio = Math.round(window.innerHeight / Settings.yPixelsNumber);
 
     this.viewport.width = window.innerWidth / Settings.ratio;
     this.viewport.height = window.innerHeight / Settings.ratio;
@@ -153,17 +151,17 @@ export class Renderer extends System {
   render() {
     // Render terrains
     this.terrains.forEach((terrain) => {
-      if ((terrain.x, terrain.y, TILE_SIZE, TILE_SIZE)) {
+      if ((terrain.x, terrain.y, Settings.tileSize, Settings.tileSize)) {
         this.engine.queueRender(
           terrain.source,
           terrain.sourceX,
           terrain.sourceY,
-          TILE_SIZE,
-          TILE_SIZE,
+          Settings.tileSize,
+          Settings.tileSize,
           terrain.x * Settings.ratio,
           terrain.y * Settings.ratio,
-          TILE_SIZE * Settings.ratio,
-          TILE_SIZE * Settings.ratio
+          Settings.tileSize * Settings.ratio,
+          Settings.tileSize * Settings.ratio
         );
       }
     });
@@ -309,22 +307,22 @@ export class Renderer extends System {
     this.debugContext.strokeStyle = 'rgba(255, 255, 255, 0.5)';
 
     for (let index = 0; index < Settings.scene.columns; index += 1) {
-      const x = index * TILE_SIZE * Settings.ratio;
+      const x = index * Settings.tileSize * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(x, 0);
       this.debugContext.lineTo(
         x,
-        Settings.scene.rows * TILE_SIZE * Settings.ratio
+        Settings.scene.rows * Settings.tileSize * Settings.ratio
       );
       this.debugContext.stroke();
     }
 
     for (let index = 0; index < Settings.scene.rows; index += 1) {
-      const y = index * TILE_SIZE * Settings.ratio;
+      const y = index * Settings.tileSize * Settings.ratio;
       this.debugContext.beginPath();
       this.debugContext.moveTo(0, y);
       this.debugContext.lineTo(
-        Settings.scene.columns * TILE_SIZE * Settings.ratio,
+        Settings.scene.columns * Settings.tileSize * Settings.ratio,
         y
       );
       this.debugContext.stroke();

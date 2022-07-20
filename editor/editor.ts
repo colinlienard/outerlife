@@ -1,7 +1,6 @@
-import EnvironmentTiles from '~~/game/oldEntities/Environments/EnvironmentTiles';
-import TerrainTiles from '~~/game/oldEntities/Terrains/TerrainTiles';
-import { TILE_SIZE } from '~~/game/globals';
-import { Tilemap } from '~~/game/types';
+import { environmentTiles, terrainTiles } from '~~/game/data';
+import { Settings } from '~~/game/settings';
+import { Tilemap } from '~~/game/utils';
 
 class Editor {
   context: CanvasRenderingContext2D;
@@ -25,7 +24,7 @@ class Editor {
   bindImages() {
     const images: { [key: string]: HTMLImageElement } = {};
 
-    Object.values(TerrainTiles).reduce((previous: string[], { source }) => {
+    Object.values(terrainTiles).reduce((previous: string[], { source }) => {
       if (previous.includes(source)) {
         return previous;
       }
@@ -50,8 +49,8 @@ class Editor {
     this.context.clearRect(
       0,
       0,
-      this.tilemap.columns * TILE_SIZE * this.ratio,
-      this.tilemap.rows * TILE_SIZE * this.ratio
+      this.tilemap.columns * Settings.tileSize * this.ratio,
+      this.tilemap.rows * Settings.tileSize * this.ratio
     );
   }
 
@@ -59,14 +58,14 @@ class Editor {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const Tile =
-          EnvironmentTiles[
+          environmentTiles[
             this.tilemap.environments[row * this.tilemap.columns + column]
           ];
         if (Tile) {
           const instance = new Tile(0, 0);
           const { sprite } = instance;
-          const x = column * TILE_SIZE - sprite.width / 2 + 8;
-          const y = row * TILE_SIZE - sprite.height + 8;
+          const x = column * Settings.tileSize - sprite.width / 2 + 8;
+          const y = row * Settings.tileSize - sprite.height + 8;
           sprite.image.onload = () => {
             if (sprite.shadow) {
               const { shadow } = sprite;
@@ -109,7 +108,7 @@ class Editor {
     for (let row = 0; row < this.tilemap.rows; row += 1) {
       for (let column = 0; column < this.tilemap.columns; column += 1) {
         const tile =
-          TerrainTiles[
+          terrainTiles[
             this.tilemap.terrains[row * this.tilemap.columns + column]
           ];
         if (tile) {
@@ -117,12 +116,12 @@ class Editor {
             this.images[tile.source],
             tile.x, // position x in the source image
             tile.y, // position y in the source image
-            TILE_SIZE, // width of the sprite in the source image
-            TILE_SIZE, // height of the sprite in the source image
-            column * TILE_SIZE * this.ratio, // position x in the canvas
-            row * TILE_SIZE * this.ratio, // position y in the canvas
-            TILE_SIZE * this.ratio, // width of the sprite in the canvas
-            TILE_SIZE * this.ratio // height of the sprite in the canvas
+            Settings.tileSize, // width of the sprite in the source image
+            Settings.tileSize, // height of the sprite in the source image
+            column * Settings.tileSize * this.ratio, // position x in the canvas
+            row * Settings.tileSize * this.ratio, // position y in the canvas
+            Settings.tileSize * this.ratio, // width of the sprite in the canvas
+            Settings.tileSize * this.ratio // height of the sprite in the canvas
           );
         }
       }

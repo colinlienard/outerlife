@@ -1,4 +1,3 @@
-import { CAMERA_EASING, TILE_SIZE } from '~~/game/globals';
 import { System } from '~~/game/utils';
 import { Settings } from '~~/game/settings';
 import { Player } from '~~/game/entities';
@@ -24,8 +23,8 @@ export class Camera extends System {
   y = 0;
 
   init() {
-    this.map.width = Settings.scene.columns * TILE_SIZE;
-    this.map.height = Settings.scene.rows * TILE_SIZE;
+    this.map.width = Settings.scene.columns * Settings.tileSize;
+    this.map.height = Settings.scene.rows * Settings.tileSize;
 
     this.resize();
 
@@ -78,14 +77,14 @@ export class Camera extends System {
 
   getCameraX(): number {
     // Easing
-    this.x += (this.getTargetX() - this.x) * CAMERA_EASING;
+    this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
 
     return this.x;
   }
 
   getCameraY(): number {
     // Easing
-    this.y += (this.getTargetY() - this.y) * CAMERA_EASING;
+    this.y += (this.getTargetY() - this.y) * Settings.cameraEasing;
 
     return this.y;
   }

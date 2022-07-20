@@ -1,13 +1,8 @@
+import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Player } from './entities';
-import { TILE_SIZE, TRANSITION_DURATION } from './globals';
-import EnvironmentTiles from './oldEntities/Environments/EnvironmentTiles';
-import TerrainTiles from './oldEntities/Terrains/TerrainTiles';
 import { Settings } from './settings';
 import { Animator, Camera, Collider, Mover, Renderer } from './systems';
-import map002 from './Tilemaps/map002';
-import tilemapIndex from './Tilemaps/tilemapIndex';
-import { Terrain, Tilemap } from './types';
-import { ECS, Emitter, Entity } from './utils';
+import { ECS, Emitter, Entity, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
   entities: Entity[] = [];
@@ -126,20 +121,20 @@ export class Game extends ECS {
           const tile = row * this.tilemap.columns + column;
 
           // Build terrain
-          const terrain = TerrainTiles[this.tilemap.terrains[tile]];
+          const terrain = terrainTiles[this.tilemap.terrains[tile]];
           terrains.push({
             source: terrain.source,
             sourceX: terrain.x,
             sourceY: terrain.y,
-            x: column * TILE_SIZE,
-            y: row * TILE_SIZE,
+            x: column * Settings.tileSize,
+            y: row * Settings.tileSize,
           });
           if (terrain.collision) {
             const { x, y, width, height } = terrain.collision;
             this.entities.push(
               new InvisibleWall(
-                x + column * TILE_SIZE,
-                y + row * TILE_SIZE,
+                x + column * Settings.tileSize,
+                y + row * Settings.tileSize,
                 width,
                 height
               )
@@ -147,11 +142,11 @@ export class Game extends ECS {
           }
 
           // Build environments
-          const Environment = EnvironmentTiles[this.tilemap.environments[tile]];
+          const Environment = environmentTiles[this.tilemap.environments[tile]];
           if (Environment) {
             const environment = new Environment(
-              column * TILE_SIZE,
-              row * TILE_SIZE
+              column * Settings.tileSize,
+              row * Settings.tileSize
             );
             this.entities.push(environment);
           }
@@ -208,6 +203,6 @@ export class Game extends ECS {
       this.tilemap = tilemapIndex[map];
       this.buildMap(playerX, playerY);
       this.setSystemsEntities();
-    }, TRANSITION_DURATION);
+    }, Settings.transitionDuration);
   }
 }

@@ -1,6 +1,5 @@
 import { Collision, Position, Sprite } from '~~/game/components';
 import { Interaction } from '~~/game/entities';
-import { TILE_SIZE } from '~~/game/globals';
 import { Settings } from '~~/game/settings';
 import { Entity, QuadTree, System } from '~~/game/utils';
 
@@ -21,8 +20,8 @@ export class Collider extends System {
     this.colliders = new QuadTree(
       0,
       0,
-      Settings.scene.columns * TILE_SIZE,
-      Settings.scene.rows * TILE_SIZE
+      Settings.scene.columns * Settings.tileSize,
+      Settings.scene.rows * Settings.tileSize
     );
     this.organisms = [];
 
@@ -106,16 +105,16 @@ export class Collider extends System {
       const width = organism.has(Sprite) ? organism.get(Sprite).width / 2 : 0;
       if (oPos.x < 0 - width) {
         oPos.x = -width;
-      } else if (oPos.x > Settings.scene.columns * TILE_SIZE - width) {
-        oPos.x = Settings.scene.columns * TILE_SIZE - width;
+      } else if (oPos.x > Settings.scene.columns * Settings.tileSize - width) {
+        oPos.x = Settings.scene.columns * Settings.tileSize - width;
       }
 
       // Scene limits on the y axis
       const height = organism.has(Sprite) ? organism.get(Sprite).height / 2 : 0;
       if (oPos.y < 0 - height) {
         oPos.y = -height;
-      } else if (oPos.y > Settings.scene.rows * TILE_SIZE - height) {
-        oPos.y = Settings.scene.rows * TILE_SIZE - height;
+      } else if (oPos.y > Settings.scene.rows * Settings.tileSize - height) {
+        oPos.y = Settings.scene.rows * Settings.tileSize - height;
       }
     });
   }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { TRANSITION_DURATION } from '~~/game/globals';
+import { Settings } from '~~/game/settings';
 import { Emitter } from '~~/game/utils';
 
 const showTransition = ref(true);
-const transitionDuration = `${TRANSITION_DURATION}ms`;
+const transitionDuration = `${Settings.transitionDuration}ms`;
 
 onMounted(() => {
   Emitter.on('switch-map', () => {
