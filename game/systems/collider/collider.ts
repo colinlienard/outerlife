@@ -62,12 +62,7 @@ export class Collider extends System {
       const oCol = organism.get(Collision);
 
       this.colliders
-        ?.getWithoutDuplicates(
-          oPos.x + oCol.x,
-          oPos.y + oCol.y,
-          oCol.width,
-          oCol.height
-        )
+        ?.get(oPos.x + oCol.x, oPos.y + oCol.y, oCol.width, oCol.height)
         .forEach((collider) => {
           // Distances between centers
           const distanceX =

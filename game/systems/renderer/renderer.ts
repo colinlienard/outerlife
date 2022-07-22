@@ -65,7 +65,7 @@ export class Renderer extends System {
 
   private getSortedEntities() {
     const entities = this.entityTree
-      .getWithoutDuplicates(
+      .get(
         this.offsetX,
         this.offsetY,
         this.viewport.width,
@@ -83,7 +83,7 @@ export class Renderer extends System {
   private render() {
     // Render terrains
     this.terrainTree
-      .getWithoutDuplicates(
+      .get(
         this.offsetX,
         this.offsetY,
         this.viewport.width,

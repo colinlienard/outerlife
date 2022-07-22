@@ -120,6 +120,11 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
   }
 
   get(x: number, y: number, width: number, height: number) {
+    const items = this.getWithDuplicates(x, y, width, height);
+    return [...new Set(items)];
+  }
+
+  getWithDuplicates(x: number, y: number, width: number, height: number) {
     if (!this.intersects(x, y, width, height)) {
       return [];
     }
@@ -133,10 +138,5 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
       result.push(...node.get(x, y, width, height));
     });
     return result;
-  }
-
-  getWithoutDuplicates(x: number, y: number, width: number, height: number) {
-    const items = this.get(x, y, width, height);
-    return [...new Set(items)];
   }
 }
