@@ -22,20 +22,30 @@ class Item implements Box {
 describe('quadtree', () => {
   const tree = new QuadTree(0, 0, 600, 400) as any;
 
-  it('add an item', () => {
+  it('should intersect', () => {
+    expect(tree.intersects(-50, -50, 100, 100)).toBe(true);
+    expect(tree.intersects(550, 350, 100, 100)).toBe(true);
+    expect(tree.intersects(100, 100, 100, 100)).toBe(true);
+  });
+
+  it('should not intersect', () => {
+    expect(tree.intersects(600, 400, 100, 100)).toBe(false);
+  });
+
+  it('should add an item', () => {
     tree.add(new Item(0, 0, 50, 50));
 
     expect(tree.items.length).toBe(1);
   });
 
-  it('add an item out of the boundaries', () => {
+  it('should add items out of the boundaries', () => {
     tree.add(new Item(600, 0, 50, 50));
     tree.add(new Item(0, 400, 50, 50));
 
     expect(tree.items.length).toBe(1);
   });
 
-  it('split the tree', () => {
+  it('should split the tree', () => {
     tree.add(new Item(100, 0, 50, 50));
     tree.add(new Item(100, 300, 50, 50));
     tree.add(new Item(200, 150, 100, 100));
@@ -43,16 +53,19 @@ describe('quadtree', () => {
 
     expect(tree.items).toBeNull();
     expect(tree.nodes.length).toBe(4);
+    tree.nodes.forEach((node: QuadTree<Item>) => {
+      expect(node).toBeInstanceOf(QuadTree);
+    });
   });
 
-  it('get items', () => {
+  it('should get items', () => {
     expect(tree.get(0, 0, 100, 100).length).toBe(3);
     expect(tree.get(0, 150, 100, 100).length).toBe(4);
     expect(tree.get(100, 350, 100, 100).length).toBe(2);
     expect(tree.get(400, 100, 10, 200).length).toBe(1);
   });
 
-  it('clear the tree', () => {
+  it('should clear the tree', () => {
     tree.clear();
 
     expect(tree.items.length).toBe(0);
