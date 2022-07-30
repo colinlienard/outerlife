@@ -1,5 +1,8 @@
 lockfileVersion: 5.4
 
+overrides:
+  vite: 2.9.14
+
 specifiers:
   '@nuxtjs/eslint-config-typescript': ^9.0.0
   '@typescript-eslint/eslint-plugin': ^5.19.0
@@ -835,7 +838,6 @@ packages:
       - sass
       - stylus
       - supports-color
-      - terser
       - webpack
     dev: true
 
@@ -1492,7 +1494,7 @@ packages:
       }
     dev: true
 
-  /acorn-jsx/5.3.2_acorn@8.7.0:
+  /acorn-jsx/5.3.2_acorn@8.7.1:
     resolution:
       {
         integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==,
@@ -1500,16 +1502,7 @@ packages:
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      acorn: 8.7.0
-    dev: true
-
-  /acorn/8.7.0:
-    resolution:
-      {
-        integrity: sha512-V/LGr1APy+PXIwKebEWrkZPwoeoF+w1jiOBUmuxuiUIaOHtob8Qc9BTrYo7VuI5fR8tqsy+buA2WFooR5olqvQ==,
-      }
-    engines: { node: '>=0.4.0' }
-    hasBin: true
+      acorn: 8.7.1
     dev: true
 
   /acorn/8.7.1:
@@ -3719,8 +3712,8 @@ packages:
       }
     engines: { node: ^12.22.0 || ^14.17.0 || >=16.0.0 }
     dependencies:
-      acorn: 8.7.0
-      acorn-jsx: 5.3.2_acorn@8.7.0
+      acorn: 8.7.1
+      acorn-jsx: 5.3.2_acorn@8.7.1
       eslint-visitor-keys: 3.3.0
     dev: true
 
@@ -5367,7 +5360,10 @@ packages:
     dev: true
 
   /lodash.truncate/4.4.2:
-    resolution: { integrity: sha1-WjUNoLERO4N+z//VgSy+WNbq4ZM= }
+    resolution:
+      {
+        integrity: sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw==,
+      }
     dev: true
 
   /lodash.union/4.6.0:
@@ -6047,7 +6043,6 @@ packages:
       - sass
       - stylus
       - supports-color
-      - terser
       - utf-8-validate
       - vite
       - webpack
@@ -8805,13 +8800,12 @@ packages:
       kolorist: 1.5.1
       mlly: 0.5.5
       pathe: 0.2.0
-      vite: 3.0.2_sass@1.50.0
+      vite: 2.9.14_sass@1.50.0
     transitivePeerDependencies:
       - less
       - sass
       - stylus
       - supports-color
-      - terser
     dev: true
 
   /vite-plugin-checker/0.4.9_vite@2.9.14:
@@ -8869,37 +8863,6 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vite/3.0.2_sass@1.50.0:
-    resolution:
-      {
-        integrity: sha512-TAqydxW/w0U5AoL5AsD9DApTvGb2iNbGs3sN4u2VdT1GFkQVUfgUldt+t08TZgi23uIauh1TUOQJALduo9GXqw==,
-      }
-    engines: { node: ^14.18.0 || >=16.0.0 }
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.14.49
-      postcss: 8.4.14
-      resolve: 1.22.1
-      rollup: 2.77.0
-      sass: 1.50.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /vitest/0.18.1_sass@1.50.0:
     resolution:
       {
@@ -8933,13 +8896,12 @@ packages:
       local-pkg: 0.4.2
       tinypool: 0.2.4
       tinyspy: 1.0.0
-      vite: 3.0.2_sass@1.50.0
+      vite: 2.9.14_sass@1.50.0
     transitivePeerDependencies:
       - less
       - sass
       - stylus
       - supports-color
-      - terser
     dev: true
 
   /vscode-jsonrpc/6.0.0:
