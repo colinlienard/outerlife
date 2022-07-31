@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { defineNuxtConfig } from 'nuxt';
 
 export default defineNuxtConfig({
@@ -10,5 +9,6 @@ export default defineNuxtConfig({
   target: 'static',
   typescript: {
     strict: true,
+    typeCheck: true,
   },
 });

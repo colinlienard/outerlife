@@ -7,10 +7,5 @@ export interface IQuadTree<T extends Box> extends Box {
 
   get(x: number, y: number, width: number, height: number): T[];
 
-  getWithoutDuplicates(
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): T[];
+  getWithDuplicates(x: number, y: number, width: number, height: number): T[];
 }

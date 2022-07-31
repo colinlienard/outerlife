@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { environmentTiles, terrainTiles } from '~~/game/data';
+// import { environmentTiles, terrainTiles } from '~~/game/data';
 import { Tilemap } from '~~/game/utils';
 import Editor from './editor';
 import EditorTile from './EditorTile.vue';
@@ -178,7 +178,7 @@ const handleClick = (event: MouseEvent) => {
           </button>
         </div>
         <hr class="separator" />
-        <ul class="wrapper tile-list">
+        <!-- <ul class="wrapper tile-list">
           <li v-for="(terrain, tile, index) in terrainTiles" :key="index">
             <EditorTile
               :source="terrain.source"
@@ -189,7 +189,7 @@ const handleClick = (event: MouseEvent) => {
               @click="selectedTile = (tile as string); selectedType = 'terrains'"
             />
           </li>
-        </ul>
+        </ul> -->
         <hr class="separator" />
         <ul class="wrapper tile-list">
           <li>
@@ -207,7 +207,7 @@ const handleClick = (event: MouseEvent) => {
               "
             />
           </li>
-          <li
+          <!-- <li
             v-for="(environment, tile, index) in environmentTiles"
             :key="index"
           >
@@ -226,7 +226,7 @@ const handleClick = (event: MouseEvent) => {
               "
               @click="selectedTile = (tile as string); selectedType = 'environments'"
             />
-          </li>
+          </li> -->
         </ul>
       </div>
     </section>
