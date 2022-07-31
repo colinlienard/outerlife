@@ -9,5 +9,6 @@ export default defineNuxtConfig({
   target: 'static',
   typescript: {
     strict: true,
+    typeCheck: true,
   },
 });
