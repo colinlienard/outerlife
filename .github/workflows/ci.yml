@@ -18,6 +18,7 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - run: pnpm install
+      - run: pnpm generate
       - run: pnpm lint
   test:
     runs-on: ubuntu-latest
@@ -31,6 +32,7 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - run: pnpm install
+      - run: pnpm generate
       - run: pnpm test
   typecheck:
     runs-on: ubuntu-latest
@@ -44,6 +46,7 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - run: pnpm install
+      - run: pnpm generate
       - run: pnpm typecheck
   build:
     runs-on: ubuntu-latest
