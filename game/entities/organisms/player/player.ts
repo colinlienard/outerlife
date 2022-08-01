@@ -55,6 +55,36 @@ export class Player extends Entity {
           x: 10,
           y: 4,
           depth: 1,
+          animation: {
+            idle: {
+              up: {
+                depth: -1,
+              },
+              down: {
+                depth: 1,
+              },
+              left: {
+                depth: -1,
+              },
+              right: {
+                depth: -1,
+              },
+            },
+            run: {
+              up: {
+                depth: -1,
+              },
+              down: {
+                depth: 1,
+              },
+              left: {
+                depth: -1,
+              },
+              right: {
+                depth: -1,
+              },
+            },
+          },
         },
       ])
     );

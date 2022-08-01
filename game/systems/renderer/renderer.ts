@@ -119,8 +119,7 @@ export class Renderer extends System {
         const animator = entity.get(Animation);
         this.engine.queueRender(
           sprite.source,
-          sprite.width *
-            (animator.column + animator.currentAnimation.frameStart - 1),
+          sprite.width * (animator.column + animator.current.frameStart - 1),
           sprite.height * animator.row,
           sprite.width,
           sprite.height,

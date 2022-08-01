@@ -1,9 +1,8 @@
 import { Component } from '~~/game/utils/ecs';
-
-type Type = 'environment' | 'interaction' | 'organism';
+import { CollisionType } from './types';
 
 export class Collision implements Component {
-  readonly type: Type;
+  readonly type: CollisionType;
 
   readonly x: number;
 
@@ -13,7 +12,13 @@ export class Collision implements Component {
 
   readonly height: number;
 
-  constructor(type: Type, x: number, y: number, width: number, height: number) {
+  constructor(
+    type: CollisionType,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
     this.type = type;
     this.x = x;
     this.y = y;

@@ -1,21 +1,10 @@
 import { Component } from '~~/game/utils';
-
-type Anim = {
-  frameStart: number;
-  frameNumber: number;
-  framesPerSecond: number;
-  once?: boolean;
-};
-
-type Anims = {
-  idle: Anim;
-  run: Anim;
-};
+import { AnimationData, Animations, AnimationType } from './types';
 
 export class Animation implements Component {
-  readonly animations!: Anims;
+  readonly animations!: Animations;
 
-  currentAnimation: Anim;
+  current: AnimationData;
 
   row = 0;
 
@@ -23,14 +12,24 @@ export class Animation implements Component {
 
   frameWaiter = 0;
 
-  constructor(animations: Anims | Anim, defaultRow = 0) {
+  constructor(animations: Animations | AnimationData, defaultRow = 0) {
     if ('idle' in animations) {
-      this.animations = animations as Anims;
-      this.currentAnimation = this.animations.idle;
+      this.animations = animations as Animations;
+      this.current = this.animations.idle;
     } else {
-      this.currentAnimation = animations as Anim;
+      this.current = animations as AnimationData;
     }
 
     this.row = defaultRow;
+  }
+
+  getCurrentAnimationType(): AnimationType {
+    for (const type in this.animations) {
+      if (this.current === this.animations[type as AnimationType]) {
+        return type as AnimationType;
+      }
+    }
+
+    throw new Error('Animation not found.');
   }
 }
