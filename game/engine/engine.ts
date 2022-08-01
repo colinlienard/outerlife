@@ -260,6 +260,10 @@ export class Engine {
   ) {
     const textureUnit = this.sourcesIndex[source];
 
+    if (textureUnit === undefined) {
+      throw new Error(`The source '${source}' is not loaded.`);
+    }
+
     const modelMatrix = mat4.create();
     mat4.ortho(modelMatrix, 0, window.innerWidth, window.innerHeight, 0, -1, 1);
     mat4.translate(

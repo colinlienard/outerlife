@@ -289,7 +289,7 @@ export class Renderer extends System {
 
   loadTextures(entities: Entity[]) {
     return new Promise((resolve) => {
-      const requiredSources = ['/sprites/dust.png'];
+      const requiredSources = ['/sprites/dust.png', '/sprites/items.png'];
 
       const entitiesSources = entities.reduce((previous: string[], current) => {
         if (current.has(Sprite)) {
