@@ -1,9 +1,9 @@
 export default `#version 300 es
-  in vec4 position;
-  in vec2 textureCoord;
-  in float depth;
-  in mat4 modelMatrix;
-  in mat4 textureMatrix;
+  layout(location=0) in vec4 position;
+  layout(location=1) in vec2 textureCoord;
+  layout(location=2) in float depth;
+  layout(location=3) in mat4 modelMatrix;
+  layout(location=7) in mat4 textureMatrix;
 
   out vec2 vTextureCoord;
   out float vDepth;

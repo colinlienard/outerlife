@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix';
+import { glMatrix, mat4, vec3 } from 'gl-matrix';
 import fragmentSource from './fragmentSource';
 import Program from './program';
 import vertexSource from './vertexSource';
@@ -41,29 +41,6 @@ export class Engine {
     this.program = new Program(this.gl, vertexSource, fragmentSource).get();
     this.gl.useProgram(this.program);
 
-    // Bind all attribute locations in the vertex shader
-    this.gl.bindAttribLocation(
-      this.program,
-      this.locations.position,
-      'position'
-    );
-    this.gl.bindAttribLocation(
-      this.program,
-      this.locations.textureCoord,
-      'textureCoord'
-    );
-    this.gl.bindAttribLocation(this.program, this.locations.depth, 'depth');
-    this.gl.bindAttribLocation(
-      this.program,
-      this.locations.modelMatrix,
-      'modelMatrix'
-    );
-    this.gl.bindAttribLocation(
-      this.program,
-      this.locations.textureMatrix,
-      'textureMatrix'
-    );
-
     // Create a position for the vertices
     const positionBuffer = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
@@ -103,6 +80,7 @@ export class Engine {
     // Create the buffer that will be used by the following attributes
     const bufferData = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bufferData);
+    const stride = (1 + 16 + 16) * 4;
 
     // Bind the depth attribute
     this.gl.vertexAttribPointer(
@@ -110,7 +88,7 @@ export class Engine {
       1,
       this.gl.FLOAT,
       false,
-      33 * 4,
+      stride,
       0
     );
     this.gl.vertexAttribDivisor(this.locations.depth, 1);
@@ -124,7 +102,7 @@ export class Engine {
         4,
         this.gl.FLOAT,
         false,
-        33 * 4,
+        stride,
         index * 16 + 4
       );
       this.gl.vertexAttribDivisor(location, 1);
@@ -139,7 +117,7 @@ export class Engine {
         4,
         this.gl.FLOAT,
         false,
-        33 * 4,
+        stride,
         index * 16 + 4 * 16 + 4
       );
       this.gl.vertexAttribDivisor(location, 1);
@@ -256,14 +234,19 @@ export class Engine {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    rotation: number = 0,
+    axisX: number = 0,
+    axisY: number = 0
   ) {
+    // Texture source
     const textureUnit = this.sourcesIndex[source];
 
     if (textureUnit === undefined) {
       throw new Error(`The source '${source}' is not loaded.`);
     }
 
+    // Model matrix
     const modelMatrix = mat4.create();
     mat4.ortho(modelMatrix, 0, window.innerWidth, window.innerHeight, 0, -1, 1);
     mat4.translate(
@@ -271,8 +254,22 @@ export class Engine {
       modelMatrix,
       vec3.fromValues(x + this.translation.x, y + this.translation.y, 0)
     );
+    if (rotation) {
+      mat4.translate(
+        modelMatrix,
+        modelMatrix,
+        vec3.fromValues(width * axisX, height * axisY, 0)
+      );
+      mat4.rotateZ(modelMatrix, modelMatrix, glMatrix.toRadian(rotation));
+      mat4.translate(
+        modelMatrix,
+        modelMatrix,
+        vec3.fromValues(width * -axisX, height * -axisY, 0)
+      );
+    }
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(width, height, 1));
 
+    // Texture matrix
     const textureMatrix = mat4.create();
     mat4.translate(
       textureMatrix,

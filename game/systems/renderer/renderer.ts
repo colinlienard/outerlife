@@ -263,7 +263,10 @@ export class Renderer extends System {
         Math.floor((position.x + layer.x) * Settings.ratio),
         Math.floor((position.y + layer.y) * Settings.ratio),
         layer.width * Settings.ratio,
-        layer.height * Settings.ratio
+        layer.height * Settings.ratio,
+        layer.rotation,
+        0.5,
+        0.5
       );
     });
   }

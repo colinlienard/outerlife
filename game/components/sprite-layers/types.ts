@@ -3,6 +3,7 @@ import { AnimationType } from '../animation';
 type SpriteModifier = {
   x?: number;
   y?: number;
+  rotation?: number;
   depth?: number;
 };
 
@@ -24,5 +25,6 @@ export type SpriteLayer = {
   readonly animation?: Record<AnimationType, SpriteAnimations>;
   x: number;
   y: number;
+  rotation: number;
   depth: number;
 };
