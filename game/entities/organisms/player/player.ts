@@ -47,42 +47,206 @@ export class Player extends Entity {
           depth: -1,
         },
         {
-          source: '/sprites/environments-001.png',
+          source: '/sprites/items.png',
           sourceX: 0,
-          sourceY: 160,
+          sourceY: 0,
           width: 16,
           height: 16,
-          x: 10,
-          y: 4,
-          depth: 1,
+          x: 8,
+          y: 8,
+          depth: -1,
           animation: {
             idle: {
               up: {
-                depth: -1,
-              },
-              down: {
+                x: 8,
+                y: 8,
                 depth: 1,
               },
+              down: {
+                x: 8,
+                y: 8,
+                depth: -1,
+              },
               left: {
+                x: 14,
+                y: 8,
                 depth: -1,
               },
               right: {
+                x: 2,
+                y: 8,
                 depth: -1,
               },
             },
             run: {
-              up: {
-                depth: -1,
-              },
-              down: {
-                depth: 1,
-              },
-              left: {
-                depth: -1,
-              },
-              right: {
-                depth: -1,
-              },
+              up: [
+                {
+                  x: 8,
+                  y: 9,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 9,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  depth: 1,
+                },
+              ],
+              down: [
+                {
+                  x: 8,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  depth: -1,
+                },
+              ],
+              left: [
+                {
+                  x: 14,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 8,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 14,
+                  y: 8,
+                  depth: -1,
+                },
+              ],
+              right: [
+                {
+                  x: 2,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 8,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 9,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 7,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 8,
+                  depth: -1,
+                },
+              ],
             },
           },
         },

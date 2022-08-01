@@ -120,6 +120,9 @@ export class Mover extends System {
               velocity.direction.x || velocity.direction.y || 'down';
             const data =
               layer.animation[animation.getCurrentAnimationType()][direction];
+            if (Array.isArray(data)) {
+              return { ...layer, ...data[animation.column] };
+            }
             return { ...layer, ...data };
           })
         );

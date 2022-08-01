@@ -6,11 +6,13 @@ type SpriteModifier = {
   depth?: number;
 };
 
-type SpriteAnimation = {
-  up: SpriteModifier;
-  down: SpriteModifier;
-  left: SpriteModifier;
-  right: SpriteModifier;
+type SpriteAnimation = SpriteModifier | SpriteModifier[];
+
+type SpriteAnimations = {
+  up: SpriteAnimation;
+  down: SpriteAnimation;
+  left: SpriteAnimation;
+  right: SpriteAnimation;
 };
 
 export type SpriteLayer = {
@@ -19,8 +21,8 @@ export type SpriteLayer = {
   readonly sourceY: number;
   readonly width: number;
   readonly height: number;
+  readonly animation?: Record<AnimationType, SpriteAnimations>;
   x: number;
   y: number;
   depth: number;
-  animation?: Record<AnimationType, SpriteAnimation>;
 };
