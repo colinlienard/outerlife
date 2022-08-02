@@ -2,7 +2,6 @@ import { Entity } from '~~/game/utils/ecs/entity';
 
 interface EventMap {
   'scene-loaded': () => void;
-
   'switch-map': (options: {
     map: string;
 
@@ -10,9 +9,7 @@ interface EventMap {
 
     playerY: number;
   }) => void;
-
   spawn: (entity: Entity) => void;
-
   despawn: (entity: Entity) => void;
 }
 
