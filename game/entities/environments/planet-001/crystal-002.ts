@@ -17,6 +17,7 @@ export class Crystal002 extends Entity {
           height: 16,
           x: 0,
           y: 22,
+          rotation: 0,
           depth: -1,
         },
       ])

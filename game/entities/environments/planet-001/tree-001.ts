@@ -17,6 +17,7 @@ export class Tree001 extends Entity {
           height: 16,
           x: 0,
           y: 68,
+          rotation: 0,
           depth: -1,
         },
       ])
