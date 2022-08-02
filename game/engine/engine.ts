@@ -235,13 +235,10 @@ export class Engine {
     y: number,
     width: number,
     height: number,
-    rotation: number = 0,
-    axisX: number = 0,
-    axisY: number = 0
+    rotation: number = 0
   ) {
     // Texture source
     const textureUnit = this.sourcesIndex[source];
-
     if (textureUnit === undefined) {
       throw new Error(`The source '${source}' is not loaded.`);
     }
@@ -258,13 +255,13 @@ export class Engine {
       mat4.translate(
         modelMatrix,
         modelMatrix,
-        vec3.fromValues(width * axisX, height * axisY, 0)
+        vec3.fromValues(width / 2, height / 2, 0)
       );
       mat4.rotateZ(modelMatrix, modelMatrix, glMatrix.toRadian(rotation));
       mat4.translate(
         modelMatrix,
         modelMatrix,
-        vec3.fromValues(width * -axisX, height * -axisY, 0)
+        vec3.fromValues(width / -2, height / -2, 0)
       );
     }
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(width, height, 1));
