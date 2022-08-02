@@ -19,7 +19,7 @@ interface EventMap {
 type Events = keyof EventMap;
 
 export abstract class Emitter {
-  private static events = new Map<Events, EventMap[Events][]>();
+  private static events = new Map<Events, ((...args: any[]) => void)[]>();
 
   static emit<E extends Events>(event: E, ...args: Parameters<EventMap[E]>) {
     if (!this.events.has(event)) {
