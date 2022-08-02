@@ -1,18 +1,36 @@
-export abstract class Emitter {
-  private static events = new Map<string, ((...args: any[]) => void)[]>();
+import { Entity } from '~~/game/utils/ecs/entity';
 
-  static emit(event: string, ...args: any[]) {
+interface EventMap {
+  'scene-loaded': () => void;
+  'switch-map': (options: {
+    map: string;
+
+    playerX: number;
+
+    playerY: number;
+  }) => void;
+  spawn: (entity: Entity) => void;
+  despawn: (entity: Entity) => void;
+}
+
+type Events = keyof EventMap;
+
+export abstract class Emitter {
+  private static events = new Map<Events, ((...args: any[]) => void)[]>();
+
+  static emit<E extends Events>(event: E, ...args: Parameters<EventMap[E]>) {
     if (!this.events.has(event)) {
       throw new Error(`Emitter '${event}' has not been created.`);
     }
+
     this.events.get(event)?.forEach((callback) => callback(...args));
   }
 
-  static on(event: string, callback: (...args: any[]) => void) {
+  static on<E extends Events>(event: E, callback: EventMap[E]) {
     this.events.set(event, [...(this.events.get(event) || []), callback]);
   }
 
-  static unbind(event: string) {
+  static unbind(event: Events) {
     this.events.delete(event);
   }
 }

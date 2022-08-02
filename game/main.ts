@@ -149,13 +149,13 @@ export class Game extends ECS {
 
   private setEvents() {
     // Add entity to the scene
-    Emitter.on('spawn', (entity: Entity) => {
+    Emitter.on('spawn', (entity) => {
       this.entities.push(entity);
       this.setSystemsEntities();
     });
 
     // Remove entity from the scene
-    Emitter.on('despawn', (entity: Entity) => {
+    Emitter.on('despawn', (entity) => {
       delete this.entities[this.entities.indexOf(entity)];
       this.setSystemsEntities();
     });
