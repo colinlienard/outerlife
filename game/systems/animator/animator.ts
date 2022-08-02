@@ -9,19 +9,16 @@ export class Animator extends System {
       const animation = entity.get(Animation);
 
       // Execute the following every {specified number} frames per second
-      if (
-        animation.frameWaiter >=
-        60 / animation.currentAnimation.framesPerSecond
-      ) {
+      if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
         animation.frameWaiter = 0;
 
         // Move forward in the animation
-        if (animation.column < animation.currentAnimation.frameNumber - 1) {
+        if (animation.column < animation.current.frameNumber - 1) {
           animation.column += 1;
         }
 
         // Delete instance after its animation
-        else if (animation.currentAnimation.once) {
+        else if (animation.current.once) {
           Emitter.emit('despawn', entity);
         }
 

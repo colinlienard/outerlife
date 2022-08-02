@@ -2,8 +2,9 @@ import {
   Animation,
   Collision,
   Position,
-  Shadow,
   Sprite,
+  SpriteLayer,
+  SpriteLayers,
 } from '~~/game/components';
 import { Engine } from '~~/game/engine';
 import {
@@ -108,21 +109,9 @@ export class Renderer extends System {
       const sprite = entity.get(Sprite);
       const position = entity.get(Position);
 
-      // if (this.isVisible(position.x, position.y, sprite.width, sprite.height)) {
-      // Render shadow
-      if (entity.has(Shadow)) {
-        const shadow = entity.get(Shadow);
-        this.engine.queueRender(
-          sprite.source,
-          shadow.sourceX,
-          shadow.sourceY,
-          shadow.width,
-          shadow.height,
-          Math.floor((position.x + shadow.x) * Settings.ratio),
-          Math.floor((position.y + shadow.y) * Settings.ratio),
-          shadow.width * Settings.ratio,
-          shadow.height * Settings.ratio
-        );
+      // Render back sprite layers
+      if (entity.has(SpriteLayers)) {
+        this.renderSpriteLayers(entity.get(SpriteLayers).getBack(), position);
       }
 
       // Render animated entity
@@ -130,8 +119,7 @@ export class Renderer extends System {
         const animator = entity.get(Animation);
         this.engine.queueRender(
           sprite.source,
-          sprite.width *
-            (animator.column + animator.currentAnimation.frameStart - 1),
+          sprite.width * (animator.column + animator.current.frameStart - 1),
           sprite.height * animator.row,
           sprite.width,
           sprite.height,
@@ -156,7 +144,11 @@ export class Renderer extends System {
           sprite.height * Settings.ratio
         );
       }
-      // }
+
+      // Render front sprite layers
+      if (entity.has(SpriteLayers)) {
+        this.renderSpriteLayers(entity.get(SpriteLayers).getFront(), position);
+      }
     });
 
     this.engine.render();
@@ -260,6 +252,23 @@ export class Renderer extends System {
     }
   }
 
+  private renderSpriteLayers(layers: SpriteLayer[], position: Position) {
+    layers.forEach((layer) => {
+      this.engine.queueRender(
+        layer.source,
+        layer.sourceX,
+        layer.sourceY,
+        layer.width,
+        layer.height,
+        Math.floor((position.x + layer.x) * Settings.ratio),
+        Math.floor((position.y + layer.y) * Settings.ratio),
+        layer.width * Settings.ratio,
+        layer.height * Settings.ratio,
+        layer.rotation
+      );
+    });
+  }
+
   private translate(offsetX: number, offsetY: number) {
     this.offsetX = Math.abs(Math.round(offsetX));
     this.offsetY = Math.abs(Math.round(offsetY));
@@ -281,7 +290,7 @@ export class Renderer extends System {
 
   loadTextures(entities: Entity[]) {
     return new Promise((resolve) => {
-      const requiredSources = ['/sprites/dust.png'];
+      const requiredSources = ['/sprites/dust.png', '/sprites/items.png'];
 
       const entitiesSources = entities.reduce((previous: string[], current) => {
         if (current.has(Sprite)) {

@@ -1,4 +1,10 @@
-import { Animation, Velocity, Position, Input } from '~~/game/components';
+import {
+  Animation,
+  Velocity,
+  Position,
+  Input,
+  SpriteLayers,
+} from '~~/game/components';
 import { Dust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
 
@@ -12,7 +18,7 @@ export class Mover extends System {
 
   update() {
     this.entities.forEach((entity) => {
-      const animator = entity.get(Animation);
+      const animation = entity.get(Animation);
       const position = entity.get(Position);
       const velocity = entity.get(Velocity);
       const { input } = entity.get(Input);
@@ -21,9 +27,9 @@ export class Mover extends System {
       const moving = Object.values(input).reduce(
         (previous, current) => previous || current
       );
-      animator.currentAnimation = moving
-        ? animator.animations.run
-        : animator.animations.idle;
+      animation.current = moving
+        ? animation.animations.run
+        : animation.animations.idle;
 
       // Handle easing of the speed (acceleration and deceleration)
       if (moving) {
@@ -42,8 +48,8 @@ export class Mover extends System {
       // Spawn a dust when running
       if (
         moving &&
-        animator.frameWaiter === 0 &&
-        (animator.column === 0 || animator.column === 4)
+        animation.frameWaiter === 0 &&
+        (animation.column === 0 || animation.column === 4)
       ) {
         Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
       }
@@ -61,19 +67,19 @@ export class Mover extends System {
       // Handle the direction of the player
       if (input.up) {
         velocity.direction.y = 'up';
-        animator.row = 0;
+        animation.row = 0;
       } else if (input.down) {
         velocity.direction.y = 'down';
-        animator.row = 1;
+        animation.row = 1;
       } else if (moving) {
         velocity.direction.y = null;
       }
       if (input.left) {
         velocity.direction.x = 'left';
-        animator.row = 2;
+        animation.row = 2;
       } else if (input.right) {
         velocity.direction.x = 'right';
-        animator.row = 3;
+        animation.row = 3;
       } else if (moving) {
         velocity.direction.x = null;
       }
@@ -98,6 +104,28 @@ export class Mover extends System {
           break;
         default:
           break;
+      }
+
+      // Update sprite layers
+      if (entity.has(SpriteLayers)) {
+        const spriteLayers = entity.get(SpriteLayers);
+
+        spriteLayers.setAnimated(
+          spriteLayers.getAnimated().map((layer) => {
+            if (!layer.animation) {
+              return layer;
+            }
+
+            const direction =
+              velocity.direction.x || velocity.direction.y || 'down';
+            const data =
+              layer.animation[animation.getCurrentAnimationType()][direction];
+            if (Array.isArray(data)) {
+              return { ...layer, ...data[animation.column] };
+            }
+            return { ...layer, ...data };
+          })
+        );
       }
     });
   }

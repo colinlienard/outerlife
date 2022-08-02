@@ -1,9 +1,5 @@
 import { Component } from '~~/game/utils';
-
-type Direction = {
-  x: null | 'left' | 'right';
-  y: null | 'up' | 'down';
-};
+import { Direction } from './types';
 
 export class Velocity implements Component {
   readonly maxSpeed: number;
