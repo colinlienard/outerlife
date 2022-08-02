@@ -13,7 +13,7 @@ interface EventMap {
 
   spawn: (entity: Entity) => void;
 
-  despawn: () => void;
+  despawn: (entity: Entity) => void;
 }
 
 type Events = keyof EventMap;
