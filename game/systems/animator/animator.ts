@@ -19,7 +19,11 @@ export class Animator extends System {
 
         // Delete instance after its animation
         else if (animation.current.once) {
-          Emitter.emit('despawn', entity);
+          if (animation.current.once === 'despawn') {
+            Emitter.emit('despawn', entity);
+          } else {
+            animation.current.once();
+          }
         }
 
         // Reset animation

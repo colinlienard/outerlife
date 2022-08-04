@@ -11,6 +11,7 @@ export class Velocity implements Component {
   direction: Direction = {
     x: null,
     y: null,
+    current: null,
   };
 
   speed = 0;

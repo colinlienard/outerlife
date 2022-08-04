@@ -1,4 +1,9 @@
+type Horizontal = 'left' | 'right' | null;
+
+type Vertical = 'up' | 'down' | null;
+
 export type Direction = {
-  x: null | 'left' | 'right';
-  y: null | 'up' | 'down';
+  x: Horizontal;
+  y: Vertical;
+  current: Vertical | Horizontal;
 };

@@ -1,5 +1,6 @@
 import {
   Animation,
+  Attack,
   Collision,
   Input,
   Position,
@@ -18,18 +19,25 @@ export class Player extends Entity {
         {
           idle: {
             frameStart: 1,
-            frameNumber: 7,
+            frameNumber: 8,
             framesPerSecond: 8,
           },
           run: {
-            frameStart: 8,
+            frameStart: 9,
             frameNumber: 8,
             framesPerSecond: 12,
+          },
+          slash: {
+            frameStart: 17,
+            frameNumber: 5,
+            framesPerSecond: 16,
+            once: () => this.get(Attack).reset(),
           },
         },
         1
       )
     );
+    this.add(new Attack(12, 2));
     this.add(new Collision('organism', 10, 26, 12, 8));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
@@ -287,6 +295,43 @@ export class Player extends Entity {
                   depth: -1,
                 },
               ],
+            },
+            slash: {
+              up: {},
+              down: [
+                {
+                  x: 18,
+                  y: 4,
+                  rotation: -150,
+                  depth: -1,
+                },
+                {
+                  x: -8,
+                  y: 5,
+                  rotation: 60,
+                  depth: -1,
+                },
+                {
+                  x: 4,
+                  y: -10,
+                  rotation: 190,
+                  depth: -1,
+                },
+                {
+                  x: 4,
+                  y: -10,
+                  rotation: 190,
+                  depth: -1,
+                },
+                {
+                  x: 4,
+                  y: 20,
+                  rotation: -20,
+                  depth: 1,
+                },
+              ],
+              left: {},
+              right: {},
             },
           },
         },

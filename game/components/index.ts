@@ -1,4 +1,5 @@
 export * from './animation';
+export * from './attack';
 export * from './collision';
 export * from './input';
 export * from './position';

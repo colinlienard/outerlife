@@ -32,4 +32,9 @@ export class Animation implements Component {
 
     throw new Error('Animation not found.');
   }
+
+  reset() {
+    this.column = 0;
+    this.frameWaiter = 0;
+  }
 }
