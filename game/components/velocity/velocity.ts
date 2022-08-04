@@ -10,8 +10,8 @@ export class Velocity implements Component {
 
   direction: Direction = {
     x: null,
-    y: null,
-    current: null,
+    y: 'down',
+    current: 'down',
   };
 
   speed = 0;

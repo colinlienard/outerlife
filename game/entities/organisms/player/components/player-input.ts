@@ -7,11 +7,16 @@ export class PlayerInput extends Input {
     window.addEventListener('keydown', (event) => this.bindKeys(event));
     window.addEventListener('keyup', (event) => this.bindKeys(event));
 
-    window.addEventListener('mousedown', () => this.bindClick());
+    window.addEventListener('mousedown', (event) => this.handleClick(event));
   }
 
-  bindClick() {
-    this.attack.attacking = true;
+  handleClick(event: MouseEvent) {
+    if (
+      (event.target as HTMLElement).tagName === 'CANVAS' &&
+      event.button === 0
+    ) {
+      this.attack.attacking = true;
+    }
   }
 
   bindKeys(event: KeyboardEvent) {

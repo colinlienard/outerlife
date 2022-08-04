@@ -1,21 +1,22 @@
 import { Component } from '~~/game/utils';
 
 export class Attack implements Component {
-  readonly movement: number;
+  readonly deceleration: number;
 
-  readonly speed: number;
+  readonly maxSpeed: number;
 
   attacking = false;
 
-  moved = 0;
+  speed: number;
 
-  constructor(movement: number, speed: number) {
-    this.movement = movement;
-    this.speed = speed;
+  constructor(maxSpeed: number, deceleration: number) {
+    this.deceleration = deceleration;
+    this.maxSpeed = maxSpeed;
+    this.speed = maxSpeed;
   }
 
   reset() {
     this.attacking = false;
-    this.moved = 0;
+    this.speed = this.maxSpeed;
   }
 }
