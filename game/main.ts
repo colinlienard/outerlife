@@ -2,7 +2,7 @@ import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Player } from './entities';
 import {
   Animator,
-  Attacker,
+  MeleeAttacker,
   Camera,
   Collider,
   Mover,
@@ -31,7 +31,7 @@ export class Game extends ECS {
     const debugContext = debugCanvas.getContext('2d');
 
     this.add(new Mover());
-    this.add(new Attacker());
+    this.add(new MeleeAttacker());
     this.add(new Collider());
     this.add(new Animator());
     this.add(new Camera());

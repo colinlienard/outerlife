@@ -4,7 +4,7 @@ import {
   Position,
   Input,
   SpriteLayers,
-  Attack,
+  MeleeAttack,
 } from '~~/game/components';
 import { Dust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
@@ -23,7 +23,7 @@ export class Mover extends System {
       const position = entity.get(Position);
       const velocity = entity.get(Velocity);
       const { movements: input } = entity.get(Input);
-      if (!entity.get(Attack).attacking) {
+      if (!entity.get(MeleeAttack).attacking) {
         // If a key is pressed
         const moving = Object.values(input).reduce(
           (previous, current) => previous || current
