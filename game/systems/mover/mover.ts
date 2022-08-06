@@ -23,6 +23,7 @@ export class Mover extends System {
       const position = entity.get(Position);
       const velocity = entity.get(Velocity);
       const { movements: input } = entity.get(Input);
+
       if (!entity.get(MeleeAttack).attacking) {
         // If a key is pressed
         const moving = Object.values(input).reduce(
@@ -32,30 +33,54 @@ export class Mover extends System {
           ? animation.animations.run
           : animation.animations.idle;
 
-        // Handle easing of the speed (acceleration and deceleration)
         if (moving) {
+          // Handle acceleration of the speed
           if (velocity.speed < velocity.maxSpeed) {
             velocity.speed += velocity.acceleration;
           } else {
             velocity.speed = velocity.maxSpeed;
           }
-        } else if (velocity.speed > 0) {
+
+          // Handle the direction of the player
+          if (input.up) {
+            velocity.direction.y = 'up';
+            animation.row = 0;
+          } else if (input.down) {
+            velocity.direction.y = 'down';
+            animation.row = 1;
+          } else if (moving) {
+            velocity.direction.y = null;
+          }
+          if (input.left) {
+            velocity.direction.x = 'left';
+            animation.row = 2;
+          } else if (input.right) {
+            velocity.direction.x = 'right';
+            animation.row = 3;
+          } else if (moving) {
+            velocity.direction.x = null;
+          }
+          velocity.direction.current =
+            velocity.direction.x || velocity.direction.y || 'down';
+
+          // TODO: only for the player
+          // Spawn a dust when running
+          if (
+            animation.frameWaiter === 0 &&
+            (animation.column === 0 || animation.column === 4)
+          ) {
+            Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
+          }
+        }
+
+        // Handle deceleration of the speed
+        else if (velocity.speed > 0) {
           velocity.speed -= velocity.deceleration;
         } else {
           velocity.speed = 0;
         }
 
-        // TODO: only for the player
-        // Spawn a dust when running
-        if (
-          moving &&
-          animation.frameWaiter === 0 &&
-          (animation.column === 0 || animation.column === 4)
-        ) {
-          Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
-        }
-
-        // Avoid player going too fast when running diagonally
+        // Avoid entity going too fast when running diagonally
         let { speed } = velocity;
         if (
           speed > 0 &&
@@ -64,28 +89,6 @@ export class Mover extends System {
         ) {
           speed /= 1.25;
         }
-
-        // Handle the direction of the player
-        if (input.up) {
-          velocity.direction.y = 'up';
-          animation.row = 0;
-        } else if (input.down) {
-          velocity.direction.y = 'down';
-          animation.row = 1;
-        } else if (moving) {
-          velocity.direction.y = null;
-        }
-        if (input.left) {
-          velocity.direction.x = 'left';
-          animation.row = 2;
-        } else if (input.right) {
-          velocity.direction.x = 'right';
-          animation.row = 3;
-        } else if (moving) {
-          velocity.direction.x = null;
-        }
-        velocity.direction.current =
-          velocity.direction.x || velocity.direction.y || 'down';
 
         // Update the position
         switch (velocity.direction.y) {

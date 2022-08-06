@@ -22,7 +22,6 @@ export class MeleeAttacker extends System {
       const animation = entity.get(Animation);
       const { attack: input } = entity.get(Input);
       const position = entity.get(Position);
-      const velocity = entity.get(Velocity);
 
       if (attack.attacking) {
         if (attack.speed <= 0) {
@@ -31,28 +30,20 @@ export class MeleeAttacker extends System {
 
         // Update speed
         attack.speed -= attack.deceleration;
-        let { speed } = attack;
-        if (velocity.direction.x && velocity.direction.y) {
-          speed /= 1.25;
-        }
 
-        // Update the position
-        switch (velocity.direction.x) {
-          case 'left':
-            position.x -= speed;
-            break;
-          case 'right':
-            position.x += speed;
-            break;
-          default:
-            break;
-        }
-        switch (velocity.direction.y) {
+        // Update the position and animation
+        switch (input.direction) {
           case 'up':
-            position.y -= speed;
+            position.y -= attack.speed;
             break;
           case 'down':
-            position.y += speed;
+            position.y += attack.speed;
+            break;
+          case 'left':
+            position.x -= attack.speed;
+            break;
+          case 'right':
+            position.x += attack.speed;
             break;
           default:
             break;
@@ -65,29 +56,37 @@ export class MeleeAttacker extends System {
         input.attacking = false;
 
         // Start the slash animation
+        attack.attacking = true;
         animation.current = animation.animations['melee-attack'];
         animation.reset();
-        attack.attacking = true;
 
-        // Spawn effects
+        // Set animation direction
+        entity.get(Velocity).direction.current = input.direction;
+
         let slashX = 0;
         let slashY = 0;
-        switch (velocity.direction.current) {
-          case 'left':
-            slashX -= attack.range;
-            break;
-          case 'right':
-            slashX += attack.range;
-            break;
+        switch (input.direction) {
           case 'up':
             slashY -= attack.range;
+            animation.row = 0;
             break;
           case 'down':
             slashY += attack.range;
+            animation.row = 1;
+            break;
+          case 'left':
+            slashX -= attack.range;
+            animation.row = 2;
+            break;
+          case 'right':
+            slashX += attack.range;
+            animation.row = 3;
             break;
           default:
             break;
         }
+
+        // Spawn effects
         Emitter.emit(
           'spawn',
           new Slash(position.x + slashX, position.y + slashY, animation.row)

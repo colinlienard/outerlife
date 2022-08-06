@@ -29,3 +29,7 @@ export type Tilemap = {
   environments: string[];
   interactions: Interaction[];
 };
+
+export type Horizontal = 'left' | 'right';
+
+export type Vertical = 'up' | 'down';

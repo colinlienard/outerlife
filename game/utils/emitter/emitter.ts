@@ -11,6 +11,7 @@ interface EventMap {
   }) => void;
   spawn: (entity: Entity) => void;
   despawn: (entity: Entity) => void;
+  'get-player-position': () => { x: number; y: number };
 }
 
 type Events = keyof EventMap;
