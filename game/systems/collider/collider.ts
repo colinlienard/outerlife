@@ -34,6 +34,7 @@ export class Collider extends System {
 
         switch (type) {
           case 'environment':
+          case 'damage':
           case 'interaction': {
             const collider = {
               entity,
@@ -82,25 +83,33 @@ export class Collider extends System {
 
           // Check if there is a collision
           if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
-            // If the collision needs to block the organism
-            if (collider.type === 'environment') {
-              const overlapX = widthX - Math.abs(distanceX);
-              const overlapY = widthY - Math.abs(distanceY);
+            switch (collider.type) {
+              case 'damage':
+                break;
+              case 'environment': {
+                // The collision blocks the organism
+                const overlapX = widthX - Math.abs(distanceX);
+                const overlapY = widthY - Math.abs(distanceY);
 
-              // Remove overlap
-              if (overlapX < overlapY) {
-                oPos.x += distanceX > 0 ? overlapX : -overlapX;
-                return;
+                // Remove overlap
+                if (overlapX < overlapY) {
+                  oPos.x += distanceX > 0 ? overlapX : -overlapX;
+                  return;
+                }
+                oPos.y += distanceY > 0 ? overlapY : -overlapY;
+                break;
               }
-              oPos.y += distanceY > 0 ? overlapY : -overlapY;
-              return;
-            }
-
-            // Else, execute an interaction
-            const interaction = collider.entity as Interaction;
-            if (!interaction.entered) {
-              interaction.enter();
-              interaction.entered = true;
+              case 'interaction': {
+                // Execute an interaction
+                const interaction = collider.entity as Interaction;
+                if (!interaction.entered) {
+                  interaction.enter();
+                  interaction.entered = true;
+                }
+                break;
+              }
+              default:
+                break;
             }
           }
         });

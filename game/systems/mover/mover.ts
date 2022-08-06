@@ -6,8 +6,7 @@ import {
   SpriteLayers,
   MeleeAttack,
 } from '~~/game/components';
-import { Dust } from '~~/game/entities';
-import { Emitter, System } from '~~/game/utils';
+import { System } from '~~/game/utils';
 
 export class Mover extends System {
   protected readonly requiredComponents = [
@@ -62,15 +61,6 @@ export class Mover extends System {
           }
           velocity.direction.current =
             velocity.direction.x || velocity.direction.y || 'down';
-
-          // TODO: only for the player
-          // Spawn a dust when running
-          if (
-            animation.frameWaiter === 0 &&
-            (animation.column === 0 || animation.column === 4)
-          ) {
-            Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
-          }
         }
 
         // Handle deceleration of the speed

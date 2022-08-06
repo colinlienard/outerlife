@@ -8,3 +8,9 @@ export type AnimationData = {
 export type AnimationType = 'idle' | 'run' | 'melee-attack';
 
 export type Animations = Record<AnimationType, AnimationData>;
+
+export type AnimationAction = {
+  action: () => void;
+  frame: number;
+  onType?: AnimationType;
+};

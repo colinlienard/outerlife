@@ -173,6 +173,7 @@ export class Renderer extends System {
               case 'environment':
                 previous.environments.push(c);
                 break;
+              case 'damage':
               case 'interaction':
                 previous.interactions.push(c);
                 break;

@@ -1,5 +1,10 @@
 import { Component } from '~~/game/utils';
-import { AnimationData, Animations, AnimationType } from './types';
+import {
+  AnimationAction,
+  AnimationData,
+  Animations,
+  AnimationType,
+} from './types';
 
 export class Animation implements Component {
   readonly animations!: Animations;
@@ -12,7 +17,13 @@ export class Animation implements Component {
 
   frameWaiter = 0;
 
-  constructor(animations: Animations | AnimationData, defaultRow = 0) {
+  actions?: AnimationAction[];
+
+  constructor(
+    animations: Animations | AnimationData,
+    defaultRow?: number,
+    actions?: AnimationAction[]
+  ) {
     if ('idle' in animations) {
       this.animations = animations as Animations;
       this.current = this.animations.idle;
@@ -20,7 +31,8 @@ export class Animation implements Component {
       this.current = animations as AnimationData;
     }
 
-    this.row = defaultRow;
+    this.row = defaultRow || 0;
+    this.actions = actions;
   }
 
   getCurrentAnimationType(): AnimationType {

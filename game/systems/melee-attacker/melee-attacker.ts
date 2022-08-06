@@ -4,6 +4,7 @@ import {
   Input,
   Position,
   Velocity,
+  Sprite,
 } from '~~/game/components';
 import { Dust, Slash } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
@@ -13,6 +14,7 @@ export class MeleeAttacker extends System {
     MeleeAttack,
     Animation,
     Input,
+    Sprite,
     Velocity,
   ];
 
@@ -22,6 +24,7 @@ export class MeleeAttacker extends System {
       const animation = entity.get(Animation);
       const { attack: input } = entity.get(Input);
       const position = entity.get(Position);
+      const { width, height } = entity.get(Sprite);
 
       if (attack.attacking) {
         if (attack.speed <= 0) {
@@ -89,7 +92,11 @@ export class MeleeAttacker extends System {
         // Spawn effects
         Emitter.emit(
           'spawn',
-          new Slash(position.x + slashX, position.y + slashY, animation.row)
+          new Slash(
+            position.x + width / 2 + slashX,
+            position.y + height / 2 + slashY,
+            animation.row
+          )
         );
         Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
       }

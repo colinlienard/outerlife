@@ -1,1 +1,5 @@
-export type CollisionType = 'environment' | 'interaction' | 'organism';
+export type CollisionType =
+  | 'environment'
+  | 'interaction'
+  | 'organism'
+  | 'damage';

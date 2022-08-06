@@ -7,6 +7,8 @@ export class MeleeAttack implements Component {
 
   readonly range: number;
 
+  readonly contactFrame = 2;
+
   attacking = false;
 
   speed: number;

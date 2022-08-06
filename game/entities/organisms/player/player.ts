@@ -9,6 +9,7 @@ import {
   Velocity,
 } from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
+import { Dust } from '../../effects';
 import { PlayerInput } from './components';
 
 export class Player extends Entity {
@@ -34,11 +35,23 @@ export class Player extends Entity {
             once: () => this.get(MeleeAttack).reset(),
           },
         },
-        1
+        1,
+        [
+          {
+            action: () => this.spawnDust(),
+            frame: 1,
+            onType: 'run',
+          },
+          {
+            action: () => this.spawnDust(),
+            frame: 5,
+            onType: 'run',
+          },
+        ]
       )
     );
-    this.add(new MeleeAttack(24, 3, 0.25));
     this.add(new Collision('organism', 10, 26, 12, 8));
+    this.add(new MeleeAttack(24, 3, 0.25));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
     this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));
@@ -436,8 +449,12 @@ export class Player extends Entity {
     Emitter.on('get-player-position', () => {
       const { x: xPos, y: yPos } = this.get(Position);
       const { width, height } = this.get(Sprite);
-
       return { x: xPos + width / 2, y: yPos + height / 2 };
     });
+  }
+
+  spawnDust() {
+    const { x: xPos, y: yPos } = this.get(Position);
+    Emitter.emit('spawn', new Dust(xPos + 8, yPos + 24));
   }
 }
