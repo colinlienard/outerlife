@@ -16,14 +16,17 @@ interface EventMap {
 type Events = keyof EventMap;
 
 export abstract class Emitter {
-  private static events = new Map<Events, ((...args: any[]) => void)[]>();
+  private static events = new Map<Events, ((...args: any[]) => any)[]>();
 
-  static emit<E extends Events>(event: E, ...args: Parameters<EventMap[E]>) {
+  static emit<E extends Events>(
+    event: E,
+    ...args: Parameters<EventMap[E]>
+  ): ReturnType<EventMap[E]>[] {
     if (!this.events.has(event)) {
       throw new Error(`Emitter '${event}' has not been created.`);
     }
 
-    this.events.get(event)?.forEach((callback) => callback(...args));
+    return this.events.get(event)?.map((callback) => callback(...args)) || [];
   }
 
   static on<E extends Events>(event: E, callback: EventMap[E]) {
