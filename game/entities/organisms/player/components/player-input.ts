@@ -5,10 +5,19 @@ export class PlayerInput extends Input {
   constructor() {
     super();
 
-    window.addEventListener('keydown', (event) => this.bindKeys(event));
-    window.addEventListener('keyup', (event) => this.bindKeys(event));
+    const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
+    const clickListener = (event: MouseEvent) => this.handleClick(event);
 
-    window.addEventListener('mousedown', (event) => this.handleClick(event));
+    window.addEventListener('keydown', keyListener);
+    window.addEventListener('keyup', keyListener);
+    window.addEventListener('mousedown', clickListener);
+
+    // Remove event listeners when changing scene
+    Emitter.on('switch-map', () => {
+      window.removeEventListener('keydown', keyListener);
+      window.removeEventListener('keyup', keyListener);
+      window.removeEventListener('mousedown', clickListener);
+    });
   }
 
   bindKeys(event: KeyboardEvent) {

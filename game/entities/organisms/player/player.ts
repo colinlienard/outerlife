@@ -451,6 +451,11 @@ export class Player extends Entity {
       const { width, height } = this.get(Sprite);
       return { x: xPos + width / 2, y: yPos + height / 2 };
     });
+
+    // Remove the event when changing scene
+    Emitter.on('switch-map', () => {
+      Emitter.unbind('get-player-position');
+    });
   }
 
   spawnDust() {
