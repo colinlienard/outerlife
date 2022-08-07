@@ -10,10 +10,10 @@ import { System } from '~~/game/utils';
 
 export class Mover extends System {
   protected readonly requiredComponents = [
-    Position,
-    Velocity,
     Animation,
     Input,
+    Position,
+    Velocity,
   ];
 
   update() {
@@ -23,11 +23,11 @@ export class Mover extends System {
       const velocity = entity.get(Velocity);
       const { movements: input } = entity.get(Input);
 
-      if (!entity.get(MeleeAttack).attacking) {
-        // If a key is pressed
+      if (!entity.get(MeleeAttack)?.attacking) {
         const moving = Object.values(input).reduce(
           (previous, current) => previous || current
         );
+
         animation.current = moving
           ? animation.animations.run
           : animation.animations.idle;

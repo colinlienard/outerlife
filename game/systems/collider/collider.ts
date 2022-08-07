@@ -11,7 +11,7 @@ export class Collider extends System {
 
   private colliders: QuadTree<Leaf> | null = null;
 
-  private collindings: Entity[] = [];
+  private collidings: Entity[] = [];
 
   setEntities(entities: Entity[]) {
     const oldEntities = this.entities;
@@ -33,7 +33,7 @@ export class Collider extends System {
       Settings.scene.width,
       Settings.scene.height
     );
-    this.collindings = [];
+    this.collidings = [];
 
     // Separate colliders and collidings
     this.entities.forEach((entity) => {
@@ -56,7 +56,7 @@ export class Collider extends System {
         }
         case 'alive':
         case 'organism':
-          this.collindings.push(entity);
+          this.collidings.push(entity);
           return;
         default:
           throw new Error(`Invalid collision type: '${type}'`);
@@ -65,7 +65,7 @@ export class Collider extends System {
   }
 
   update() {
-    this.collindings.forEach((colliding) => {
+    this.collidings.forEach((colliding) => {
       const oPos = colliding.get(Position);
       const oCol = colliding.get(Collision);
 

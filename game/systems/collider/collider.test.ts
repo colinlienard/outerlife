@@ -35,7 +35,7 @@ describe('collider system', () => {
     collider.setEntities([environment, organism]);
 
     expect(collider.colliders.items.length).toBe(1); // is a quadtree
-    expect(collider.organisms.length).toBe(1); // is just an array
+    expect(collider.collidings.length).toBe(1); // is just an array
   });
 
   it('should not collide', () => {

@@ -11,8 +11,8 @@ import { Emitter, System } from '~~/game/utils';
 
 export class MeleeAttacker extends System {
   protected readonly requiredComponents = [
-    MeleeAttack,
     Animation,
+    MeleeAttack,
     Input,
     Sprite,
     Velocity,
