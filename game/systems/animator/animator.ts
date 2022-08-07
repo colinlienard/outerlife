@@ -15,11 +15,30 @@ export class Animator extends System {
         // Move forward in the animation
         if (animation.column < animation.current.frameNumber - 1) {
           animation.column += 1;
+
+          // Handle actions
+          if (animation.actions) {
+            for (const action of animation.actions) {
+              if (
+                action.frame === animation.column &&
+                (action.onType
+                  ? action.onType === animation.getCurrentAnimationType()
+                  : true)
+              ) {
+                action.action();
+                return;
+              }
+            }
+          }
         }
 
         // Delete instance after its animation
         else if (animation.current.once) {
-          Emitter.emit('despawn', entity);
+          if (animation.current.once === 'despawn') {
+            Emitter.emit('despawn', entity);
+          } else {
+            animation.current.once();
+          }
         }
 
         // Reset animation

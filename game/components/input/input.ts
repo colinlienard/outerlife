@@ -1,10 +1,15 @@
-import { Component } from '~~/game/utils';
+import { Component, Horizontal, Vertical } from '~~/game/utils';
 
 export class Input implements Component {
-  input = {
+  movements = {
     up: false,
     down: false,
     left: false,
     right: false,
+  };
+
+  attack = {
+    attacking: false,
+    direction: <Horizontal | Vertical>'down',
   };
 }

@@ -1,6 +1,13 @@
 import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Player } from './entities';
-import { Animator, Camera, Collider, Mover, Renderer } from './systems';
+import {
+  Animator,
+  MeleeAttacker,
+  Camera,
+  Collider,
+  Mover,
+  Renderer,
+} from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
@@ -23,6 +30,7 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
+    this.add(new MeleeAttacker());
     this.add(new Mover());
     this.add(new Collider());
     this.add(new Animator());

@@ -1,4 +1,7 @@
+import { Horizontal, Vertical } from '~~/game/utils';
+
 export type Direction = {
-  x: null | 'left' | 'right';
-  y: null | 'up' | 'down';
+  x: Horizontal | null;
+  y: Vertical | null;
+  current: Vertical | Horizontal;
 };
