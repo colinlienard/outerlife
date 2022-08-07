@@ -30,8 +30,8 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
-    this.add(new Mover());
     this.add(new MeleeAttacker());
+    this.add(new Mover());
     this.add(new Collider());
     this.add(new Animator());
     this.add(new Camera());

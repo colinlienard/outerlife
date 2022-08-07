@@ -16,12 +16,6 @@ import {
   Terrain,
 } from '~~/game/utils';
 
-type Collisions = {
-  environments: Collision[];
-  interactions: Collision[];
-  organisms: Collision[];
-};
-
 interface EntityLeaf extends Box {
   entity: Entity;
 }
@@ -154,82 +148,65 @@ export class Renderer extends System {
     this.engine.render();
   }
 
+  private renderCollision(boxes: Collision[], color: string) {
+    this.debugContext.lineWidth = 2;
+    this.debugContext.strokeStyle = color;
+
+    boxes.forEach((box) => {
+      this.debugContext.strokeRect(
+        box.x * Settings.ratio,
+        box.y * Settings.ratio,
+        box.width * Settings.ratio,
+        box.height * Settings.ratio
+      );
+    });
+  }
+
   private renderCollisions() {
     // Get collisions of environments and organisms
-    const { environments, interactions, organisms } =
-      this.entities.reduce<Collisions>(
-        (previous, current) => {
-          if (current.has(Collision) && current.has(Position)) {
-            const collision = current.get(Collision);
-            const position = current.get(Position);
+    const { blue, green, red } = this.entities.reduce<
+      Record<string, Collision[]>
+    >(
+      (previous, current) => {
+        if (current.has(Collision) && current.has(Position)) {
+          const collision = current.get(Collision);
+          const position = current.get(Position);
 
-            const c: Collision = {
-              ...collision,
-              x: collision.x + position.x,
-              y: collision.y + position.y,
-            };
+          const c: Collision = {
+            ...collision,
+            x: collision.x + position.x,
+            y: collision.y + position.y,
+          };
 
-            switch (collision.type) {
-              case 'environment':
-                previous.environments.push(c);
-                break;
-              case 'damage':
-              case 'interaction':
-                previous.interactions.push(c);
-                break;
-              case 'organism':
-                previous.organisms.push(c);
-                break;
-              default:
-                throw new Error(`Invalid collision type: '${collision.type}'`);
-            }
+          switch (collision.type) {
+            case 'environment':
+            case 'organism':
+              previous.red.push(c);
+              break;
+            case 'damage':
+            case 'interaction':
+              previous.blue.push(c);
+              break;
+            case 'alive':
+              previous.green.push(c);
+              break;
+            default:
+              throw new Error(`Invalid collision type: '${collision.type}'`);
           }
-
-          return previous;
-        },
-        {
-          environments: [],
-          interactions: [],
-          organisms: [],
         }
-      );
 
-    this.debugContext.lineWidth = 2;
+        return previous;
+      },
+      {
+        blue: [],
+        green: [],
+        red: [],
+      }
+    );
 
-    // Render environments collisions
-    this.debugContext.strokeStyle = 'rgb(255, 0, 0)';
-    environments.forEach((environment) => {
-      this.debugContext.strokeRect(
-        environment.x * Settings.ratio,
-        environment.y * Settings.ratio,
-        environment.width * Settings.ratio,
-        environment.height * Settings.ratio
-      );
-    });
-
-    // Render interactions
-    this.debugContext.strokeStyle = 'rgb(0, 0, 255)';
-    interactions.forEach((interaction) => {
-      this.debugContext.strokeRect(
-        interaction.x * Settings.ratio,
-        interaction.y * Settings.ratio,
-        interaction.width * Settings.ratio,
-        interaction.height * Settings.ratio
-      );
-    });
-
-    // Render organisms collisions
-    this.debugContext.strokeStyle = 'rgb(0, 255, 0)';
-    organisms.forEach((organism) => {
-      this.debugContext.strokeRect(
-        organism.x * Settings.ratio,
-        organism.y * Settings.ratio,
-        organism.width * Settings.ratio,
-        organism.height * Settings.ratio
-      );
-    });
-
-    this.debugContext.fillStyle = 'transparent';
+    this.renderCollision(red, 'red');
+    this.renderCollision(blue, 'blue');
+    this.renderCollision(green, 'lime');
   }
 
   private renderGrid() {
@@ -341,27 +318,29 @@ export class Renderer extends System {
 
     super.setEntities(entities);
 
-    // If the entities have changed
-    if (oldEntities.length !== this.entities.length) {
-      this.entityTree = new QuadTree(
-        0,
-        0,
-        Settings.scene.width,
-        Settings.scene.height
-      );
-
-      this.entities.forEach((entity) => {
-        const { x, y } = entity.get(Position);
-        const { width, height } = entity.get(Sprite);
-        this.entityTree.add({
-          x,
-          y,
-          width,
-          height,
-          entity,
-        });
-      });
+    // If the entities have not changed, return
+    if (oldEntities.length === this.entities.length) {
+      return;
     }
+
+    this.entityTree = new QuadTree(
+      0,
+      0,
+      Settings.scene.width,
+      Settings.scene.height
+    );
+
+    this.entities.forEach((entity) => {
+      const { x, y } = entity.get(Position);
+      const { width, height } = entity.get(Sprite);
+      this.entityTree.add({
+        x,
+        y,
+        width,
+        height,
+        entity,
+      });
+    });
   }
 
   setTerrains(terrains: Terrain[]) {

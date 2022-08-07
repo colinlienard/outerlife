@@ -1,6 +1,6 @@
-import { Collision, Position, Sprite } from '~~/game/components';
+import { Collision, Life, Position, Sprite } from '~~/game/components';
 import { Interaction } from '~~/game/entities';
-import { Entity, QuadTree, Settings, System } from '~~/game/utils';
+import { Emitter, Entity, QuadTree, Settings, System } from '~~/game/utils';
 
 interface Leaf extends Collision {
   entity: Entity;
@@ -11,56 +11,63 @@ export class Collider extends System {
 
   private colliders: QuadTree<Leaf> | null = null;
 
-  private organisms: Entity[] = [];
+  private collindings: Entity[] = [];
 
   setEntities(entities: Entity[]) {
     const oldEntities = this.entities;
 
     super.setEntities(entities);
 
-    // If the entities have changed
-    if (oldEntities.length !== this.entities.length) {
-      this.colliders = new QuadTree(
-        0,
-        0,
-        Settings.scene.width,
-        Settings.scene.height
-      );
-      this.organisms = [];
-
-      this.entities.forEach((entity) => {
-        const { type, x, y, width, height } = entity.get(Collision);
-        const { x: positionX, y: positionY } = entity.get(Position);
-
-        switch (type) {
-          case 'environment':
-          case 'damage':
-          case 'interaction': {
-            const collider = {
-              entity,
-              type,
-              x: x + positionX,
-              y: y + positionY,
-              width,
-              height,
-            };
-            this.colliders?.add(collider);
-            return;
-          }
-          case 'organism':
-            this.organisms.push(entity);
-            return;
-          default:
-            throw new Error(`Invalid collision type: '${type}'`);
-        }
-      });
+    // If the entities have not changed, return
+    if (
+      oldEntities.length === this.entities.length &&
+      oldEntities.every((e, i) => e === this.entities[i])
+    ) {
+      return;
     }
+
+    // Reset
+    this.colliders = new QuadTree(
+      0,
+      0,
+      Settings.scene.width,
+      Settings.scene.height
+    );
+    this.collindings = [];
+
+    // Separate colliders and collidings
+    this.entities.forEach((entity) => {
+      const { type, x, y, width, height } = entity.get(Collision);
+      const { x: positionX, y: positionY } = entity.get(Position);
+
+      switch (type) {
+        case 'damage':
+        case 'environment':
+        case 'interaction': {
+          this.colliders?.add({
+            entity,
+            type,
+            x: x + positionX,
+            y: y + positionY,
+            width,
+            height,
+          });
+          return;
+        }
+        case 'alive':
+        case 'organism':
+          this.collindings.push(entity);
+          return;
+        default:
+          throw new Error(`Invalid collision type: '${type}'`);
+      }
+    });
   }
 
   update() {
-    this.organisms.forEach((organism) => {
-      const oPos = organism.get(Position);
-      const oCol = organism.get(Collision);
+    this.collindings.forEach((colliding) => {
+      const oPos = colliding.get(Position);
+      const oCol = colliding.get(Collision);
 
       this.colliders
         ?.get(oPos.x + oCol.x, oPos.y + oCol.y, oCol.width, oCol.height)
@@ -85,6 +92,9 @@ export class Collider extends System {
           if (Math.abs(distanceX) < widthX && Math.abs(distanceY) < widthY) {
             switch (collider.type) {
               case 'damage':
+                if (colliding.get(Life)) {
+                  Emitter.emit('despawn', colliding);
+                }
                 break;
               case 'environment': {
                 // The collision blocks the organism
@@ -115,7 +125,7 @@ export class Collider extends System {
         });
 
       // Scene limits on the x axis
-      const width = organism.has(Sprite) ? organism.get(Sprite).width / 2 : 0;
+      const width = colliding.has(Sprite) ? colliding.get(Sprite).width / 2 : 0;
       if (oPos.x < 0 - width) {
         oPos.x = -width;
       } else if (oPos.x > Settings.scene.width - width) {
@@ -123,7 +133,9 @@ export class Collider extends System {
       }
 
       // Scene limits on the y axis
-      const height = organism.has(Sprite) ? organism.get(Sprite).height / 2 : 0;
+      const height = colliding.has(Sprite)
+        ? colliding.get(Sprite).height / 2
+        : 0;
       if (oPos.y < 0 - height) {
         oPos.y = -height;
       } else if (oPos.y > Settings.scene.height - height) {

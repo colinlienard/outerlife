@@ -51,7 +51,7 @@ export class Player extends Entity {
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new MeleeAttack(24, 3, 0.25));
+    this.add(new MeleeAttack(24, 3, 0.3));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
     this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));
@@ -356,15 +356,15 @@ export class Player extends Entity {
                   depth: -1,
                 },
                 {
-                  x: 4,
-                  y: -10,
-                  rotation: 190,
+                  x: -2,
+                  y: -5,
+                  rotation: 100,
                   depth: -1,
                 },
                 {
-                  x: 4,
-                  y: -10,
-                  rotation: 190,
+                  x: -2,
+                  y: -5,
+                  rotation: 100,
                   depth: -1,
                 },
                 {
@@ -414,22 +414,22 @@ export class Player extends Entity {
                   depth: -1,
                 },
                 {
-                  x: -6,
-                  y: 6,
-                  rotation: 60,
+                  x: -5,
+                  y: 8,
+                  rotation: 40,
                   depth: 1,
                 },
                 {
-                  x: 2,
-                  y: -6,
-                  rotation: 190,
-                  depth: 1,
+                  x: -5,
+                  y: 0,
+                  rotation: 100,
+                  depth: -1,
                 },
                 {
-                  x: 2,
-                  y: -6,
-                  rotation: 190,
-                  depth: 1,
+                  x: -5,
+                  y: 0,
+                  rotation: 100,
+                  depth: -1,
                 },
                 {
                   x: 8,

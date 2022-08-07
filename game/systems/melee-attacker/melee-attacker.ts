@@ -63,8 +63,12 @@ export class MeleeAttacker extends System {
         animation.current = animation.animations['melee-attack'];
         animation.reset();
 
+        // Set the entity's speed to 0
+        const velocity = entity.get(Velocity);
+        velocity.speed = 0;
+
         // Set animation direction
-        entity.get(Velocity).direction.current = input.direction;
+        velocity.direction.current = input.direction;
 
         let slashX = 0;
         let slashY = 0;
