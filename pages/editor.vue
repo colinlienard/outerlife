@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EditorCanvas from '../Editor/EditorCanvas.vue';
+import EditorCanvas from '../editor/EditorCanvas.vue';
 </script>
 
 <template>

@@ -11,11 +11,17 @@
   },
   "plugins": ["vue", "@typescript-eslint", "prettier"],
   "rules": {
+    "@typescript-eslint/no-unused-vars": ["error"],
     "import/extensions": ["error", { "ts": "never" }],
-    "linebreak-style": ["error", "windows"],
+    "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
+    "linebreak-style": ["error", "unix"],
+    "node/no-callback-literal": "off",
+    "no-async-promise-executor": "off",
     "no-param-reassign": ["error", { "props": false }],
-    "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": ["error"]
+    "no-restricted-exports": "off",
+    "no-restricted-syntax": "off",
+    "prettier/prettier": "error"
   },
   // Vue and Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
   "overrides": [
