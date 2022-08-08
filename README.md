@@ -2,9 +2,9 @@
 
 # Outer Life
 
-🪐 A 2d top-down pixel art game about an adventurer trying to discover and explore planets.
+🪐 A 2d game about space exploration, built with WebGL, written in Typescript
 
-![Deployment](https://img.shields.io/website?url=https%3A%2F%2Fouterlife.vercel.app) ![Latest release](https://img.shields.io/github/v/release/ColinLienard/outerlife) ![Commits activity](https://img.shields.io/github/commit-activity/m/ColinLienard/outerlife/dev?label=commits%20on%20dev) ![License](https://img.shields.io/github/license/ColinLienard/outerlife)
+![Checks](https://img.shields.io/github/workflow/status/ColinLienard/outerlife/CI) ![Latest release](https://img.shields.io/github/v/release/ColinLienard/outerlife) ![Deployment](https://img.shields.io/website?url=https%3A%2F%2Fouterlife.vercel.app)
 
 </div>
 
@@ -17,24 +17,35 @@
 - **Langage** → [Typescript](https://www.typescriptlang.org/)
 - **Deployment** → [Vercel](https://vercel.com/)
 - **Styling** → [Sass](https://sass-lang.com/)
-- **Package Manager** → [pNPM](https://pnpm.io/)
+- **Package Manager** → [pnpm](https://pnpm.io/)
 
 ## 🔎 Overview
 
-- `assets/` → All the sprites and sounds of the game.
-- `Game/` → Core files of the game.
-- `Game/Entities/` → Organisms, environments, terrains and effects.
 - `__aseprite__/` → Source files for pixel art.
+- `editor/` → Core files of the editor.
+- `game/` → Core files of the game.
+  - `components/` → Components are only data that can be attached to entities.
+  - `data/` → Tilemaps.
+  - `engine/` → WebGL engine.
+  - `entities/` → Organisms, environments, effects... Entities just receive components.
+  - `systems/` → Systems handle the logic of the entities.
+  - `utils/` → ECS implementation, helper functions...
+- `pages/` → Pages of the site.
+- `public/` → All the sprites and sounds of the game.
 - `styles/` → Global styles.
+- `ui/` → Vue components.
 
 ## ⚡ Running locally
 
 ```bash
-# Installation (recommended for nuxt3)
-pnpm i --shamefully-hoist
+# Installation
+pnpm install
 
 # Development server
 pnpm dev
+
+# Build
+pnpm generate
 ```
 
 ## 📄 License
