@@ -25,6 +25,7 @@ export class MeleeAttacker extends System {
       const { attack: input } = entity.get(Input);
       const position = entity.get(Position);
       const { width, height } = entity.get(Sprite);
+      const velocity = entity.get(Velocity);
 
       if (attack.attacking) {
         if (attack.speed <= 0) {
@@ -34,7 +35,7 @@ export class MeleeAttacker extends System {
         // Update speed
         attack.speed -= attack.deceleration;
 
-        // Update the position and animation
+        // Update the position
         switch (input.direction) {
           case 'up':
             position.y -= attack.speed;
@@ -55,8 +56,13 @@ export class MeleeAttacker extends System {
         return;
       }
 
-      if (input.attacking) {
-        input.attacking = false;
+      // Cannot attack if blocked
+      if (velocity.blocked) {
+        return;
+      }
+
+      if (input.doing) {
+        input.doing = false;
 
         // Start the slash animation
         attack.attacking = true;
@@ -64,7 +70,7 @@ export class MeleeAttacker extends System {
         animation.reset();
 
         // Set the entity's speed to 0
-        const velocity = entity.get(Velocity);
+        velocity.blocked = true;
         velocity.speed = 0;
 
         // Set animation direction

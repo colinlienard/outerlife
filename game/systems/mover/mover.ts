@@ -4,7 +4,6 @@ import {
   Position,
   Input,
   SpriteLayers,
-  MeleeAttack,
 } from '~~/game/components';
 import { System } from '~~/game/utils';
 
@@ -23,7 +22,7 @@ export class Mover extends System {
       const velocity = entity.get(Velocity);
       const { movements: input } = entity.get(Input);
 
-      if (!entity.get(MeleeAttack)?.attacking) {
+      if (!velocity.blocked) {
         const moving = Object.values(input).reduce(
           (previous, current) => previous || current
         );

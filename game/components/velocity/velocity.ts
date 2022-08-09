@@ -8,6 +8,8 @@ export class Velocity implements Component {
 
   readonly deceleration: number;
 
+  blocked = false;
+
   direction: Direction = {
     x: null,
     y: 'down',

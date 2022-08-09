@@ -1,8 +1,9 @@
 import {
   Animation,
-  MeleeAttack,
+  Dash,
   Collision,
   Input,
+  MeleeAttack,
   Position,
   Sprite,
   SpriteLayers,
@@ -32,7 +33,11 @@ export class Player extends Entity {
             frameStart: 17,
             frameNumber: 5,
             framesPerSecond: 20,
-            once: () => this.get(MeleeAttack).reset(),
+            once: () => {
+              this.get(MeleeAttack).reset();
+              this.get(Velocity).blocked = false;
+              this.get(Input).attack.doing = false;
+            },
           },
         },
         1,
@@ -51,6 +56,7 @@ export class Player extends Entity {
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
+    this.add(new Dash(48, 6, 200));
     this.add(new MeleeAttack(24, 3, 0.3));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));

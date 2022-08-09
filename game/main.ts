@@ -7,6 +7,7 @@ import {
   Collider,
   Mover,
   Renderer,
+  Dasher,
 } from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
@@ -30,6 +31,7 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
+    this.add(new Dasher());
     this.add(new MeleeAttacker());
     this.add(new Mover());
     this.add(new Collider());
