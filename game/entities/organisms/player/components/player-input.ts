@@ -7,16 +7,19 @@ export class PlayerInput extends Input {
 
     const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
     const clickListener = (event: MouseEvent) => this.handleClick(event);
+    const contextMenuListener = (event: MouseEvent) => event.preventDefault();
 
     window.addEventListener('keydown', keyListener);
     window.addEventListener('keyup', keyListener);
     window.addEventListener('mousedown', clickListener);
+    window.addEventListener('contextmenu', contextMenuListener);
 
     // Remove event listeners when changing scene
     Emitter.on('switch-map', () => {
       window.removeEventListener('keydown', keyListener);
       window.removeEventListener('keyup', keyListener);
       window.removeEventListener('mousedown', clickListener);
+      window.removeEventListener('contextmenu', contextMenuListener);
     });
   }
 
@@ -50,10 +53,7 @@ export class PlayerInput extends Input {
   }
 
   handleClick(event: MouseEvent) {
-    if (
-      (event.target as HTMLElement).tagName === 'CANVAS' &&
-      event.button === 0
-    ) {
+    if ((event.target as HTMLElement).tagName === 'CANVAS') {
       // Get direction of the click based on the player's position
       const cursorX = Math.round(
         Math.abs(Settings.cameraOffset.x) + event.clientX / Settings.ratio
@@ -64,18 +64,29 @@ export class PlayerInput extends Input {
       const [{ x, y }] = Emitter.emit('get-player-position');
       const angle = (Math.atan2(cursorX - x, cursorY - y) * 180) / Math.PI;
 
+      const type = event.button === 0 ? this.attack : this.dash;
+
       // Set direction
       if (angle > -45 && angle < 45) {
-        this.attack.direction = 'down';
+        type.direction = 'down';
       } else if (angle > 45 && angle < 135) {
-        this.attack.direction = 'right';
+        type.direction = 'right';
       } else if (angle > 135 || angle < -135) {
-        this.attack.direction = 'up';
+        type.direction = 'up';
       } else {
-        this.attack.direction = 'left';
+        type.direction = 'left';
       }
 
-      this.attack.attacking = true;
+      type.doing = true;
+
+      // Store position of the dash target if right click
+      // The target is further from the cursor to avoid dashing not far enough
+      if (event.button === 2) {
+        this.dash.target = {
+          x: cursorX + (cursorX - x) * 10,
+          y: cursorY + (cursorY - y) * 10,
+        };
+      }
     }
   }
 }

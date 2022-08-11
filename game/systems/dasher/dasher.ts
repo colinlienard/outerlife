@@ -1,62 +1,59 @@
 import {
   Animation,
-  MeleeAttack,
+  Dash,
   Input,
   Position,
-  Velocity,
   Sprite,
+  Velocity,
 } from '~~/game/components';
-import { Dust, Slash } from '~~/game/entities';
+import { Dust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
 
-export class MeleeAttacker extends System {
+export class Dasher extends System {
   protected readonly requiredComponents = [
     Animation,
-    MeleeAttack,
+    Dash,
     Input,
-    Sprite,
+    Position,
     Velocity,
   ];
 
   update() {
     this.entities.forEach((entity) => {
-      const attack = entity.get(MeleeAttack);
       const animation = entity.get(Animation);
-      const { attack: input } = entity.get(Input);
+      const dash = entity.get(Dash);
+      const { dash: input } = entity.get(Input);
       const position = entity.get(Position);
       const { width, height } = entity.get(Sprite);
       const velocity = entity.get(Velocity);
 
-      if (attack.attacking) {
-        if (attack.speed <= 0) {
+      if (dash.dashing) {
+        if (dash.speed <= 0) {
+          // End the dash
+          dash.reset();
+
+          animation.current = animation.animations.recovery;
+
           return;
         }
 
         // Update speed
-        attack.speed -= attack.deceleration;
+        dash.speed -= dash.deceleration;
 
         // Update the position
-        switch (input.direction) {
-          case 'up':
-            position.y -= attack.speed;
-            break;
-          case 'down':
-            position.y += attack.speed;
-            break;
-          case 'left':
-            position.x -= attack.speed;
-            break;
-          case 'right':
-            position.x += attack.speed;
-            break;
-          default:
-            break;
-        }
+        let dx = input.target.x - (position.x + width / 2);
+        let dy = input.target.y - (position.y + height / 2);
+        const length = Math.sqrt(dx * dx + dy * dy);
+        dx /= length;
+        dy /= length;
+
+        position.x += dx * dash.speed;
+        position.y += dy * dash.speed;
 
         return;
       }
 
-      // Cannot attack if blocked
+      // Cannot dash if blocked
       if (velocity.blocked) {
         return;
       }
@@ -64,9 +61,9 @@ export class MeleeAttacker extends System {
       if (input.doing) {
         input.doing = false;
 
-        // Start the slash animation
-        attack.attacking = true;
-        animation.current = animation.animations['melee-attack'];
+        // Start the dash animation
+        dash.dashing = true;
+        animation.current = animation.animations.dash;
         animation.reset();
 
         // Set the entity's speed to 0
@@ -76,23 +73,17 @@ export class MeleeAttacker extends System {
         // Set animation direction
         velocity.direction.current = input.direction;
 
-        let slashX = 0;
-        let slashY = 0;
         switch (input.direction) {
           case 'up':
-            slashY -= attack.range;
             animation.row = 0;
             break;
           case 'down':
-            slashY += attack.range;
             animation.row = 1;
             break;
           case 'left':
-            slashX -= attack.range;
             animation.row = 2;
             break;
           case 'right':
-            slashX += attack.range;
             animation.row = 3;
             break;
           default:
@@ -100,14 +91,6 @@ export class MeleeAttacker extends System {
         }
 
         // Spawn effects
-        Emitter.emit(
-          'spawn',
-          new Slash(
-            position.x + width / 2 + slashX,
-            position.y + height / 2 + slashY,
-            animation.row
-          )
-        );
         Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
       }
     });
