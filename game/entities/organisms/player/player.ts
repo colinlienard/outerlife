@@ -39,6 +39,21 @@ export class Player extends Entity {
               this.get(Input).attack.doing = false;
             },
           },
+          dash: {
+            frameStart: 22,
+            frameNumber: 2,
+            framesPerSecond: 12,
+          },
+          recovery: {
+            frameStart: 24,
+            frameNumber: 1,
+            framesPerSecond: 6,
+            once: () => {
+              this.get(Dash).reset();
+              this.get(Velocity).blocked = false;
+              this.get(Input).dash.doing = false;
+            },
+          },
         },
         1,
         [
@@ -56,7 +71,7 @@ export class Player extends Entity {
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new Dash(8, 0.5, 0));
+    this.add(new Dash(8, 0.5));
     this.add(new MeleeAttack(24, 3, 0.3));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
@@ -218,7 +233,6 @@ export class Player extends Entity {
                   x: 11,
                   y: 9,
                   rotation: 20,
-
                   depth: -1,
                 },
                 {
@@ -444,6 +458,58 @@ export class Player extends Entity {
                   depth: 1,
                 },
               ],
+            },
+            dash: {
+              up: {
+                x: 8,
+                y: 5,
+                rotation: -80,
+                depth: 1,
+              },
+              down: {
+                depth: -1,
+                rotation: 0,
+                x: 8,
+                y: 8,
+              },
+              left: {
+                depth: -1,
+                rotation: 0,
+                x: 8,
+                y: 8,
+              },
+              right: {
+                depth: -1,
+                rotation: 0,
+                x: 8,
+                y: 8,
+              },
+            },
+            recovery: {
+              up: {
+                x: 8,
+                y: 6,
+                rotation: -70,
+                depth: 1,
+              },
+              down: {
+                depth: -1,
+                rotation: 0,
+                x: 8,
+                y: 8,
+              },
+              left: {
+                x: 10,
+                y: 9,
+                rotation: 20,
+                depth: -1,
+              },
+              right: {
+                x: 4,
+                y: 9,
+                rotation: 15,
+                depth: -1,
+              },
             },
           },
         },

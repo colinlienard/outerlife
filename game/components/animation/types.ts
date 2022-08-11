@@ -5,7 +5,12 @@ export type AnimationData = {
   once?: 'despawn' | (() => void);
 };
 
-export type AnimationType = 'idle' | 'run' | 'melee-attack';
+export type AnimationType =
+  | 'idle'
+  | 'run'
+  | 'melee-attack'
+  | 'dash'
+  | 'recovery';
 
 export type Animations = Record<AnimationType, AnimationData>;
 
