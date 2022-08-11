@@ -36,6 +36,16 @@ class MovingEntity extends Entity {
           frameNumber: 3,
           framesPerSecond: 16,
         },
+        dash: {
+          frameStart: 10,
+          frameNumber: 1,
+          framesPerSecond: 16,
+        },
+        recovery: {
+          frameStart: 10,
+          frameNumber: 1,
+          framesPerSecond: 16,
+        },
       })
     );
     this.add(new Input());
@@ -73,6 +83,18 @@ class MovingEntity extends Entity {
               down: spriteAnimation,
               left: spriteAnimation,
               right: spriteAnimation,
+            },
+            dash: {
+              up: {},
+              down: {},
+              left: {},
+              right: {},
+            },
+            recovery: {
+              up: {},
+              down: {},
+              left: {},
+              right: {},
             },
           },
         },
