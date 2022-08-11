@@ -78,6 +78,15 @@ export class PlayerInput extends Input {
       }
 
       type.doing = true;
+
+      // Store position of the dash target if right click
+      // The target is further from the cursor to avoid dashing not far enough
+      if (event.button === 2) {
+        this.dash.target = {
+          x: cursorX + (cursorX - x) * 10,
+          y: cursorY + (cursorY - y) * 10,
+        };
+      }
     }
   }
 }

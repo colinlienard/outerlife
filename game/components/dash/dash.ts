@@ -1,24 +1,25 @@
 import { Component } from '~~/game/utils';
 
 export class Dash implements Component {
-  readonly distance: number;
+  readonly deceleration: number;
+
+  readonly maxSpeed: number;
 
   readonly recoveryTime: number;
 
-  readonly speed: number;
-
   dashing = false;
 
-  moved = 0;
+  speed: number;
 
-  constructor(distance: number, speed: number, recoveryTime: number) {
-    this.distance = distance;
+  constructor(maxSpeed: number, deceleration: number, recoveryTime: number) {
+    this.deceleration = deceleration;
+    this.maxSpeed = maxSpeed;
     this.recoveryTime = recoveryTime;
-    this.speed = speed;
+    this.speed = maxSpeed;
   }
 
   reset() {
     this.dashing = false;
-    this.moved = 0;
+    this.speed = this.maxSpeed;
   }
 }

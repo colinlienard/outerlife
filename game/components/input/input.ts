@@ -9,6 +9,10 @@ export class Input implements Component {
   dash = {
     doing: false,
     direction: <Horizontal | Vertical>'down',
+    target: {
+      x: 0,
+      y: 0,
+    },
   };
 
   movements = {

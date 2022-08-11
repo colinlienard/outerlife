@@ -1,5 +1,13 @@
-import { Animation, Dash, Input, Position, Velocity } from '~~/game/components';
-import { System } from '~~/game/utils';
+import {
+  Animation,
+  Dash,
+  Input,
+  Position,
+  Sprite,
+  Velocity,
+} from '~~/game/components';
+import { Dust } from '~~/game/entities';
+import { Emitter, System } from '~~/game/utils';
 
 export class Dasher extends System {
   protected readonly requiredComponents = [
@@ -16,10 +24,11 @@ export class Dasher extends System {
       const dash = entity.get(Dash);
       const { dash: input } = entity.get(Input);
       const position = entity.get(Position);
+      const { width, height } = entity.get(Sprite);
       const velocity = entity.get(Velocity);
 
       if (dash.dashing) {
-        if (dash.moved >= dash.distance) {
+        if (dash.speed <= 0) {
           // End the dash
           dash.reset();
 
@@ -31,25 +40,18 @@ export class Dasher extends System {
           return;
         }
 
-        // Update the position
-        switch (input.direction) {
-          case 'up':
-            position.y -= dash.speed;
-            break;
-          case 'down':
-            position.y += dash.speed;
-            break;
-          case 'left':
-            position.x -= dash.speed;
-            break;
-          case 'right':
-            position.x += dash.speed;
-            break;
-          default:
-            break;
-        }
+        // Update speed
+        dash.speed -= dash.deceleration;
 
-        dash.moved += dash.speed;
+        // Update the position
+        let dx = input.target.x - (position.x + width / 2);
+        let dy = input.target.y - (position.y + height / 2);
+        const length = Math.sqrt(dx * dx + dy * dy);
+        dx /= length;
+        dy /= length;
+
+        position.x += dx * dash.speed;
+        position.y += dy * dash.speed;
 
         return;
       }
@@ -87,6 +89,9 @@ export class Dasher extends System {
           default:
             break;
         }
+
+        // Spawn effects
+        Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
       }
     });
   }

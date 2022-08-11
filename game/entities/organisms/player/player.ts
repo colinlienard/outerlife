@@ -56,7 +56,7 @@ export class Player extends Entity {
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new Dash(48, 6, 200));
+    this.add(new Dash(8, 0.5, 0));
     this.add(new MeleeAttack(24, 3, 0.3));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));

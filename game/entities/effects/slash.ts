@@ -1,7 +1,12 @@
-import { Animation, Collision, Position, Sprite } from '~~/game/components';
-import { Entity } from '~~/game/utils';
+import { Animation, Position, Sprite } from '~~/game/components';
+import { Emitter, Entity } from '~~/game/utils';
+import { Damage } from '../misc/damage';
 
 export class Slash extends Entity {
+  private readonly row: number;
+
+  private collision: Damage | null = null;
+
   constructor(x: number, y: number, row: number) {
     super();
     this.add(
@@ -15,7 +20,11 @@ export class Slash extends Entity {
         row,
         [
           {
-            action: () => this.delete(Collision),
+            action: () => this.spawnCollision(),
+            frame: 1,
+          },
+          {
+            action: () => this.despawnCollision(),
             frame: 2,
           },
         ]
@@ -24,21 +33,32 @@ export class Slash extends Entity {
     this.add(new Position(x - 20, y - 20));
     this.add(new Sprite('/sprites/slash.png', 0, 0, 40, 40));
 
-    switch (row) {
+    this.row = row;
+  }
+
+  getCollision(): Damage {
+    const { x, y } = this.get(Position);
+
+    switch (this.row) {
       case 0:
-        this.add(new Collision('damage', 0, 4, 40, 20));
-        break;
+        return new Damage(x, y + 4, 40, 20);
       case 1:
-        this.add(new Collision('damage', 0, 16, 40, 20));
-        break;
+        return new Damage(x, y + 16, 40, 20);
       case 2:
-        this.add(new Collision('damage', 4, 0, 20, 40));
-        break;
+        return new Damage(x + 4, y, 20, 40);
       case 3:
-        this.add(new Collision('damage', 16, 0, 20, 40));
-        break;
+        return new Damage(x + 16, y, 20, 40);
       default:
-        break;
+        throw new Error(`Wrong row provided: '${this.row}'`);
     }
+  }
+
+  spawnCollision() {
+    this.collision = this.getCollision();
+    Emitter.emit('spawn', this.collision);
+  }
+
+  despawnCollision() {
+    Emitter.emit('despawn', this.collision as Damage);
   }
 }
