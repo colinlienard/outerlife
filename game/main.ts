@@ -1,5 +1,5 @@
 import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
-import { Interaction, InvisibleWall, Player } from './entities';
+import { Interaction, InvisibleWall, Patroller, Player } from './entities';
 import {
   Animator,
   MeleeAttacker,
@@ -125,6 +125,8 @@ export class Game extends ECS {
       // Add a new player instance
       const player = new Player(playerX, playerY);
       this.entities.push(player);
+
+      this.entities.push(new Patroller(350, 300));
 
       // Setup camera
       const camera = this.get(Camera);
