@@ -1,4 +1,4 @@
-import { Collision, Life, Position, Sprite } from '~~/game/components';
+import { AI, Collision, Life, Position, Sprite } from '~~/game/components';
 import { Interaction } from '~~/game/entities';
 import { Emitter, Entity, QuadTree, Settings, System } from '~~/game/utils';
 
@@ -96,8 +96,14 @@ export class Collider extends System {
                   Emitter.emit('despawn', colliding);
                 }
                 break;
+
+              // The collision blocks the organism
               case 'environment': {
-                // The collision blocks the organism
+                // If the entity is an AI, reset its wander target
+                if (colliding.has(AI)) {
+                  colliding.get(AI).target = null;
+                }
+
                 const overlapX = widthX - Math.abs(distanceX);
                 const overlapY = widthY - Math.abs(distanceY);
 
@@ -109,8 +115,9 @@ export class Collider extends System {
                 oPos.y += distanceY > 0 ? overlapY : -overlapY;
                 break;
               }
+
+              // Execute an interaction
               case 'interaction': {
-                // Execute an interaction
                 const interaction = collider.entity as Interaction;
                 if (!interaction.entered) {
                   interaction.enter();
