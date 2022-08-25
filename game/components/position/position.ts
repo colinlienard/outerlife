@@ -1,6 +1,10 @@
 import { Component, Settings } from '~~/game/utils';
 
 export class Position implements Component {
+  readonly width?: number;
+
+  readonly height?: number;
+
   x: number;
 
   y: number;
@@ -13,5 +17,14 @@ export class Position implements Component {
       this.x = x;
       this.y = y;
     }
+    this.width = width;
+    this.height = height;
+  }
+
+  getCenter() {
+    return {
+      x: this.x + (this.width as number) / 2,
+      y: this.y + (this.height as number) / 2,
+    };
   }
 }

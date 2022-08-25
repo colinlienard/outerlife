@@ -32,7 +32,9 @@ export class Dasher extends System {
           // End the dash
           dash.reset();
 
-          animation.current = animation.animations.recovery;
+          if (animation.animations.recovery) {
+            animation.current = animation.animations.recovery;
+          }
 
           return;
         }
@@ -63,7 +65,9 @@ export class Dasher extends System {
 
         // Start the dash animation
         dash.dashing = true;
-        animation.current = animation.animations.dash;
+        if (animation.animations.dash) {
+          animation.current = animation.animations.dash;
+        }
         animation.reset();
 
         // Set the entity's speed to 0

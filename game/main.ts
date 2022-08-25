@@ -1,13 +1,14 @@
 import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Patroller, Player } from './entities';
 import {
+  AISystem,
   Animator,
-  MeleeAttacker,
   Camera,
   Collider,
+  Dasher,
+  MeleeAttacker,
   Mover,
   Renderer,
-  Dasher,
 } from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
@@ -34,6 +35,7 @@ export class Game extends ECS {
     this.add(new Dasher());
     this.add(new MeleeAttacker());
     this.add(new Mover());
+    this.add(new AISystem());
     this.add(new Collider());
     this.add(new Animator());
     this.add(new Camera());

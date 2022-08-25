@@ -12,7 +12,8 @@ export type AnimationType =
   | 'dash'
   | 'recovery';
 
-export type Animations = Partial<Record<AnimationType, AnimationData>>;
+export type Animations = Partial<Record<AnimationType, AnimationData>> &
+  Pick<Record<AnimationType, AnimationData>, 'idle' | 'run'>;
 
 export type AnimationAction = {
   action: () => void;

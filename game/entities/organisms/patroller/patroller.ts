@@ -1,4 +1,5 @@
 import {
+  AI,
   Animation,
   Collision,
   Input,
@@ -8,11 +9,11 @@ import {
   Velocity,
 } from '~~/game/components';
 import { Entity } from '~~/game/utils';
-import { PatrollerInput } from './components';
 
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
     super();
+    this.add(new AI(x, y, 20, 30));
     this.add(
       new Animation(
         {
@@ -24,14 +25,14 @@ export class Patroller extends Entity {
           run: {
             frameStart: 7,
             frameNumber: 4,
-            framesPerSecond: 4,
+            framesPerSecond: 5,
           },
         },
         1
       )
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new PatrollerInput(), Input);
+    this.add(new Input());
     this.add(new Position(x, y, 32, 32));
     this.add(new Sprite('/sprites/patroller.png', 0, 0, 32, 32));
     this.add(
@@ -49,6 +50,6 @@ export class Patroller extends Entity {
         },
       ])
     );
-    this.add(new Velocity(0.2, 0.1, 0.1));
+    this.add(new Velocity(0.4, 0.02, 0.04));
   }
 }

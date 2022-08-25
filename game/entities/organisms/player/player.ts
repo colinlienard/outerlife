@@ -518,11 +518,7 @@ export class Player extends Entity {
     this.add(new Velocity(1.5, 0.1, 0.15));
 
     // Add an event to get the center position
-    Emitter.on('get-player-position', () => {
-      const { x: xPos, y: yPos } = this.get(Position);
-      const { width, height } = this.get(Sprite);
-      return { x: xPos + width / 2, y: yPos + height / 2 };
-    });
+    Emitter.on('get-player-position', () => this.get(Position).getCenter());
 
     // Remove the event when changing scene
     Emitter.on('switch-map', () => {

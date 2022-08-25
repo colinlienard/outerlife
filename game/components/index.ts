@@ -1,3 +1,4 @@
+export * from './ai';
 export * from './animation';
 export * from './collision';
 export * from './dash';

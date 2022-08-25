@@ -66,7 +66,9 @@ export class MeleeAttacker extends System {
 
         // Start the slash animation
         attack.attacking = true;
-        animation.current = animation.animations['melee-attack'];
+        if (animation.animations['melee-attack']) {
+          animation.current = animation.animations['melee-attack'];
+        }
         animation.reset();
 
         // Set the entity's speed to 0
