@@ -27,6 +27,15 @@ export class Mover extends System {
           (previous, current) => previous || current
         );
 
+        // Set animation to the begining if it changes
+        if (
+          (moving && animation.current === animation.animations.idle) ||
+          (!moving && animation.current === animation.animations.run)
+        ) {
+          animation.column = 0;
+        }
+
+        // Update animation
         animation.current = moving
           ? animation.animations.run
           : animation.animations.idle;
