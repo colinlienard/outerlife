@@ -62,8 +62,8 @@ export class AI implements Component {
     return { x, y };
   }
 
-  resetWait() {
+  resetWait(number?: number) {
     this.frameWaiter = 0;
-    this.framesToWait = getRandomBetweenTwo(240, 480);
+    this.framesToWait = number || getRandomBetweenTwo(240, 480);
   }
 }

@@ -1,18 +1,17 @@
-export interface Box {
+export interface Point {
   x: number;
   y: number;
+}
+
+export interface Box extends Point {
   width: number;
   height: number;
 }
 
-export type Interaction = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export interface Interaction extends Box {
   entered?: boolean;
   enter: () => void;
-};
+}
 
 export type Terrain = {
   source: string;

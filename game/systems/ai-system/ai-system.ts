@@ -1,5 +1,12 @@
-import { AI, Input, Position } from '~~/game/components';
-import { Emitter, getDistance, System } from '~~/game/utils';
+import { AI, Input, Position, Velocity } from '~~/game/components';
+import {
+  Emitter,
+  getDistance,
+  Horizontal,
+  Point,
+  System,
+  Vertical,
+} from '~~/game/utils';
 
 export class AISystem extends System {
   protected readonly requiredComponents = [AI, Input, Position];
@@ -11,6 +18,7 @@ export class AISystem extends System {
       const ai = entity.get(AI);
       const input = entity.get(Input);
       const position = entity.get(Position).getCenter();
+      const velocity = entity.get(Velocity);
 
       const distanceFromPlayer = getDistance(
         playerPosition.x,
@@ -22,8 +30,13 @@ export class AISystem extends System {
       switch (ai.state) {
         case 'wander': {
           // Update state
-          if (distanceFromPlayer <= ai.detectionRange) {
+          if (
+            distanceFromPlayer <= ai.detectionRange &&
+            this.canSee(velocity.direction.current, position, playerPosition)
+          ) {
             ai.state = 'aggro';
+            ai.resetWait(20);
+            input.resetMovements();
             return;
           }
 
@@ -38,9 +51,6 @@ export class AISystem extends System {
             ai.target = ai.getWanderTarget();
           }
 
-          // Reset movements
-          input.resetMovements();
-
           // If the target is found, wait a bit and then go to a new target
           if (
             getDistance(ai.target.x, ai.target.y, position.x, position.y) < 1
@@ -50,17 +60,7 @@ export class AISystem extends System {
             return;
           }
 
-          // Set input based on the target
-          if (ai.target.x > Math.round(position.x)) {
-            input.movements.right = true;
-          } else if (ai.target.x < Math.round(position.x)) {
-            input.movements.left = true;
-          }
-          if (ai.target.y > Math.round(position.y)) {
-            input.movements.down = true;
-          } else if (ai.target.y < Math.round(position.y)) {
-            input.movements.up = true;
-          }
+          this.followTarget(ai.target, position, input);
 
           return;
         }
@@ -70,16 +70,57 @@ export class AISystem extends System {
             ai.state = 'wander';
             ai.target = null;
             ai.resetWait();
+            input.resetMovements();
+            return;
+          }
+
+          // Wait
+          if (ai.frameWaiter < ai.framesToWait) {
+            ai.frameWaiter += 1;
             return;
           }
 
           // TODO: Aggro behaviour
-          input.resetMovements();
+          this.followTarget(playerPosition, position, input);
 
           return;
         default:
           throw new Error(`Invalid AI state: '${ai.state}'`);
       }
     });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  followTarget(target: Point, position: Point, input: Input) {
+    // Reset movements
+    input.resetMovements();
+
+    // Set input based on the target
+    if (Math.round(target.x) > Math.round(position.x)) {
+      input.movements.right = true;
+    } else if (Math.round(target.x) < Math.round(position.x)) {
+      input.movements.left = true;
+    }
+    if (Math.round(target.y) > Math.round(position.y)) {
+      input.movements.down = true;
+    } else if (Math.round(target.y) < Math.round(position.y)) {
+      input.movements.up = true;
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  canSee(direction: Horizontal | Vertical, position: Point, target: Point) {
+    switch (direction) {
+      case 'up':
+        return position.y > target.y;
+      case 'down':
+        return position.y < target.y;
+      case 'left':
+        return position.x > target.x;
+      case 'right':
+        return position.x < target.x;
+      default:
+        throw new Error(`Invalid direction: ${direction}`);
+    }
   }
 }

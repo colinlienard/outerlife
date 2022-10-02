@@ -13,7 +13,7 @@ import { Entity } from '~~/game/utils';
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new AI(x, y, 20, 30));
+    this.add(new AI(x, y, 100, 150));
     this.add(
       new Animation(
         {
