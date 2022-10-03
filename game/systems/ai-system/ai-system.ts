@@ -1,4 +1,4 @@
-import { AI, Input, Position, Velocity } from '~~/game/components';
+import { AI, Input, MeleeAttack, Position, Velocity } from '~~/game/components';
 import {
   Emitter,
   getDistance,
@@ -7,6 +7,7 @@ import {
   System,
   Vertical,
 } from '~~/game/utils';
+import { getDirectionFromPoint } from '~~/game/utils/helpers/getDirectionFromPoint';
 
 export class AISystem extends System {
   protected readonly requiredComponents = [AI, Input, Position];
@@ -19,6 +20,7 @@ export class AISystem extends System {
       const input = entity.get(Input);
       const position = entity.get(Position).getCenter();
       const velocity = entity.get(Velocity);
+      const attack = entity.get(MeleeAttack);
 
       const distanceFromPlayer = getDistance(
         playerPosition.x,
@@ -26,6 +28,9 @@ export class AISystem extends System {
         position.x,
         position.y
       );
+
+      // Reset movements
+      input.resetMovements();
 
       switch (ai.state) {
         case 'wander': {
@@ -36,7 +41,6 @@ export class AISystem extends System {
           ) {
             ai.state = 'aggro';
             ai.resetWait(20);
-            input.resetMovements();
             return;
           }
 
@@ -65,12 +69,27 @@ export class AISystem extends System {
           return;
         }
         case 'aggro':
+          if (attack.attacking) {
+            return;
+          }
+
+          // Perform attack
+          if (distanceFromPlayer <= 50) {
+            input.attack.doing = true;
+            input.attack.direction = getDirectionFromPoint(
+              playerPosition.x,
+              playerPosition.y,
+              position.x,
+              position.y
+            );
+            return;
+          }
+
           // Update state
           if (distanceFromPlayer >= ai.abortAggroRange) {
             ai.state = 'wander';
             ai.target = null;
             ai.resetWait();
-            input.resetMovements();
             return;
           }
 
@@ -92,9 +111,6 @@ export class AISystem extends System {
 
   // eslint-disable-next-line class-methods-use-this
   followTarget(target: Point, position: Point, input: Input) {
-    // Reset movements
-    input.resetMovements();
-
     // Set input based on the target
     if (Math.round(target.x) > Math.round(position.x)) {
       input.movements.right = true;

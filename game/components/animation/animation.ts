@@ -9,6 +9,8 @@ import {
 export class Animation implements Component {
   readonly animations!: Animations;
 
+  old: AnimationData | null = null;
+
   current: AnimationData;
 
   row = 0;

@@ -8,6 +8,12 @@ export class Animator extends System {
     this.entities.forEach((entity) => {
       const animation = entity.get(Animation);
 
+      // Set animation to the begining if it changes
+      if (animation.current !== animation.old) {
+        animation.column = 0;
+        animation.old = animation.current;
+      }
+
       // Execute the following every {specified number} frames per second
       if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
         animation.frameWaiter = 0;
