@@ -4,6 +4,10 @@ import { AIState } from './types';
 export class AI implements Component {
   readonly abortAggroRange: number;
 
+  readonly attackAnticipationTime: number;
+
+  readonly attackRange: number;
+
   readonly detectionRange: number;
 
   readonly spawnPoint: {
@@ -28,9 +32,13 @@ export class AI implements Component {
     spawnX: number,
     spawnY: number,
     detectionRange: number,
-    abortAggroRange: number
+    abortAggroRange: number,
+    attackRange: number,
+    attackAnticipationTime: number
   ) {
     this.abortAggroRange = abortAggroRange;
+    this.attackAnticipationTime = attackAnticipationTime;
+    this.attackRange = attackRange;
     this.detectionRange = detectionRange;
     this.spawnPoint = {
       x: spawnX,

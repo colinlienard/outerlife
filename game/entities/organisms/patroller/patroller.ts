@@ -14,7 +14,7 @@ import { Entity } from '~~/game/utils';
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new AI(x, y, 100, 150));
+    this.add(new AI(x, y, 100, 150, 50, 30));
     this.add(
       new Animation(
         {
@@ -31,11 +31,13 @@ export class Patroller extends Entity {
           'melee-attack': {
             frameStart: 1,
             frameNumber: 6,
-            framesPerSecond: 4,
+            framesPerSecond: 10,
             once: () => {
               this.get(MeleeAttack).reset();
               this.get(Velocity).blocked = false;
               this.get(Input).attack.doing = false;
+              this.get(AI).state = 'aggro';
+              this.get(AI).framesToWait = 0;
             },
           },
         },

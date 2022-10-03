@@ -69,19 +69,16 @@ export class AISystem extends System {
           return;
         }
         case 'aggro':
-          if (attack.attacking) {
-            return;
-          }
-
           // Perform attack
-          if (distanceFromPlayer <= 50) {
-            input.attack.doing = true;
+          if (distanceFromPlayer <= ai.attackRange) {
+            ai.state = 'attackAnticipation';
             input.attack.direction = getDirectionFromPoint(
               playerPosition.x,
               playerPosition.y,
               position.x,
               position.y
             );
+            ai.resetWait();
             return;
           }
 
@@ -99,9 +96,25 @@ export class AISystem extends System {
             return;
           }
 
-          // TODO: Aggro behaviour
+          // Follow player
           this.followTarget(playerPosition, position, input);
 
+          return;
+        case 'attackAnticipation':
+          if (ai.frameWaiter < ai.attackAnticipationTime) {
+            ai.frameWaiter += 1;
+            return;
+          }
+
+          ai.state = 'attack';
+
+          return;
+        case 'attack':
+          if (attack.attacking) {
+            return;
+          }
+
+          input.attack.doing = true;
           return;
         default:
           throw new Error(`Invalid AI state: '${ai.state}'`);
