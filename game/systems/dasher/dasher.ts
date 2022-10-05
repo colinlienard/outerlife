@@ -6,7 +6,7 @@ import {
   Sprite,
   Velocity,
 } from '~~/game/components';
-import { Dust } from '~~/game/entities';
+import { DashDust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
 
 export class Dasher extends System {
@@ -68,7 +68,6 @@ export class Dasher extends System {
         if (animation.animations.dash) {
           animation.current = animation.animations.dash;
         }
-        animation.reset();
 
         // Set the entity's speed to 0
         velocity.blocked = true;
@@ -95,7 +94,10 @@ export class Dasher extends System {
         }
 
         // Spawn effects
-        Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
+        Emitter.emit(
+          'spawn',
+          new DashDust(position.x + 8, position.y + 24, animation.row)
+        );
       }
     });
   }

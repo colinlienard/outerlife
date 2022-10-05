@@ -9,6 +9,7 @@ export type AnimationType =
   | 'idle'
   | 'run'
   | 'melee-attack'
+  | 'anticipation-attack'
   | 'dash'
   | 'recovery';
 

@@ -67,7 +67,7 @@ export class PlayerInput extends Input {
       const type = event.button === 0 ? this.attack : this.dash;
 
       // Set direction
-      type.direction = getDirectionFromPoint(cursorX, cursorY, x, y);
+      type.direction = getDirectionFromPoint(cursorX, cursorY, x, y).direction;
 
       type.doing = true;
 

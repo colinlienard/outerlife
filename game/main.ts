@@ -129,6 +129,7 @@ export class Game extends ECS {
       this.entities.push(player);
 
       this.entities.push(new Patroller(350, 300));
+      this.entities.push(new Patroller(400, 300));
 
       // Setup camera
       const camera = this.get(Camera);

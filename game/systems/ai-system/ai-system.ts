@@ -1,4 +1,11 @@
-import { AI, Input, MeleeAttack, Position, Velocity } from '~~/game/components';
+import {
+  AI,
+  Animation,
+  Input,
+  MeleeAttack,
+  Position,
+  Velocity,
+} from '~~/game/components';
 import {
   Emitter,
   getDistance,
@@ -21,6 +28,7 @@ export class AISystem extends System {
       const position = entity.get(Position).getCenter();
       const velocity = entity.get(Velocity);
       const attack = entity.get(MeleeAttack);
+      const animation = entity.get(Animation);
 
       const distanceFromPlayer = getDistance(
         playerPosition.x,
@@ -72,13 +80,21 @@ export class AISystem extends System {
           // Perform attack
           if (distanceFromPlayer <= ai.attackRange) {
             ai.state = 'attackAnticipation';
-            input.attack.direction = getDirectionFromPoint(
+            const { direction, row } = getDirectionFromPoint(
               playerPosition.x,
               playerPosition.y,
               position.x,
               position.y
             );
+            input.attack.direction = direction;
+            animation.row = row;
             ai.resetWait();
+
+            if (animation.animations['anticipation-attack']) {
+              animation.current = animation.animations['anticipation-attack'];
+              velocity.blocked = true;
+            }
+
             return;
           }
 
@@ -107,6 +123,7 @@ export class AISystem extends System {
           }
 
           ai.state = 'attack';
+          velocity.blocked = false;
 
           return;
         case 'attack':

@@ -269,6 +269,7 @@ export class Renderer extends System {
   loadTextures(entities: Entity[]) {
     return new Promise((resolve) => {
       const requiredSources = [
+        '/sprites/dash-dust.png',
         '/sprites/dust.png',
         '/sprites/items.png',
         '/sprites/slash.png',

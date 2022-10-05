@@ -28,10 +28,15 @@ export class Patroller extends Entity {
             frameNumber: 4,
             framesPerSecond: 5,
           },
+          'anticipation-attack': {
+            frameStart: 11,
+            frameNumber: 4,
+            framesPerSecond: 8,
+          },
           'melee-attack': {
-            frameStart: 1,
-            frameNumber: 6,
-            framesPerSecond: 10,
+            frameStart: 15,
+            frameNumber: 4,
+            framesPerSecond: 8,
             once: () => {
               this.get(MeleeAttack).reset();
               this.get(Velocity).blocked = false;
@@ -46,7 +51,7 @@ export class Patroller extends Entity {
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
     this.add(new Input());
-    this.add(new MeleeAttack(24, 3, 0.3));
+    this.add(new MeleeAttack(24, 3, 0.2));
     this.add(new Position(x, y, 32, 32));
     this.add(new Sprite('/sprites/patroller.png', 0, 0, 32, 32));
     this.add(

@@ -10,7 +10,7 @@ import {
   Velocity,
 } from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
-import { Dust } from '../../effects';
+import { Dust, Slash } from '../../effects';
 import { PlayerInput } from './components';
 
 export class Player extends Entity {
@@ -72,7 +72,7 @@ export class Player extends Entity {
     );
     this.add(new Collision('organism', 10, 26, 12, 8));
     this.add(new Dash(8, 0.5));
-    this.add(new MeleeAttack(24, 3, 0.3));
+    this.add(new MeleeAttack(24, 3, 0.3, Slash));
     this.add(new PlayerInput(), Input);
     this.add(new Position(x, y, 32, 32));
     this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));
