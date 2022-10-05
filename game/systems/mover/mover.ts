@@ -4,6 +4,7 @@ import {
   Position,
   Input,
   SpriteLayers,
+  SpriteAnimations,
 } from '~~/game/components';
 import { System } from '~~/game/utils';
 
@@ -27,6 +28,7 @@ export class Mover extends System {
           (previous, current) => previous || current
         );
 
+        // Update animation
         animation.current = moving
           ? animation.animations.run
           : animation.animations.idle;
@@ -112,10 +114,10 @@ export class Mover extends System {
               return layer;
             }
 
-            const data =
-              layer.animation[animation.getCurrentAnimationType()][
-                velocity.direction.current || 'down'
-              ];
+            const layerAnimation = layer.animation[
+              animation.getCurrentAnimationType()
+            ] as SpriteAnimations;
+            const data = layerAnimation[velocity.direction.current || 'down'];
             if (Array.isArray(data)) {
               return { ...layer, ...data[animation.column] };
             }

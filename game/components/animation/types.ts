@@ -9,10 +9,12 @@ export type AnimationType =
   | 'idle'
   | 'run'
   | 'melee-attack'
+  | 'anticipation-attack'
   | 'dash'
   | 'recovery';
 
-export type Animations = Record<AnimationType, AnimationData>;
+export type Animations = Partial<Record<AnimationType, AnimationData>> &
+  Pick<Record<AnimationType, AnimationData>, 'idle' | 'run'>;
 
 export type AnimationAction = {
   action: () => void;

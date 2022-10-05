@@ -1,3 +1,4 @@
+import { Horizontal, Vertical } from '~~/game/utils';
 import { AnimationType } from '../animation';
 
 type SpriteModifier = {
@@ -9,12 +10,7 @@ type SpriteModifier = {
 
 type SpriteAnimation = SpriteModifier | SpriteModifier[];
 
-type SpriteAnimations = {
-  up: SpriteAnimation;
-  down: SpriteAnimation;
-  left: SpriteAnimation;
-  right: SpriteAnimation;
-};
+export type SpriteAnimations = Record<Horizontal | Vertical, SpriteAnimation>;
 
 export type SpriteLayer = {
   readonly source: string;
@@ -22,7 +18,8 @@ export type SpriteLayer = {
   readonly sourceY: number;
   readonly width: number;
   readonly height: number;
-  readonly animation?: Record<AnimationType, SpriteAnimations>;
+  readonly animation?: Partial<Record<AnimationType, SpriteAnimations>> &
+    Pick<Record<AnimationType, SpriteAnimations>, 'idle' | 'run'>;
   x: number;
   y: number;
   rotation: number;

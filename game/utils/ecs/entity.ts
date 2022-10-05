@@ -32,3 +32,5 @@ export abstract class Entity {
     return true;
   }
 }
+
+export type EntityConstructor = new (...args: any[]) => Entity;

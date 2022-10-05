@@ -1,5 +1,12 @@
 import { Component, Horizontal, Vertical } from '~~/game/utils';
 
+const defaultMovements = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+};
+
 export class Input implements Component {
   attack = {
     doing: false,
@@ -15,10 +22,9 @@ export class Input implements Component {
     },
   };
 
-  movements = {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-  };
+  movements = { ...defaultMovements };
+
+  resetMovements() {
+    this.movements = { ...defaultMovements };
+  }
 }

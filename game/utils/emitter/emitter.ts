@@ -1,20 +1,4 @@
-import { Entity } from '~~/game/utils/ecs/entity';
-
-interface EventMap {
-  'scene-loaded': () => void;
-  'switch-map': (options: {
-    map: string;
-
-    playerX: number;
-
-    playerY: number;
-  }) => void;
-  spawn: (entity: Entity) => void;
-  despawn: (entity: Entity) => void;
-  'get-player-position': () => { x: number; y: number };
-}
-
-type Events = keyof EventMap;
+import { EventMap, Events } from './types';
 
 export abstract class Emitter {
   private static events = new Map<Events, ((...args: any[]) => any)[]>();

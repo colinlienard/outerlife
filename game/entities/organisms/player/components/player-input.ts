@@ -1,5 +1,6 @@
 import { Input } from '~~/game/components';
 import { Emitter, Settings } from '~~/game/utils';
+import { getDirectionFromPoint } from '~~/game/utils/helpers/getDirectionFromPoint';
 
 export class PlayerInput extends Input {
   constructor() {
@@ -62,20 +63,11 @@ export class PlayerInput extends Input {
         Math.abs(Settings.cameraOffset.y) + event.clientY / Settings.ratio
       );
       const [{ x, y }] = Emitter.emit('get-player-position');
-      const angle = (Math.atan2(cursorX - x, cursorY - y) * 180) / Math.PI;
 
       const type = event.button === 0 ? this.attack : this.dash;
 
       // Set direction
-      if (angle > -45 && angle < 45) {
-        type.direction = 'down';
-      } else if (angle > 45 && angle < 135) {
-        type.direction = 'right';
-      } else if (angle > 135 || angle < -135) {
-        type.direction = 'up';
-      } else {
-        type.direction = 'left';
-      }
+      type.direction = getDirectionFromPoint(cursorX, cursorY, x, y).direction;
 
       type.doing = true;
 

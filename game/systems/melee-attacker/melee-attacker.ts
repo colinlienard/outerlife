@@ -6,7 +6,7 @@ import {
   Velocity,
   Sprite,
 } from '~~/game/components';
-import { Dust, Slash } from '~~/game/entities';
+import { DashDust } from '~~/game/entities';
 import { Emitter, System } from '~~/game/utils';
 
 export class MeleeAttacker extends System {
@@ -66,8 +66,9 @@ export class MeleeAttacker extends System {
 
         // Start the slash animation
         attack.attacking = true;
-        animation.current = animation.animations['melee-attack'];
-        animation.reset();
+        if (animation.animations['melee-attack']) {
+          animation.current = animation.animations['melee-attack'];
+        }
 
         // Set the entity's speed to 0
         velocity.blocked = true;
@@ -76,23 +77,23 @@ export class MeleeAttacker extends System {
         // Set animation direction
         velocity.direction.current = input.direction;
 
-        let slashX = 0;
-        let slashY = 0;
+        let effectX = 0;
+        let effectY = 0;
         switch (input.direction) {
           case 'up':
-            slashY -= attack.range;
+            effectY -= attack.range;
             animation.row = 0;
             break;
           case 'down':
-            slashY += attack.range;
+            effectY += attack.range;
             animation.row = 1;
             break;
           case 'left':
-            slashX -= attack.range;
+            effectX -= attack.range;
             animation.row = 2;
             break;
           case 'right':
-            slashX += attack.range;
+            effectX += attack.range;
             animation.row = 3;
             break;
           default:
@@ -100,15 +101,22 @@ export class MeleeAttacker extends System {
         }
 
         // Spawn effects
+        if (attack.effect) {
+          Emitter.emit(
+            'spawn',
+            // eslint-disable-next-line new-cap
+            new attack.effect(
+              position.x + width / 2 + effectX,
+              position.y + height / 2 + effectY,
+              animation.row
+            )
+          );
+        }
+
         Emitter.emit(
           'spawn',
-          new Slash(
-            position.x + width / 2 + slashX,
-            position.y + height / 2 + slashY,
-            animation.row
-          )
+          new DashDust(position.x + 8, position.y + 24, animation.row)
         );
-        Emitter.emit('spawn', new Dust(position.x + 8, position.y + 24));
       }
     });
   }
