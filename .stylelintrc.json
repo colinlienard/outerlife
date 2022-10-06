@@ -4,8 +4,7 @@
     "stylelint-config-standard-vue/scss",
     "stylelint-config-prettier"
   ],
-  "plugins": ["stylelint-prettier"],
   "rules": {
-    "prettier/prettier": true
+    "color-function-notation": "legacy"
   }
 }

@@ -19,7 +19,9 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install
       - run: pnpm generate
-      - run: pnpm lint
+      - run: pnpm lint:ts
+      - run: pnpm lint:scss
+      - run: pnpm format:check
   test:
     runs-on: ubuntu-latest
     steps:
