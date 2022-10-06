@@ -12,7 +12,7 @@
     "lint:scss": "stylelint \"**/*.{vue,scss}\"",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "nuxt prepare && husky install"
   },
   "dependencies": {
     "gl-matrix": "^3.4.3"
