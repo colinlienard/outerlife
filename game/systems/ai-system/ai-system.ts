@@ -1,34 +1,38 @@
 import {
-  AI,
-  Animation,
-  Input,
-  MeleeAttack,
-  Position,
-  Velocity,
+  AIComponent,
+  AnimationComponent,
+  InputComponent,
+  MeleeAttackComponent,
+  MovementComponent,
+  PositionComponent,
 } from '~~/game/components';
 import {
   Emitter,
+  getDirectionFromPoint,
   getDistance,
   Horizontal,
   Point,
   System,
   Vertical,
 } from '~~/game/utils';
-import { getDirectionFromPoint } from '~~/game/utils/helpers/getDirectionFromPoint';
 
 export class AISystem extends System {
-  protected readonly requiredComponents = [AI, Input, Position];
+  protected readonly requiredComponents = [
+    AIComponent,
+    InputComponent,
+    PositionComponent,
+  ];
 
   update() {
     const [playerPosition] = Emitter.emit('get-player-position');
 
     this.entities.forEach((entity) => {
-      const ai = entity.get(AI);
-      const input = entity.get(Input);
-      const position = entity.get(Position).getCenter();
-      const velocity = entity.get(Velocity);
-      const attack = entity.get(MeleeAttack);
-      const animation = entity.get(Animation);
+      const ai = entity.get(AIComponent);
+      const input = entity.get(InputComponent);
+      const position = entity.get(PositionComponent).getCenter();
+      const velocity = entity.get(MovementComponent);
+      const attack = entity.get(MeleeAttackComponent);
+      const animation = entity.get(AnimationComponent);
 
       const distanceFromPlayer = getDistance(
         playerPosition.x,
@@ -140,7 +144,7 @@ export class AISystem extends System {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  followTarget(target: Point, position: Point, input: Input) {
+  followTarget(target: Point, position: Point, input: InputComponent) {
     // Set input based on the target
     if (Math.round(target.x) > Math.round(position.x)) {
       input.movements.right = true;

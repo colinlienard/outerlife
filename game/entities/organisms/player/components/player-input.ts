@@ -1,8 +1,8 @@
-import { Input } from '~~/game/components';
+import { InputComponent } from '~~/game/components';
 import { Emitter, Settings } from '~~/game/utils';
 import { getDirectionFromPoint } from '~~/game/utils/helpers/getDirectionFromPoint';
 
-export class PlayerInput extends Input {
+export class PlayerInput extends InputComponent {
   constructor() {
     super();
 

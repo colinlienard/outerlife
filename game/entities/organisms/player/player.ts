@@ -1,13 +1,13 @@
 import {
-  Animation,
-  Dash,
-  Collision,
-  Input,
-  MeleeAttack,
-  Position,
-  Sprite,
-  SpriteLayers,
-  Velocity,
+  AnimationComponent,
+  CollisionComponent,
+  DashComponent,
+  InputComponent,
+  MeleeAttackComponent,
+  MovementComponent,
+  PositionComponent,
+  SpriteComponent,
+  SpriteLayersComponent,
 } from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
@@ -17,7 +17,7 @@ export class Player extends Entity {
   constructor(x: number, y: number) {
     super();
     this.add(
-      new Animation(
+      new AnimationComponent(
         {
           idle: {
             frameStart: 1,
@@ -34,9 +34,9 @@ export class Player extends Entity {
             frameNumber: 5,
             framesPerSecond: 20,
             once: () => {
-              this.get(MeleeAttack).reset();
-              this.get(Velocity).blocked = false;
-              this.get(Input).attack.doing = false;
+              this.get(MeleeAttackComponent).reset();
+              this.get(MovementComponent).blocked = false;
+              this.get(InputComponent).attack.doing = false;
             },
           },
           dash: {
@@ -49,9 +49,9 @@ export class Player extends Entity {
             frameNumber: 1,
             framesPerSecond: 6,
             once: () => {
-              this.get(Dash).reset();
-              this.get(Velocity).blocked = false;
-              this.get(Input).dash.doing = false;
+              this.get(DashComponent).reset();
+              this.get(MovementComponent).blocked = false;
+              this.get(InputComponent).dash.doing = false;
             },
           },
         },
@@ -70,14 +70,15 @@ export class Player extends Entity {
         ]
       )
     );
-    this.add(new Collision('organism', 10, 26, 12, 8));
-    this.add(new Dash(8, 0.5));
-    this.add(new MeleeAttack(24, 3, 0.3, Slash));
-    this.add(new PlayerInput(), Input);
-    this.add(new Position(x, y, 32, 32));
-    this.add(new Sprite('/sprites/player.png', 0, 0, 32, 32));
+    this.add(new CollisionComponent('organism', 10, 26, 12, 8));
+    this.add(new DashComponent(8, 0.5));
+    this.add(new MeleeAttackComponent(24, 3, 0.3, Slash));
+    this.add(new MovementComponent(1.5, 0.1, 0.15));
+    this.add(new PlayerInput(), InputComponent);
+    this.add(new PositionComponent(x, y, 32, 32));
+    this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(
-      new SpriteLayers([
+      new SpriteLayersComponent([
         {
           source: '/sprites/player.png',
           sourceX: 0,
@@ -515,10 +516,11 @@ export class Player extends Entity {
         },
       ])
     );
-    this.add(new Velocity(1.5, 0.1, 0.15));
 
     // Add an event to get the center position
-    Emitter.on('get-player-position', () => this.get(Position).getCenter());
+    Emitter.on('get-player-position', () =>
+      this.get(PositionComponent).getCenter()
+    );
 
     // Remove the event when changing scene
     Emitter.on('switch-map', () => {
@@ -527,7 +529,7 @@ export class Player extends Entity {
   }
 
   spawnDust() {
-    const { x: xPos, y: yPos } = this.get(Position);
+    const { x: xPos, y: yPos } = this.get(PositionComponent);
     Emitter.emit('spawn', new Dust(xPos + 8, yPos + 24));
   }
 }

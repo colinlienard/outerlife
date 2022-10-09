@@ -1,4 +1,8 @@
-import { Animation, Position, Sprite } from '~~/game/components';
+import {
+  AnimationComponent,
+  PositionComponent,
+  SpriteComponent,
+} from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
 import { Damage } from '../misc/damage';
 
@@ -10,7 +14,7 @@ export class Slash extends Entity {
   constructor(x: number, y: number, row: number) {
     super();
     this.add(
-      new Animation(
+      new AnimationComponent(
         {
           frameStart: 1,
           frameNumber: 4,
@@ -30,14 +34,14 @@ export class Slash extends Entity {
         ]
       )
     );
-    this.add(new Position(x - 20, y - 20));
-    this.add(new Sprite('/sprites/slash.png', 0, 0, 40, 40));
+    this.add(new PositionComponent(x - 20, y - 20));
+    this.add(new SpriteComponent('/sprites/slash.png', 0, 0, 40, 40));
 
     this.row = row;
   }
 
   getCollision(): Damage {
-    const { x, y } = this.get(Position);
+    const { x, y } = this.get(PositionComponent);
 
     switch (this.row) {
       case 0:

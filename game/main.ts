@@ -2,13 +2,13 @@ import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Patroller, Player } from './entities';
 import {
   AISystem,
-  Animator,
-  Camera,
-  Collider,
-  Dasher,
-  MeleeAttacker,
-  Mover,
-  Renderer,
+  AnimationSystem,
+  CameraSystem,
+  CollisionSystem,
+  DashSystem,
+  MeleeAttackSystem,
+  MovementSystem,
+  RenderSystem,
 } from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
 
@@ -32,15 +32,15 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
-    this.add(new Dasher());
-    this.add(new MeleeAttacker());
-    this.add(new Mover());
+    this.add(new DashSystem());
+    this.add(new MeleeAttackSystem());
+    this.add(new MovementSystem());
     this.add(new AISystem());
-    this.add(new Collider());
-    this.add(new Animator());
-    this.add(new Camera());
+    this.add(new CollisionSystem());
+    this.add(new AnimationSystem());
+    this.add(new CameraSystem());
     this.add(
-      new Renderer(
+      new RenderSystem(
         gameContext as WebGL2RenderingContext,
         debugContext as CanvasRenderingContext2D
       )
@@ -109,7 +109,7 @@ export class Game extends ECS {
         }
       }
 
-      this.get(Renderer).setTerrains(terrains);
+      this.get(RenderSystem).setTerrains(terrains);
 
       // Build interactions
       this.tilemap.interactions.forEach((interaction) => {
@@ -132,12 +132,12 @@ export class Game extends ECS {
       this.entities.push(new Patroller(400, 300));
 
       // Setup camera
-      const camera = this.get(Camera);
+      const camera = this.get(CameraSystem);
       camera.setPlayer(player);
       camera.init();
 
       // Load textures
-      this.get(Renderer)
+      this.get(RenderSystem)
         .loadTextures(this.entities)
         .then(() => {
           Emitter.emit('scene-loaded');
@@ -193,8 +193,8 @@ export class Game extends ECS {
 
     // Resize
     window.addEventListener('resize', () => {
-      this.get(Renderer).resize();
-      this.get(Camera).resize();
+      this.get(RenderSystem).resize();
+      this.get(CameraSystem).resize();
     });
   }
 
