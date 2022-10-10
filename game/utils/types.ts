@@ -32,3 +32,5 @@ export type Tilemap = {
 export type Horizontal = 'left' | 'right';
 
 export type Vertical = 'up' | 'down';
+
+export type Direction = Horizontal | Vertical;

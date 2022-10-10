@@ -25,7 +25,7 @@ export class MeleeAttackSystem extends System {
       const { attack: input } = entity.get(InputComponent);
       const position = entity.get(PositionComponent);
       const { width, height } = entity.get(SpriteComponent);
-      const velocity = entity.get(MovementComponent);
+      const movement = entity.get(MovementComponent);
 
       if (attack.attacking) {
         if (attack.speed <= 0) {
@@ -57,7 +57,7 @@ export class MeleeAttackSystem extends System {
       }
 
       // Cannot attack if blocked
-      if (velocity.blocked) {
+      if (movement.blocked) {
         return;
       }
 
@@ -71,11 +71,11 @@ export class MeleeAttackSystem extends System {
         }
 
         // Set the entity's speed to 0
-        velocity.blocked = true;
-        velocity.speed = 0;
+        movement.blocked = true;
+        movement.speed = 0;
 
         // Set animation direction
-        velocity.direction.current = input.direction;
+        movement.direction.current = input.direction;
 
         let effectX = 0;
         let effectY = 0;

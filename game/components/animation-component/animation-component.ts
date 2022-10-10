@@ -1,4 +1,4 @@
-import { Component } from '~~/game/utils';
+import { Component, Direction } from '~~/game/utils';
 import {
   AnimationAction,
   AnimationData,
@@ -50,5 +50,30 @@ export class AnimationComponent implements Component {
   reset() {
     this.column = 0;
     this.frameWaiter = 0;
+  }
+
+  set(type: AnimationType) {
+    if (this.animations[type]) {
+      this.current = this.animations[type];
+    }
+  }
+
+  setDirection(direction: Direction) {
+    switch (direction) {
+      case 'up':
+        this.row = 0;
+        break;
+      case 'down':
+        this.row = 1;
+        break;
+      case 'left':
+        this.row = 2;
+        break;
+      case 'right':
+        this.row = 3;
+        break;
+      default:
+        break;
+    }
   }
 }

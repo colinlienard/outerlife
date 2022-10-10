@@ -30,7 +30,7 @@ export class AISystem extends System {
       const ai = entity.get(AIComponent);
       const input = entity.get(InputComponent);
       const position = entity.get(PositionComponent).getCenter();
-      const velocity = entity.get(MovementComponent);
+      const movement = entity.get(MovementComponent);
       const attack = entity.get(MeleeAttackComponent);
       const animation = entity.get(AnimationComponent);
 
@@ -49,7 +49,7 @@ export class AISystem extends System {
           // Update state
           if (
             distanceFromPlayer <= ai.detectionRange &&
-            this.canSee(velocity.direction.current, position, playerPosition)
+            this.canSee(movement.direction.current, position, playerPosition)
           ) {
             ai.state = 'aggro';
             ai.resetWait(20);
@@ -96,7 +96,7 @@ export class AISystem extends System {
 
             if (animation.animations['anticipation-attack']) {
               animation.current = animation.animations['anticipation-attack'];
-              velocity.blocked = true;
+              movement.blocked = true;
             }
 
             return;
@@ -127,7 +127,7 @@ export class AISystem extends System {
           }
 
           ai.state = 'attack';
-          velocity.blocked = false;
+          movement.blocked = false;
 
           return;
         case 'attack':

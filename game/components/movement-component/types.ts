@@ -5,3 +5,5 @@ export type Direction = {
   y: Vertical | null;
   current: Vertical | Horizontal;
 };
+
+export type State = 'still' | 'run' | 'dash';

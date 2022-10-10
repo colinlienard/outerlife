@@ -25,7 +25,7 @@ export class DashSystem extends System {
       const { dash: input } = entity.get(InputComponent);
       const position = entity.get(PositionComponent);
       const { width, height } = entity.get(SpriteComponent);
-      const velocity = entity.get(MovementComponent);
+      const movement = entity.get(MovementComponent);
 
       if (dash.dashing) {
         if (dash.speed <= 0) {
@@ -56,7 +56,7 @@ export class DashSystem extends System {
       }
 
       // Cannot dash if blocked
-      if (velocity.blocked) {
+      if (movement.blocked) {
         return;
       }
 
@@ -70,11 +70,11 @@ export class DashSystem extends System {
         }
 
         // Set the entity's speed to 0
-        velocity.blocked = true;
-        velocity.speed = 0;
+        movement.blocked = true;
+        movement.speed = 0;
 
         // Set animation direction
-        velocity.direction.current = input.direction;
+        movement.direction.current = input.direction;
 
         switch (input.direction) {
           case 'up':

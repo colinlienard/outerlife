@@ -1,5 +1,5 @@
 import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
-import { Interaction, InvisibleWall, Patroller, Player } from './entities';
+import { Interaction, InvisibleWall, Player } from './entities';
 import {
   AISystem,
   AnimationSystem,
@@ -8,6 +8,7 @@ import {
   DashSystem,
   MeleeAttackSystem,
   MovementSystem,
+  PlayerSystem,
   RenderSystem,
 } from './systems';
 import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
@@ -127,9 +128,10 @@ export class Game extends ECS {
       // Add a new player instance
       const player = new Player(playerX, playerY);
       this.entities.push(player);
+      this.add(new PlayerSystem(player));
 
-      this.entities.push(new Patroller(350, 300));
-      this.entities.push(new Patroller(400, 300));
+      // this.entities.push(new Patroller(350, 300));
+      // this.entities.push(new Patroller(400, 300));
 
       // Setup camera
       const camera = this.get(CameraSystem);
@@ -202,6 +204,7 @@ export class Game extends ECS {
     setTimeout(() => {
       this.entities = [];
       this.setSystemsEntities();
+      this.delete(PlayerSystem);
 
       this.tilemap = tilemapIndex[map];
       this.buildMap(playerX, playerY);

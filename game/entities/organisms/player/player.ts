@@ -11,7 +11,6 @@ import {
 } from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
-import { PlayerInput } from './components';
 
 export class Player extends Entity {
   constructor(x: number, y: number) {
@@ -74,7 +73,7 @@ export class Player extends Entity {
     this.add(new DashComponent(8, 0.5));
     this.add(new MeleeAttackComponent(24, 3, 0.3, Slash));
     this.add(new MovementComponent(1.5, 0.1, 0.15));
-    this.add(new PlayerInput(), InputComponent);
+    // this.add(new PlayerInput(), InputComponent);
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(

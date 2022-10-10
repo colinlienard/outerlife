@@ -1,5 +1,5 @@
 import { Component } from '~~/game/utils';
-import { Direction } from './types';
+import { State } from './types';
 
 export class MovementComponent implements Component {
   readonly maxSpeed: number;
@@ -8,15 +8,13 @@ export class MovementComponent implements Component {
 
   readonly deceleration: number;
 
-  blocked = false;
+  angle = 0;
 
-  direction: Direction = {
-    x: null,
-    y: 'down',
-    current: 'down',
-  };
+  isMoving = false;
 
   speed = 0;
+
+  state: State = 'still';
 
   constructor(maxSpeed: number, acceleration: number, deceleration: number) {
     this.maxSpeed = maxSpeed;
