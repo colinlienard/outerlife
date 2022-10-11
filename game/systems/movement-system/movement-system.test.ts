@@ -124,13 +124,13 @@ describe('movementSystem system', () => {
   });
 
   it('should change the current animation', () => {
-    expect(animation.getCurrentAnimationType()).toBe('run');
+    expect(animation.getCurrent()).toBe('run');
 
     input.movements.down = false;
     input.movements.right = false;
     movementSystem.update();
 
-    expect(animation.getCurrentAnimationType()).toBe('idle');
+    expect(animation.getCurrent()).toBe('idle');
   });
 
   it('should update sprite layers', () => {

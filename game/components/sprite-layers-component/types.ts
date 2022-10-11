@@ -1,5 +1,4 @@
-import { Horizontal, Vertical } from '~~/game/utils';
-import { AnimationType } from '../animation-component';
+import { EntityState, Horizontal, Vertical } from '~~/game/utils';
 
 type SpriteModifier = {
   x?: number;
@@ -18,8 +17,8 @@ export type SpriteLayer = {
   readonly sourceY: number;
   readonly width: number;
   readonly height: number;
-  readonly animation?: Partial<Record<AnimationType, SpriteAnimations>> &
-    Pick<Record<AnimationType, SpriteAnimations>, 'idle' | 'run'>;
+  readonly animation?: Partial<Record<EntityState, SpriteAnimations>> &
+    Pick<Record<EntityState, SpriteAnimations>, 'idle' | 'run'>;
   x: number;
   y: number;
   rotation: number;

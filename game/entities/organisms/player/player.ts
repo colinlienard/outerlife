@@ -2,12 +2,12 @@ import {
   AnimationComponent,
   CollisionComponent,
   DashComponent,
-  InputComponent,
   MeleeAttackComponent,
   MovementComponent,
   PositionComponent,
   SpriteComponent,
   SpriteLayersComponent,
+  StateMachineComponent,
 } from '~~/game/components';
 import { Emitter, Entity } from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
@@ -32,26 +32,16 @@ export class Player extends Entity {
             frameStart: 17,
             frameNumber: 5,
             framesPerSecond: 20,
-            once: () => {
-              this.get(MeleeAttackComponent).reset();
-              this.get(MovementComponent).blocked = false;
-              this.get(InputComponent).attack.doing = false;
-            },
           },
           dash: {
             frameStart: 22,
             frameNumber: 2,
             framesPerSecond: 12,
           },
-          recovery: {
+          'dash-recovery': {
             frameStart: 24,
-            frameNumber: 1,
-            framesPerSecond: 6,
-            once: () => {
-              this.get(DashComponent).reset();
-              this.get(MovementComponent).blocked = false;
-              this.get(InputComponent).dash.doing = false;
-            },
+            frameNumber: 3,
+            framesPerSecond: 8,
           },
         },
         1,
@@ -59,12 +49,12 @@ export class Player extends Entity {
           {
             action: () => this.spawnDust(),
             frame: 1,
-            onType: 'run',
+            on: 'run',
           },
           {
             action: () => this.spawnDust(),
             frame: 5,
-            onType: 'run',
+            on: 'run',
           },
         ]
       )
@@ -72,8 +62,7 @@ export class Player extends Entity {
     this.add(new CollisionComponent('organism', 10, 26, 12, 8));
     this.add(new DashComponent(8, 0.5));
     this.add(new MeleeAttackComponent(24, 3, 0.3, Slash));
-    this.add(new MovementComponent(1.5, 0.1, 0.15));
-    // this.add(new PlayerInput(), InputComponent);
+    this.add(new MovementComponent(1.5, 0.1, 0.15, 8, 6, 24, 1));
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(
@@ -485,36 +474,93 @@ export class Player extends Entity {
                 y: 8,
               },
             },
-            recovery: {
-              up: {
-                x: 8,
-                y: 6,
-                rotation: -70,
-                depth: 1,
-              },
-              down: {
-                depth: -1,
-                rotation: 0,
-                x: 8,
-                y: 8,
-              },
-              left: {
-                x: 10,
-                y: 9,
-                rotation: 20,
-                depth: -1,
-              },
-              right: {
-                x: 4,
-                y: 9,
-                rotation: 15,
-                depth: -1,
-              },
+            'dash-recovery': {
+              up: [
+                {
+                  x: 8,
+                  y: 5,
+                  rotation: -80,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 6,
+                  rotation: -70,
+                  depth: 1,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  rotation: -45,
+                  depth: 1,
+                },
+              ],
+              down: [
+                {
+                  depth: -1,
+                  rotation: 0,
+                  x: 8,
+                  y: 8,
+                },
+                {
+                  depth: -1,
+                  rotation: 0,
+                  x: 8,
+                  y: 8,
+                },
+                {
+                  x: 8,
+                  y: 8,
+                  rotation: 45,
+                  depth: -1,
+                },
+              ],
+              left: [
+                {
+                  depth: -1,
+                  rotation: 0,
+                  x: 8,
+                  y: 8,
+                },
+                {
+                  x: 10,
+                  y: 9,
+                  rotation: 20,
+                  depth: -1,
+                },
+                {
+                  x: 12,
+                  y: 8,
+                  rotation: 20,
+                  depth: -1,
+                },
+              ],
+              right: [
+                {
+                  depth: -1,
+                  rotation: 0,
+                  x: 8,
+                  y: 8,
+                },
+                {
+                  x: 4,
+                  y: 9,
+                  rotation: 15,
+                  depth: -1,
+                },
+                {
+                  x: 2,
+                  y: 8,
+                  rotation: 15,
+                  depth: -1,
+                },
+              ],
             },
           },
         },
       ])
     );
+    this.add(new StateMachineComponent());
 
     // Add an event to get the center position
     Emitter.on('get-player-position', () =>

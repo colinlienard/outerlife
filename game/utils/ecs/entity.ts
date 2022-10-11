@@ -3,9 +3,9 @@ import { Component, ComponentConstructor } from './component';
 export abstract class Entity {
   private components: Map<ComponentConstructor, Component> = new Map();
 
-  add(component: Component, as?: ComponentConstructor) {
+  add(component: Component) {
     this.components.set(
-      as || (component.constructor as ComponentConstructor),
+      component.constructor as ComponentConstructor,
       component
     );
   }

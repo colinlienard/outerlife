@@ -5,8 +5,6 @@ import {
   AnimationSystem,
   CameraSystem,
   CollisionSystem,
-  DashSystem,
-  MeleeAttackSystem,
   MovementSystem,
   PlayerSystem,
   RenderSystem,
@@ -25,6 +23,7 @@ export class Game extends ECS {
   constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
     super();
 
+    // Setup rendering context
     const options = {
       alpha: false,
       antialias: false,
@@ -33,10 +32,10 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
-    this.add(new DashSystem());
-    this.add(new MeleeAttackSystem());
-    this.add(new MovementSystem());
+    // Setup systems
+    this.add(new PlayerSystem());
     this.add(new AISystem());
+    this.add(new MovementSystem());
     this.add(new CollisionSystem());
     this.add(new AnimationSystem());
     this.add(new CameraSystem());
@@ -47,6 +46,7 @@ export class Game extends ECS {
       )
     );
 
+    // Create the world and start the game
     (async () => {
       await this.buildMap(300, 300);
 
@@ -128,7 +128,7 @@ export class Game extends ECS {
       // Add a new player instance
       const player = new Player(playerX, playerY);
       this.entities.push(player);
-      this.add(new PlayerSystem(player));
+      this.get(PlayerSystem).setPlayer(player);
 
       // this.entities.push(new Patroller(350, 300));
       // this.entities.push(new Patroller(400, 300));
@@ -204,7 +204,6 @@ export class Game extends ECS {
     setTimeout(() => {
       this.entities = [];
       this.setSystemsEntities();
-      this.delete(PlayerSystem);
 
       this.tilemap = tilemapIndex[map];
       this.buildMap(playerX, playerY);

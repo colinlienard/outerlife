@@ -1,3 +1,5 @@
+import { EntityState } from '~~/game/utils';
+
 export type AnimationData = {
   frameStart: number;
   frameNumber: number;
@@ -5,19 +7,11 @@ export type AnimationData = {
   once?: 'despawn' | (() => void);
 };
 
-export type AnimationType =
-  | 'idle'
-  | 'run'
-  | 'melee-attack'
-  | 'anticipation-attack'
-  | 'dash'
-  | 'recovery';
-
-export type Animations = Partial<Record<AnimationType, AnimationData>> &
-  Pick<Record<AnimationType, AnimationData>, 'idle' | 'run'>;
+export type Animations = Partial<Record<EntityState, AnimationData>> &
+  Pick<Record<EntityState, AnimationData>, 'idle' | 'run'>;
 
 export type AnimationAction = {
   action: () => void;
   frame: number;
-  onType?: AnimationType;
+  on?: EntityState;
 };

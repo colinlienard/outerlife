@@ -1,4 +1,4 @@
-import { MovementComponent } from '~~/game/components';
+import { MovementComponent, StateMachineComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
 import { Emitter, getAngleFromPoints, Settings, System } from '~~/game/utils';
 
@@ -12,14 +12,15 @@ const defaultInput = {
 export class PlayerSystem extends System {
   protected readonly requiredComponents = null;
 
-  private player: Player;
+  private player!: {
+    movement: MovementComponent;
+    stateMachine: StateMachineComponent;
+  };
 
   private input = defaultInput;
 
-  constructor(player: Player) {
+  constructor() {
     super();
-
-    this.player = player;
 
     const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
     const clickListener = (event: MouseEvent) => this.handleClick(event);
@@ -39,7 +40,7 @@ export class PlayerSystem extends System {
     });
   }
 
-  bindKeys(event: KeyboardEvent) {
+  private bindKeys(event: KeyboardEvent) {
     const inputState = event.type === 'keydown';
 
     this.input = defaultInput;
@@ -70,11 +71,9 @@ export class PlayerSystem extends System {
     }
   }
 
-  handleClick(event: MouseEvent) {
-    const movement = this.player.get(MovementComponent);
-
+  private handleClick(event: MouseEvent) {
     if (
-      movement.state === 'dash' &&
+      !this.player.stateMachine.is(['idle', 'run']) ||
       (event.target as HTMLElement).tagName !== 'CANVAS'
     ) {
       return;
@@ -96,23 +95,19 @@ export class PlayerSystem extends System {
     }
 
     // Perform dash
-    movement.state = 'dash';
-    movement.angle = angle;
+    this.player.stateMachine.set('dash');
+    this.player.movement.angle = angle;
+  }
 
-    // Store position of the dash target if right click
-    // The target is further from the cursor to avoid dashing not far enough
-    // if (event.button === 2) {
-    //   this.dash.target = {
-    //     x: cursorX + (cursorX - x) * 10,
-    //     y: cursorY + (cursorY - y) * 10,
-    //   };
-    // }
+  setPlayer(player: Player) {
+    this.player = {
+      movement: player.get(MovementComponent),
+      stateMachine: player.get(StateMachineComponent),
+    };
   }
 
   update() {
-    const movement = this.player.get(MovementComponent);
-
-    if (movement.state === 'dash') {
+    if (!this.player.stateMachine.is(['idle', 'run'])) {
       return;
     }
 
@@ -121,46 +116,46 @@ export class PlayerSystem extends System {
     );
 
     // Set movement state
-    movement.state = isMoving ? 'run' : 'still';
+    this.player.stateMachine.set(isMoving ? 'run' : 'idle');
 
     // Set movement angle
     if (isMoving) {
       if (this.input.down) {
         if (this.input.left) {
-          movement.angle = 135;
+          this.player.movement.angle = 135;
           return;
         }
 
         if (this.input.right) {
-          movement.angle = 45;
+          this.player.movement.angle = 45;
           return;
         }
 
-        movement.angle = 90;
+        this.player.movement.angle = 90;
         return;
       }
 
       if (this.input.up) {
         if (this.input.left) {
-          movement.angle = 225;
+          this.player.movement.angle = 225;
           return;
         }
 
         if (this.input.right) {
-          movement.angle = 315;
+          this.player.movement.angle = 315;
           return;
         }
 
-        movement.angle = 270;
+        this.player.movement.angle = 270;
         return;
       }
 
       if (this.input.left) {
-        movement.angle = 180;
+        this.player.movement.angle = 180;
         return;
       }
 
-      movement.angle = 0;
+      this.player.movement.angle = 0;
     }
   }
 }

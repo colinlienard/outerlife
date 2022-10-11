@@ -3,6 +3,7 @@ import {
   MovementComponent,
   SpriteComponent,
   SpriteLayersComponent,
+  StateMachineComponent,
 } from '~~/game/components';
 import { Emitter, System } from '~~/game/utils';
 import { getDirectionFromAngle } from '~~/game/utils/helpers/getDirectionFromAngle';
@@ -13,6 +14,49 @@ export class AnimationSystem extends System {
   update() {
     this.entities.forEach((entity) => {
       const animation = entity.get(AnimationComponent);
+
+      // Update animation based on state
+      if (entity.has(StateMachineComponent)) {
+        const movement = entity.get(MovementComponent);
+        const state = entity.get(StateMachineComponent).get();
+
+        const { direction, animationRow } = getDirectionFromAngle(
+          movement.angle
+        );
+
+        // Update animation row
+        animation.row = animationRow;
+
+        // Update animation type
+        if (animation.getCurrent() !== state) {
+          animation.set(state);
+        }
+
+        // Update sprite layers
+        if (entity.has(SpriteLayersComponent)) {
+          const spriteLayers = entity.get(SpriteLayersComponent);
+
+          spriteLayers.setAnimated(
+            spriteLayers.getAnimated().map((layer) => {
+              if (!layer.animation) {
+                return layer;
+              }
+
+              const layerAnimation = layer.animation[animation.getCurrent()];
+
+              if (!layerAnimation) {
+                return layer;
+              }
+
+              const data = layerAnimation[direction];
+              if (Array.isArray(data)) {
+                return { ...layer, ...data[animation.column] };
+              }
+              return { ...layer, ...data };
+            })
+          );
+        }
+      }
 
       // Execute the following every {specified number} frames per second
       if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
@@ -27,9 +71,7 @@ export class AnimationSystem extends System {
             for (const action of animation.actions) {
               if (
                 action.frame === animation.column &&
-                (action.onType
-                  ? action.onType === animation.getCurrentAnimationType()
-                  : true)
+                (action.on ? action.on === animation.getCurrent() : true)
               ) {
                 action.action();
                 return;
@@ -53,66 +95,6 @@ export class AnimationSystem extends System {
         }
       } else {
         animation.frameWaiter += 1;
-      }
-
-      // Update animation based on movements
-      if (entity.has(MovementComponent)) {
-        const movement = entity.get(MovementComponent);
-
-        const { direction, animationRow } = getDirectionFromAngle(
-          movement.angle
-        );
-
-        // Update animation row
-        animation.row = animationRow;
-
-        // Update animation type
-        const currentAnimation = animation.getCurrentAnimationType();
-        switch (movement.state) {
-          case 'still':
-            if (currentAnimation === 'run') {
-              animation.set('idle');
-            }
-            break;
-          case 'run':
-            if (currentAnimation === 'idle') {
-              animation.set('run');
-            }
-            break;
-          case 'dash':
-            if (currentAnimation !== 'dash') {
-              animation.set('dash');
-            }
-            break;
-          default:
-            break;
-        }
-
-        // Update sprite layers
-        if (entity.has(SpriteLayersComponent)) {
-          const spriteLayers = entity.get(SpriteLayersComponent);
-
-          spriteLayers.setAnimated(
-            spriteLayers.getAnimated().map((layer) => {
-              if (!layer.animation) {
-                return layer;
-              }
-
-              const layerAnimation =
-                layer.animation[animation.getCurrentAnimationType()];
-
-              if (!layerAnimation) {
-                return layer;
-              }
-
-              const data = layerAnimation[direction];
-              if (Array.isArray(data)) {
-                return { ...layer, ...data[animation.column] };
-              }
-              return { ...layer, ...data };
-            })
-          );
-        }
       }
     });
   }

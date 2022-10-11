@@ -1,10 +1,5 @@
-import { Component, Direction } from '~~/game/utils';
-import {
-  AnimationAction,
-  AnimationData,
-  Animations,
-  AnimationType,
-} from './types';
+import { Component, Direction, EntityState } from '~~/game/utils';
+import { AnimationAction, AnimationData, Animations } from './types';
 
 export class AnimationComponent implements Component {
   readonly animations!: Animations;
@@ -35,26 +30,22 @@ export class AnimationComponent implements Component {
     this.actions = actions;
   }
 
-  getCurrentAnimationType(): AnimationType {
+  getCurrent(): EntityState {
     for (const type in this.animations) {
-      if (this.current === this.animations[type as AnimationType]) {
-        return type as AnimationType;
+      if (this.current === this.animations[type as EntityState]) {
+        return type as EntityState;
       }
     }
 
     throw new Error('Animation not found.');
   }
 
-  reset() {
-    this.column = 0;
-    this.frameWaiter = 0;
-  }
-
-  set(type: AnimationType) {
+  set(type: EntityState) {
     const animation = this.animations[type];
     if (animation) {
       this.current = animation;
       this.column = 0;
+      this.frameWaiter = 0;
     }
   }
 
