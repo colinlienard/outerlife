@@ -17,17 +17,31 @@ export class MovementSystem extends System {
       const position = entity.get(PositionComponent);
       const movement = entity.get(MovementComponent);
 
-      // Handle acceleration/deceleration of the speed
-      if (movement.isMoving) {
-        if (movement.speed < movement.maxSpeed) {
-          movement.speed += movement.acceleration;
-        } else {
+      switch (movement.state) {
+        case 'still':
+          // Handle deceleration
+          if (movement.speed > 0) {
+            movement.speed -= movement.deceleration;
+            break;
+          }
+          movement.speed = 0;
+          break;
+
+        case 'run':
+          // Handle acceleration
+          if (movement.speed < movement.maxSpeed) {
+            movement.speed += movement.acceleration;
+            break;
+          }
           movement.speed = movement.maxSpeed;
-        }
-      } else if (movement.speed > 0) {
-        movement.speed -= movement.deceleration;
-      } else {
-        movement.speed = 0;
+          break;
+
+        case 'dash':
+          movement.speed = 8;
+          break;
+
+        default:
+          break;
       }
 
       // Update position

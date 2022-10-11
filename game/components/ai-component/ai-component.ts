@@ -1,4 +1,4 @@
-import { Component, getRandomBetweenTwo, Settings } from '~~/game/utils';
+import { Component, getRandomNumber, Settings } from '~~/game/utils';
 import { AIState } from './types';
 
 export class AIComponent implements Component {
@@ -72,6 +72,6 @@ export class AIComponent implements Component {
 
   resetWait(number?: number) {
     this.frameWaiter = 0;
-    this.framesToWait = number || getRandomBetweenTwo(240, 480);
+    this.framesToWait = number || getRandomNumber(240, 480);
   }
 }

@@ -8,9 +8,7 @@ export class MovementComponent implements Component {
 
   readonly deceleration: number;
 
-  angle = 0;
-
-  isMoving = false;
+  angle = 90;
 
   speed = 0;
 

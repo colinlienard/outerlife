@@ -14,12 +14,6 @@ export class AnimationSystem extends System {
     this.entities.forEach((entity) => {
       const animation = entity.get(AnimationComponent);
 
-      // Set animation to the begining if it changes
-      if (animation.current !== animation.old) {
-        animation.column = 0;
-        animation.old = animation.current;
-      }
-
       // Execute the following every {specified number} frames per second
       if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
         animation.frameWaiter = 0;
@@ -65,17 +59,33 @@ export class AnimationSystem extends System {
       if (entity.has(MovementComponent)) {
         const movement = entity.get(MovementComponent);
 
-        const { direction, row } = getDirectionFromAngle(movement.angle);
+        const { direction, animationRow } = getDirectionFromAngle(
+          movement.angle
+        );
 
         // Update animation row
-        animation.row = row;
+        animation.row = animationRow;
 
         // Update animation type
         const currentAnimation = animation.getCurrentAnimationType();
-        if (movement.isMoving && currentAnimation === 'idle') {
-          animation.set('run');
-        } else if (!movement.isMoving && currentAnimation === 'run') {
-          animation.set('idle');
+        switch (movement.state) {
+          case 'still':
+            if (currentAnimation === 'run') {
+              animation.set('idle');
+            }
+            break;
+          case 'run':
+            if (currentAnimation === 'idle') {
+              animation.set('run');
+            }
+            break;
+          case 'dash':
+            if (currentAnimation !== 'dash') {
+              animation.set('dash');
+            }
+            break;
+          default:
+            break;
         }
 
         // Update sprite layers

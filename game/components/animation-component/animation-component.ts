@@ -9,8 +9,6 @@ import {
 export class AnimationComponent implements Component {
   readonly animations!: Animations;
 
-  old: AnimationData | null = null;
-
   current: AnimationData;
 
   row = 0;
@@ -53,8 +51,10 @@ export class AnimationComponent implements Component {
   }
 
   set(type: AnimationType) {
-    if (this.animations[type]) {
-      this.current = this.animations[type];
+    const animation = this.animations[type];
+    if (animation) {
+      this.current = animation;
+      this.column = 0;
     }
   }
 

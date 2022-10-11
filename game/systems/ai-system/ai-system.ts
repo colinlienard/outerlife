@@ -8,7 +8,7 @@ import {
 } from '~~/game/components';
 import {
   Emitter,
-  getDirectionFromPoint,
+  getDirectionFromPoints,
   getDistance,
   Horizontal,
   Point,
@@ -84,14 +84,14 @@ export class AISystem extends System {
           // Perform attack
           if (distanceFromPlayer <= ai.attackRange) {
             ai.state = 'attackAnticipation';
-            const { direction, row } = getDirectionFromPoint(
+            const { direction, animationRow } = getDirectionFromPoints(
               playerPosition.x,
               playerPosition.y,
               position.x,
               position.y
             );
             input.attack.direction = direction;
-            animation.row = row;
+            animation.row = animationRow;
             ai.resetWait();
 
             if (animation.animations['anticipation-attack']) {

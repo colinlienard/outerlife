@@ -1,11 +1,6 @@
 import { MovementComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
-import {
-  Emitter,
-  // getDirectionFromPoint,
-  // Settings,
-  System,
-} from '~~/game/utils';
+import { Emitter, getAngleFromPoints, Settings, System } from '~~/game/utils';
 
 const defaultInput = {
   up: false,
@@ -27,19 +22,19 @@ export class PlayerSystem extends System {
     this.player = player;
 
     const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
-    // const clickListener = (event: MouseEvent) => this.handleClick(event);
+    const clickListener = (event: MouseEvent) => this.handleClick(event);
     const contextMenuListener = (event: MouseEvent) => event.preventDefault();
 
     window.addEventListener('keydown', keyListener);
     window.addEventListener('keyup', keyListener);
-    // window.addEventListener('mousedown', clickListener);
+    window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
 
     // Remove event listeners when changing scene
     Emitter.on('switch-map', () => {
       window.removeEventListener('keydown', keyListener);
       window.removeEventListener('keyup', keyListener);
-      // window.removeEventListener('mousedown', clickListener);
+      window.removeEventListener('mousedown', clickListener);
       window.removeEventListener('contextmenu', contextMenuListener);
     });
   }
@@ -75,66 +70,97 @@ export class PlayerSystem extends System {
     }
   }
 
-  // handleClick(event: MouseEvent) {
-  //   if ((event.target as HTMLElement).tagName === 'CANVAS') {
-  //     // Get direction of the click based on the player's position
-  //     const cursorX = Math.round(
-  //       Math.abs(Settings.cameraOffset.x) + event.clientX / Settings.ratio
-  //     );
-  //     const cursorY = Math.round(
-  //       Math.abs(Settings.cameraOffset.y) + event.clientY / Settings.ratio
-  //     );
-  //     const [{ x, y }] = Emitter.emit('get-player-position');
+  handleClick(event: MouseEvent) {
+    const movement = this.player.get(MovementComponent);
 
-  //     const type = event.button === 0 ? this.attack : this.dash;
+    if (
+      movement.state === 'dash' &&
+      (event.target as HTMLElement).tagName !== 'CANVAS'
+    ) {
+      return;
+    }
 
-  //     // Set direction
-  //     type.direction = getDirectionFromPoint(cursorX, cursorY, x, y).direction;
+    // Get direction of the click based on the player's position
+    const cursorX = Math.round(
+      Math.abs(Settings.cameraOffset.x) + event.clientX / Settings.ratio
+    );
+    const cursorY = Math.round(
+      Math.abs(Settings.cameraOffset.y) + event.clientY / Settings.ratio
+    );
+    const [{ x, y }] = Emitter.emit('get-player-position');
+    const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
-  //     type.doing = true;
+    // Perform melee attack
+    if (event.button === 0) {
+      return;
+    }
 
-  //     // Store position of the dash target if right click
-  //     // The target is further from the cursor to avoid dashing not far enough
-  //     if (event.button === 2) {
-  //       this.dash.target = {
-  //         x: cursorX + (cursorX - x) * 10,
-  //         y: cursorY + (cursorY - y) * 10,
-  //       };
-  //     }
-  //   }
-  // }
+    // Perform dash
+    movement.state = 'dash';
+    movement.angle = angle;
+
+    // Store position of the dash target if right click
+    // The target is further from the cursor to avoid dashing not far enough
+    // if (event.button === 2) {
+    //   this.dash.target = {
+    //     x: cursorX + (cursorX - x) * 10,
+    //     y: cursorY + (cursorY - y) * 10,
+    //   };
+    // }
+  }
 
   update() {
+    const movement = this.player.get(MovementComponent);
+
+    if (movement.state === 'dash') {
+      return;
+    }
+
     const isMoving = Object.values(this.input).reduce(
       (previous, current) => previous || current
     );
 
-    const movement = this.player.get(MovementComponent);
+    // Set movement state
+    movement.state = isMoving ? 'run' : 'still';
 
-    movement.isMoving = isMoving;
-
-    if (isMoving && movement.state !== 'dash') {
+    // Set movement angle
+    if (isMoving) {
       if (this.input.down) {
         if (this.input.left) {
           movement.angle = 135;
-        } else if (this.input.right) {
-          movement.angle = 45;
-        } else {
-          movement.angle = 90;
+          return;
         }
-      } else if (this.input.up) {
+
+        if (this.input.right) {
+          movement.angle = 45;
+          return;
+        }
+
+        movement.angle = 90;
+        return;
+      }
+
+      if (this.input.up) {
         if (this.input.left) {
           movement.angle = 225;
-        } else if (this.input.right) {
-          movement.angle = 315;
-        } else {
-          movement.angle = 270;
+          return;
         }
-      } else if (this.input.left) {
-        movement.angle = 180;
-      } else if (this.input.right) {
-        movement.angle = 0;
+
+        if (this.input.right) {
+          movement.angle = 315;
+          return;
+        }
+
+        movement.angle = 270;
+        return;
       }
+
+      if (this.input.left) {
+        movement.angle = 180;
+        return;
+      }
+
+      movement.angle = 0;
     }
   }
 }
