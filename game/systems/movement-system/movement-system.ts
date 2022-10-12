@@ -2,6 +2,8 @@ import {
   PositionComponent,
   MovementComponent,
   StateMachineComponent,
+  DashComponent,
+  MeleeAttackComponent,
 } from '~~/game/components';
 import { DashDust } from '~~/game/entities';
 import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
@@ -38,8 +40,10 @@ export class MovementSystem extends System {
 
         dash: ({ stateChanged }) => {
           if (stateChanged) {
-            movement.speed = movement.dash.speed;
-            stateMachine.timer(movement.dash.duration);
+            const dash = entity.get(DashComponent);
+
+            movement.speed = dash.speed;
+            stateMachine.timer(dash.duration);
 
             // Spawn effects
             Emitter.emit(
@@ -59,15 +63,23 @@ export class MovementSystem extends System {
           }
         },
 
-        'dash-recovery': ({ stateChanged }) => {
+        'dash-recovery': () => {
+          movement.speed -= entity.get(DashComponent).deceleration;
+
+          if (movement.speed < 0) {
+            movement.speed = 0;
+          }
+        },
+
+        'melee-attack': ({ stateChanged }) => {
           if (stateChanged) {
-            stateMachine.timer(movement.dash.recoveryDuration);
+            movement.speed = entity.get(MeleeAttackComponent).speed;
+            return;
           }
 
-          movement.speed -= movement.dash.recoveryDeceleration;
+          movement.speed -= entity.get(MeleeAttackComponent).deceleration;
 
-          if (stateMachine.timer()) {
-            stateMachine.set('idle');
+          if (movement.speed < 0) {
             movement.speed = 0;
           }
         },

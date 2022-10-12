@@ -91,12 +91,16 @@ export class PlayerSystem extends System {
 
     // Perform melee attack
     if (event.button === 0) {
+      this.player.stateMachine.set('melee-attack');
+      this.player.movement.angle = angle;
       return;
     }
 
     // Perform dash
-    this.player.stateMachine.set('dash');
-    this.player.movement.angle = angle;
+    if (event.button === 2) {
+      this.player.stateMachine.set('dash');
+      this.player.movement.angle = angle;
+    }
   }
 
   setPlayer(player: Player) {

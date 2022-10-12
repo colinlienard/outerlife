@@ -37,7 +37,7 @@ export class Patroller extends Entity {
             frameStart: 15,
             frameNumber: 4,
             framesPerSecond: 8,
-            once: () => {
+            then: () => {
               this.get(MeleeAttackComponent).reset();
               this.get(MovementComponent).blocked = false;
               this.get(InputComponent).attack.doing = false;

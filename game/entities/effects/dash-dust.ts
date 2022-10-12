@@ -14,7 +14,7 @@ export class DashDust extends Entity {
           frameStart: 1,
           frameNumber: 7,
           framesPerSecond: 16,
-          once: 'despawn',
+          then: 'despawn',
         },
         row
       )

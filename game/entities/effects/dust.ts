@@ -13,7 +13,7 @@ export class Dust extends Entity {
         frameStart: 1,
         frameNumber: 6,
         framesPerSecond: 16,
-        once: 'despawn',
+        then: 'despawn',
       })
     );
     this.add(new PositionComponent(x, y, 7, 3));

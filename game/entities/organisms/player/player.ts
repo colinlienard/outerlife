@@ -32,6 +32,7 @@ export class Player extends Entity {
             frameStart: 17,
             frameNumber: 5,
             framesPerSecond: 20,
+            then: 'idle',
           },
           dash: {
             frameStart: 22,
@@ -42,6 +43,7 @@ export class Player extends Entity {
             frameStart: 24,
             frameNumber: 3,
             framesPerSecond: 8,
+            then: 'idle',
           },
         },
         1,
@@ -56,13 +58,26 @@ export class Player extends Entity {
             frame: 5,
             on: 'run',
           },
+          {
+            action: () => {
+              const position = this.get(PositionComponent);
+              const animation = this.get(AnimationComponent);
+
+              Emitter.emit(
+                'spawn',
+                new Slash(position.x + 16, position.y + 16, animation.row, 18)
+              );
+            },
+            frame: 1,
+            on: 'melee-attack',
+          },
         ]
       )
     );
     this.add(new CollisionComponent('organism', 10, 26, 12, 8));
-    this.add(new DashComponent(8, 0.5));
-    this.add(new MeleeAttackComponent(24, 3, 0.3, Slash));
-    this.add(new MovementComponent(1.5, 0.1, 0.15, 8, 6, 24, 1));
+    this.add(new DashComponent(7, 4, 0.5));
+    this.add(new MeleeAttackComponent(3, 0.3));
+    this.add(new MovementComponent(1.5, 0.1, 0.15));
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(

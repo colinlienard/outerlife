@@ -11,7 +11,7 @@ export class Slash extends Entity {
 
   private collision: Damage | null = null;
 
-  constructor(x: number, y: number, row: number) {
+  constructor(x: number, y: number, row: number, range: number) {
     super();
     this.add(
       new AnimationComponent(
@@ -19,7 +19,7 @@ export class Slash extends Entity {
           frameStart: 1,
           frameNumber: 4,
           framesPerSecond: 20,
-          once: 'despawn',
+          then: 'despawn',
         },
         row,
         [
@@ -34,7 +34,27 @@ export class Slash extends Entity {
         ]
       )
     );
-    this.add(new PositionComponent(x - 20, y - 20));
+
+    let effectX = 0;
+    let effectY = 0;
+    switch (row) {
+      case 0:
+        effectY -= range;
+        break;
+      case 1:
+        effectY += range;
+        break;
+      case 2:
+        effectX -= range;
+        break;
+      case 3:
+        effectX += range;
+        break;
+      default:
+        break;
+    }
+
+    this.add(new PositionComponent(x - 20 + effectX, y - 20 + effectY));
     this.add(new SpriteComponent('/sprites/slash.png', 0, 0, 40, 40));
 
     this.row = row;

@@ -1,22 +1,15 @@
 import { Component } from '~~/game/utils';
 
 export class DashComponent implements Component {
+  readonly speed: number;
+
+  readonly duration: number;
+
   readonly deceleration: number;
 
-  readonly maxSpeed: number;
-
-  dashing = false;
-
-  speed: number;
-
-  constructor(maxSpeed: number, deceleration: number) {
+  constructor(speed: number, duration: number, deceleration: number) {
+    this.speed = speed;
+    this.duration = duration;
     this.deceleration = deceleration;
-    this.maxSpeed = maxSpeed;
-    this.speed = maxSpeed;
-  }
-
-  reset() {
-    this.dashing = false;
-    this.speed = this.maxSpeed;
   }
 }

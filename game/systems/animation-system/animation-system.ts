@@ -78,24 +78,29 @@ export class AnimationSystem extends System {
               }
             }
           }
+
+          return;
         }
 
-        // Delete instance after its animation
-        else if (animation.current.once) {
-          if (animation.current.once === 'despawn') {
+        // When the animation ends
+        if (animation.current.then) {
+          if (animation.current.then === 'despawn') {
             Emitter.emit('despawn', entity);
-          } else {
-            animation.current.once();
+            return;
           }
+
+          entity.get(StateMachineComponent).set(animation.current.then);
+
+          return;
         }
 
         // Reset animation
-        else {
-          animation.column = 0;
-        }
-      } else {
-        animation.frameWaiter += 1;
+        animation.column = 0;
+
+        return;
       }
+
+      animation.frameWaiter += 1;
     });
   }
 }
