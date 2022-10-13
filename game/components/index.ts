@@ -2,7 +2,6 @@ export * from './ai-component';
 export * from './animation-component';
 export * from './collision-component';
 export * from './dash-component';
-export * from './input-component';
 export * from './life-component';
 export * from './melee-attack-component';
 export * from './movement-component';
