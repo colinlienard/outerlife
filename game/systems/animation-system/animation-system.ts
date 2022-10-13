@@ -15,6 +15,42 @@ export class AnimationSystem extends System {
     this.entities.forEach((entity) => {
       const animation = entity.get(AnimationComponent);
 
+      // Execute the following every {specified number} frames per second
+      if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
+        animation.frameWaiter = 0;
+
+        // Move forward in the animation
+        if (animation.column < animation.current.frameNumber - 1) {
+          animation.column += 1;
+
+          // Handle actions
+          if (animation.actions) {
+            for (const action of animation.actions) {
+              if (
+                action.frame === animation.column &&
+                (action.on ? action.on === animation.getCurrent() : true)
+              ) {
+                action.action();
+              }
+            }
+          }
+
+          // When the animation ends
+        } else if (animation.current.then) {
+          if (animation.current.then === 'despawn') {
+            Emitter.emit('despawn', entity);
+          } else {
+            entity.get(StateMachineComponent).set(animation.current.then);
+          }
+
+          // Reset animation
+        } else {
+          animation.column = 0;
+        }
+      } else {
+        animation.frameWaiter += 1;
+      }
+
       // Update animation based on state
       if (entity.has(StateMachineComponent)) {
         const movement = entity.get(MovementComponent);
@@ -57,50 +93,6 @@ export class AnimationSystem extends System {
           );
         }
       }
-
-      // Execute the following every {specified number} frames per second
-      if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
-        animation.frameWaiter = 0;
-
-        // Move forward in the animation
-        if (animation.column < animation.current.frameNumber - 1) {
-          animation.column += 1;
-
-          // Handle actions
-          if (animation.actions) {
-            for (const action of animation.actions) {
-              if (
-                action.frame === animation.column &&
-                (action.on ? action.on === animation.getCurrent() : true)
-              ) {
-                action.action();
-                return;
-              }
-            }
-          }
-
-          return;
-        }
-
-        // When the animation ends
-        if (animation.current.then) {
-          if (animation.current.then === 'despawn') {
-            Emitter.emit('despawn', entity);
-            return;
-          }
-
-          entity.get(StateMachineComponent).set(animation.current.then);
-
-          return;
-        }
-
-        // Reset animation
-        animation.column = 0;
-
-        return;
-      }
-
-      animation.frameWaiter += 1;
     });
   }
 }

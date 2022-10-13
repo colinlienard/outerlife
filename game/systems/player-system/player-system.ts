@@ -79,7 +79,7 @@ export class PlayerSystem extends System {
       return;
     }
 
-    // Get direction of the click based on the player's position
+    // Get angle of the click based on the player's position
     const cursorX = Math.round(
       Math.abs(Settings.cameraOffset.x) + event.clientX / Settings.ratio
     );
@@ -89,17 +89,17 @@ export class PlayerSystem extends System {
     const [{ x, y }] = Emitter.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
+    this.player.movement.angle = angle;
+
     // Perform melee attack
     if (event.button === 0) {
       this.player.stateMachine.set('melee-attack');
-      this.player.movement.angle = angle;
       return;
     }
 
     // Perform dash
     if (event.button === 2) {
       this.player.stateMachine.set('dash');
-      this.player.movement.angle = angle;
     }
   }
 

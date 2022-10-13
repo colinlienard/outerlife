@@ -1,5 +1,4 @@
-import { Component, getRandomNumber, Settings } from '~~/game/utils';
-import { AIState } from './types';
+import { Component, Settings } from '~~/game/utils';
 
 export class AIComponent implements Component {
   readonly abortAggroRange: number;
@@ -22,12 +21,6 @@ export class AIComponent implements Component {
     y: number;
   } | null = null;
 
-  state: AIState = 'wander';
-
-  framesToWait = 120;
-
-  frameWaiter = 0;
-
   constructor(
     spawnX: number,
     spawnY: number,
@@ -46,7 +39,7 @@ export class AIComponent implements Component {
     };
   }
 
-  getWanderTarget(): { x: number; y: number } {
+  setWanderTarget() {
     // Random point near the spawn point
     const x =
       Math.round(Math.random() * this.wanderDistance * 2) +
@@ -64,14 +57,10 @@ export class AIComponent implements Component {
       y < 0 ||
       y > Settings.scene.height
     ) {
-      return this.getWanderTarget();
+      this.setWanderTarget();
+      return;
     }
 
-    return { x, y };
-  }
-
-  resetWait(number?: number) {
-    this.frameWaiter = 0;
-    this.framesToWait = number || getRandomNumber(240, 480);
+    this.target = { x, y };
   }
 }

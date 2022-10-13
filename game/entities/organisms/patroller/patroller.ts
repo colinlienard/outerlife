@@ -2,12 +2,12 @@ import {
   AIComponent,
   AnimationComponent,
   CollisionComponent,
-  InputComponent,
   MeleeAttackComponent,
   MovementComponent,
   PositionComponent,
   SpriteComponent,
   SpriteLayersComponent,
+  StateMachineComponent,
 } from '~~/game/components';
 import { Entity } from '~~/game/utils';
 
@@ -28,30 +28,29 @@ export class Patroller extends Entity {
             frameNumber: 4,
             framesPerSecond: 5,
           },
-          'anticipation-attack': {
+          chase: {
+            frameStart: 7,
+            frameNumber: 4,
+            framesPerSecond: 5,
+          },
+          'melee-attack-anticipation': {
             frameStart: 11,
             frameNumber: 4,
             framesPerSecond: 8,
+            then: 'melee-attack',
           },
           'melee-attack': {
             frameStart: 15,
             frameNumber: 4,
             framesPerSecond: 8,
-            then: () => {
-              this.get(MeleeAttackComponent).reset();
-              this.get(MovementComponent).blocked = false;
-              this.get(InputComponent).attack.doing = false;
-              this.get(AIComponent).state = 'aggro';
-              this.get(AIComponent).framesToWait = 0;
-            },
+            then: 'chase',
           },
         },
         1
       )
     );
     this.add(new CollisionComponent('organism', 10, 26, 12, 8));
-    this.add(new InputComponent());
-    this.add(new MeleeAttackComponent(24, 3, 0.2));
+    this.add(new MeleeAttackComponent(3, 0.2));
     this.add(new MovementComponent(0.4, 0.02, 0.04));
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/patroller.png', 0, 0, 32, 32));
@@ -70,5 +69,6 @@ export class Patroller extends Entity {
         },
       ])
     );
+    this.add(new StateMachineComponent());
   }
 }

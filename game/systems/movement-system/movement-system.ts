@@ -22,7 +22,7 @@ export class MovementSystem extends System {
       const stateMachine = entity.get(StateMachineComponent);
 
       stateMachine.on({
-        idle: () => {
+        idle() {
           if (movement.speed > 0) {
             movement.speed -= movement.deceleration;
             return;
@@ -30,7 +30,7 @@ export class MovementSystem extends System {
           movement.speed = 0;
         },
 
-        run: () => {
+        run() {
           if (movement.speed < movement.maxSpeed) {
             movement.speed += movement.acceleration;
             return;
@@ -38,14 +38,36 @@ export class MovementSystem extends System {
           movement.speed = movement.maxSpeed;
         },
 
-        dash: ({ stateChanged }) => {
+        chase() {
+          if (movement.speed < movement.maxSpeed) {
+            movement.speed += movement.acceleration;
+            return;
+          }
+          movement.speed = movement.maxSpeed;
+        },
+
+        'melee-attack-anticipation': () => {
+          movement.speed = 0;
+        },
+
+        'dash-recovery': () => {
+          movement.speed -= entity.get(DashComponent).deceleration;
+
+          if (movement.speed < 0) {
+            movement.speed = 0;
+          }
+        },
+      });
+
+      stateMachine.interact({
+        dash({ stateChanged }) {
           if (stateChanged) {
             const dash = entity.get(DashComponent);
 
             movement.speed = dash.speed;
             stateMachine.timer(dash.duration);
 
-            // Spawn effects
+            // Spawn dash dust
             Emitter.emit(
               'spawn',
               new DashDust(
@@ -63,17 +85,20 @@ export class MovementSystem extends System {
           }
         },
 
-        'dash-recovery': () => {
-          movement.speed -= entity.get(DashComponent).deceleration;
-
-          if (movement.speed < 0) {
-            movement.speed = 0;
-          }
-        },
-
         'melee-attack': ({ stateChanged }) => {
           if (stateChanged) {
             movement.speed = entity.get(MeleeAttackComponent).speed;
+
+            // Spawn dash dust
+            Emitter.emit(
+              'spawn',
+              new DashDust(
+                position.x + 8,
+                position.y + 24,
+                getDirectionFromAngle(movement.angle).animationRow
+              )
+            );
+
             return;
           }
 

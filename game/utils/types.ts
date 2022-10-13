@@ -38,6 +38,7 @@ export type Direction = Horizontal | Vertical;
 export type EntityState =
   | 'idle'
   | 'run'
+  | 'chase'
   | 'melee-attack-anticipation'
   | 'melee-attack'
   | 'dash'

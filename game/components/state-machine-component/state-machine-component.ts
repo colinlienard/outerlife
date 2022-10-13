@@ -3,13 +3,22 @@ import { Component, EntityState } from '~~/game/utils';
 export class StateMachineComponent implements Component {
   private state: EntityState = 'idle';
 
-  private hasChanged = false;
+  private hasChanged = true;
 
   private frameWaiter = 0;
 
   private framesToWait = 0;
 
-  on(
+  on(actions: Partial<Record<EntityState, () => void>>) {
+    for (const [state, action] of Object.entries(actions)) {
+      if (state === this.state) {
+        action();
+        return;
+      }
+    }
+  }
+
+  interact(
     actions: Partial<
       Record<EntityState, ({ stateChanged }: { stateChanged: boolean }) => void>
     >
