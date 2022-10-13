@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   AnimationComponent,
-  InputComponent,
   PositionComponent,
-  SpriteLayersComponent,
   MovementComponent,
+  SpriteLayersComponent,
+  StateMachineComponent,
 } from '~~/game/components';
 import { Entity } from '~~/game/utils';
 import { MovementSystem } from './movement-system';
@@ -41,15 +41,15 @@ class MovingEntity extends Entity {
           frameNumber: 1,
           framesPerSecond: 16,
         },
-        recovery: {
+        'dash-recovery': {
           frameStart: 10,
           frameNumber: 1,
           framesPerSecond: 16,
         },
       })
     );
-    this.add(new InputComponent());
     this.add(new PositionComponent(0, 0));
+    this.add(new MovementComponent(2, 0.1, 0.2));
     this.add(
       new SpriteLayersComponent([
         {
@@ -90,7 +90,7 @@ class MovingEntity extends Entity {
               left: {},
               right: {},
             },
-            recovery: {
+            'dash-recovery': {
               up: {},
               down: {},
               left: {},
@@ -100,49 +100,26 @@ class MovingEntity extends Entity {
         },
       ])
     );
-    this.add(new MovementComponent(2, 0.1, 0.2));
+    this.add(new StateMachineComponent());
   }
 }
 
-describe('movementSystem system', () => {
+describe('movement system', () => {
   const entity = new MovingEntity();
-  const animation = entity.get(AnimationComponent);
-  const input = entity.get(InputComponent);
   const position = entity.get(PositionComponent);
-  const spriteLayers = entity.get(SpriteLayersComponent);
+  const movement = entity.get(MovementComponent);
+  const stateMachine = entity.get(StateMachineComponent);
 
   const movementSystem = new MovementSystem();
   movementSystem.setEntities([entity]);
 
   it("should change the entity's position", () => {
-    input.movements.down = true;
-    input.movements.right = true;
+    stateMachine.set('run');
+    movement.angle = 45;
+
     movementSystem.update();
 
     expect(position.x).toBeGreaterThan(0);
     expect(position.y).toBeGreaterThan(0);
-  });
-
-  it('should change the current animation', () => {
-    expect(animation.getCurrent()).toBe('run');
-
-    input.movements.down = false;
-    input.movements.right = false;
-    movementSystem.update();
-
-    expect(animation.getCurrent()).toBe('idle');
-  });
-
-  it('should update sprite layers', () => {
-    expect(spriteLayers.getBack().length).toBe(0);
-    expect(spriteLayers.getFront().length).toBe(1);
-
-    input.movements.up = true;
-    input.movements.right = true;
-    movementSystem.update();
-
-    expect(spriteLayers.layers[0].rotation).toBe(45);
-    expect(spriteLayers.getBack().length).toBe(1);
-    expect(spriteLayers.getFront().length).toBe(0);
   });
 });

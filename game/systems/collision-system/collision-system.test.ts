@@ -25,7 +25,7 @@ class CollidingOrganism extends Entity {
   }
 }
 
-describe('collisionSystem system', () => {
+describe('collision system', () => {
   Settings.scene.width = 600;
   Settings.scene.height = 400;
 
@@ -38,7 +38,7 @@ describe('collisionSystem system', () => {
   it('should separate organisms and environments', () => {
     collisionSystem.setEntities([environment, organism]);
 
-    expect(collisionSystem.collisionSystems.items.length).toBe(1); // is a quadtree
+    expect(collisionSystem.colliders.items.length).toBe(1); // is a quadtree
     expect(collisionSystem.collidings.length).toBe(1); // is just an array
   });
 
