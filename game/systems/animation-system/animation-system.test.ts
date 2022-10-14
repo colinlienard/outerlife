@@ -89,7 +89,7 @@ describe('animation system', () => {
   const stateMachine = entity.get(StateMachineComponent);
 
   const animationSystem = new AnimationSystem();
-  animationSystem.setEntities([entity]);
+  animationSystem.check(entity);
 
   const updateAnimationSystem = (times: number) => {
     [...new Array(times)].forEach(() => animationSystem.update());

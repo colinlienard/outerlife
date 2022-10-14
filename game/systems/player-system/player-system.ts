@@ -10,7 +10,7 @@ const defaultInput = {
 };
 
 export class PlayerSystem extends System {
-  protected readonly requiredComponents = null;
+  protected readonly requiredComponents = [];
 
   private player!: {
     movement: MovementComponent;

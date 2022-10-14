@@ -36,7 +36,8 @@ describe('collision system', () => {
   const collisionSystem = new CollisionSystem() as any;
 
   it('should separate organisms and environments', () => {
-    collisionSystem.setEntities([environment, organism]);
+    collisionSystem.check(environment);
+    collisionSystem.check(organism);
 
     expect(collisionSystem.colliders.items.length).toBe(1); // is a quadtree
     expect(collisionSystem.collidings.length).toBe(1); // is just an array

@@ -12,7 +12,7 @@ export class AnimationSystem extends System {
   protected readonly requiredComponents = [AnimationComponent, SpriteComponent];
 
   update() {
-    this.entities.forEach((entity) => {
+    this.get().forEach((entity) => {
       const animation = entity.get(AnimationComponent);
 
       // Execute the following every {specified number} frames per second
@@ -38,7 +38,7 @@ export class AnimationSystem extends System {
           // When the animation ends
         } else if (animation.current.then) {
           if (animation.current.then === 'despawn') {
-            Emitter.emit('despawn', entity);
+            Emitter.emit('despawn', entity.id);
           } else {
             entity.get(StateMachineComponent).set(animation.current.then);
           }

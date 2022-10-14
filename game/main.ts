@@ -9,11 +9,9 @@ import {
   PlayerSystem,
   RenderSystem,
 } from './systems';
-import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
+import { ECS, Emitter, Settings, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
-  protected entities: Entity[] = [];
-
   private tilemap: Tilemap = map002;
 
   fps = 0;
@@ -50,8 +48,6 @@ export class Game extends ECS {
     (async () => {
       await this.buildMap(300, 300);
 
-      this.setSystemsEntities();
-
       this.setEvents();
 
       this.loop();
@@ -65,9 +61,6 @@ export class Game extends ECS {
       Settings.scene.rows = this.tilemap.rows;
       Settings.scene.width = this.tilemap.columns * Settings.tileSize;
       Settings.scene.height = this.tilemap.rows * Settings.tileSize;
-
-      // Reset the scene
-      this.entities = [];
 
       // Prepare terrains for the renderer
       const terrains: Terrain[] = [];
@@ -88,7 +81,7 @@ export class Game extends ECS {
           });
           if (terrain.collision) {
             const { x, y, width, height } = terrain.collision;
-            this.entities.push(
+            this.addEntity(
               new InvisibleWall(
                 x + column * Settings.tileSize,
                 y + row * Settings.tileSize,
@@ -101,11 +94,12 @@ export class Game extends ECS {
           // Build environments
           const Environment = environmentTiles[this.tilemap.environments[tile]];
           if (Environment) {
-            const environment = new Environment(
-              column * Settings.tileSize,
-              row * Settings.tileSize
+            this.addEntity(
+              new Environment(
+                column * Settings.tileSize,
+                row * Settings.tileSize
+              )
             );
-            this.entities.push(environment);
           }
         }
       }
@@ -114,7 +108,7 @@ export class Game extends ECS {
 
       // Build interactions
       this.tilemap.interactions.forEach((interaction) => {
-        this.entities.push(
+        this.addEntity(
           new Interaction(
             interaction.x,
             interaction.y,
@@ -127,11 +121,11 @@ export class Game extends ECS {
 
       // Add a new player instance
       const player = new Player(playerX, playerY);
-      this.entities.push(player);
+      this.addEntity(player);
       this.get(PlayerSystem).setPlayer(player);
 
-      this.entities.push(new Patroller(350, 300));
-      this.entities.push(new Patroller(400, 300));
+      this.addEntity(new Patroller(350, 300));
+      this.addEntity(new Patroller(400, 300));
 
       // Setup camera
       const camera = this.get(CameraSystem);
@@ -140,7 +134,7 @@ export class Game extends ECS {
 
       // Load textures
       this.get(RenderSystem)
-        .loadTextures(this.entities)
+        .loadTextures(this.getEntities())
         .then(() => {
           Emitter.emit('scene-loaded');
           resolve(null);
@@ -158,7 +152,7 @@ export class Game extends ECS {
     }
 
     if (!this.paused) {
-      this.updateSystems();
+      this.update();
     }
 
     requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
@@ -167,14 +161,12 @@ export class Game extends ECS {
   private setEvents() {
     // Add entity to the scene
     Emitter.on('spawn', (entity) => {
-      this.entities.push(entity);
-      this.setSystemsEntities();
+      this.addEntity(entity);
     });
 
     // Remove entity from the scene
-    Emitter.on('despawn', (entity) => {
-      delete this.entities[this.entities.indexOf(entity)];
-      this.setSystemsEntities();
+    Emitter.on('despawn', (id) => {
+      this.deleteEntity(id);
     });
 
     // Switch map
@@ -202,12 +194,10 @@ export class Game extends ECS {
 
   private switchMap(map: string, playerX: number, playerY: number) {
     setTimeout(() => {
-      this.entities = [];
-      this.setSystemsEntities();
+      this.clearEntities();
 
       this.tilemap = tilemapIndex[map];
       this.buildMap(playerX, playerY);
-      this.setSystemsEntities();
     }, Settings.transitionDuration);
   }
 

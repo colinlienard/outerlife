@@ -10,7 +10,7 @@ export interface EventMap {
     playerY: number;
   }) => void;
   spawn: (entity: Entity) => void;
-  despawn: (entity: Entity) => void;
+  despawn: (id: number) => void;
   'get-player-position': () => { x: number; y: number };
 }
 

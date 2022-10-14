@@ -3,7 +3,7 @@ import { Player } from '~~/game/entities';
 import { PositionComponent, SpriteComponent } from '~~/game/components';
 
 export class CameraSystem extends System {
-  protected readonly requiredComponents = null;
+  protected readonly requiredComponents = [];
 
   private player!: Player;
 

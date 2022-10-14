@@ -24,7 +24,7 @@ export class AISystem extends System {
   update() {
     const [playerPosition] = Emitter.emit('get-player-position');
 
-    this.entities.forEach((entity) => {
+    this.get().forEach((entity) => {
       const ai = entity.get(AIComponent);
       const position = entity.get(PositionComponent).getCenter();
       const movement = entity.get(MovementComponent);

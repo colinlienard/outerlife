@@ -16,7 +16,7 @@ export class MovementSystem extends System {
   ];
 
   update() {
-    this.entities.forEach((entity) => {
+    this.get().forEach((entity) => {
       const position = entity.get(PositionComponent);
       const movement = entity.get(MovementComponent);
       const stateMachine = entity.get(StateMachineComponent);

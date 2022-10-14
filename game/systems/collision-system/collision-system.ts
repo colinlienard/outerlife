@@ -22,19 +22,12 @@ export class CollisionSystem extends System {
 
   private collidings: Entity[] = [];
 
-  setEntities(entities: Entity[]) {
-    const oldEntities = this.entities;
+  check(entity: Entity) {
+    super.check(entity);
+    this.setColliders();
+  }
 
-    super.setEntities(entities);
-
-    // If the entities have not changed, return
-    if (
-      oldEntities.length === this.entities.length &&
-      oldEntities.every((e, i) => e === this.entities[i])
-    ) {
-      return;
-    }
-
+  setColliders() {
     // Reset
     this.colliders = new QuadTree(
       0,
@@ -45,7 +38,7 @@ export class CollisionSystem extends System {
     this.collidings = [];
 
     // Separate colliders and collidings
-    this.entities.forEach((entity) => {
+    this.get().forEach((entity) => {
       const { type, x, y, width, height } = entity.get(CollisionComponent);
       const { x: positionX, y: positionY } = entity.get(PositionComponent);
 
@@ -102,7 +95,7 @@ export class CollisionSystem extends System {
             switch (collider.type) {
               case 'damage':
                 if (colliding.get(LifeComponent)) {
-                  Emitter.emit('despawn', colliding);
+                  Emitter.emit('despawn', colliding.id);
                 }
                 break;
 

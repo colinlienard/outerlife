@@ -12,7 +12,7 @@ export class DashDust extends Entity {
       new AnimationComponent(
         {
           frameStart: 1,
-          frameNumber: 7,
+          frameNumber: 6,
           framesPerSecond: 16,
           then: 'despawn',
         },

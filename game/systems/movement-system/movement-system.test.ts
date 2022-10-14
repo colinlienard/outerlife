@@ -111,7 +111,7 @@ describe('movement system', () => {
   const stateMachine = entity.get(StateMachineComponent);
 
   const movementSystem = new MovementSystem();
-  movementSystem.setEntities([entity]);
+  movementSystem.check(entity);
 
   it("should change the entity's position", () => {
     stateMachine.set('run');

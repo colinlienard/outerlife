@@ -170,7 +170,7 @@ export class RenderSystem extends System {
 
   private renderCollisions() {
     // Get collisions of environments and organisms
-    const { blue, green, red } = this.entities.reduce<
+    const { blue, green, red } = this.getAsArray().reduce<
       Record<string, CollisionComponent[]>
     >(
       (previous, current) => {
@@ -323,16 +323,17 @@ export class RenderSystem extends System {
     this.viewport.height = window.innerHeight / Settings.ratio;
   }
 
-  setEntities(entities: Entity[]) {
-    const oldEntities = this.entities;
+  check(entity: Entity) {
+    super.check(entity);
+    this.setEntityTree();
+  }
 
-    super.setEntities(entities);
+  delete(id: number) {
+    super.delete(id);
+    this.setEntityTree();
+  }
 
-    // If the entities have not changed, return
-    if (oldEntities.length === this.entities.length) {
-      return;
-    }
-
+  setEntityTree() {
     this.entityTree = new QuadTree(
       0,
       0,
@@ -340,7 +341,7 @@ export class RenderSystem extends System {
       Settings.scene.height
     );
 
-    this.entities.forEach((entity) => {
+    this.get().forEach((entity) => {
       const { x, y } = entity.get(PositionComponent);
       const { width, height } = entity.get(SpriteComponent);
       this.entityTree.add({
