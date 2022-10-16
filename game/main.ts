@@ -62,6 +62,10 @@ export class Game extends ECS {
       Settings.scene.width = this.tilemap.columns * Settings.tileSize;
       Settings.scene.height = this.tilemap.rows * Settings.tileSize;
 
+      // Reset world
+      this.get(CollisionSystem).reset();
+      this.get(RenderSystem).reset();
+
       // Prepare terrains for the renderer
       const terrains: Terrain[] = [];
 

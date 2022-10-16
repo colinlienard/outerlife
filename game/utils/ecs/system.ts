@@ -8,22 +8,26 @@ export abstract class System {
 
   abstract update(): void;
 
-  check(entity: Entity) {
+  check(entity: Entity): boolean | void {
     const hasEntity = this.entities.has(entity.id);
     const EntityHasComponents = entity.hasMultiple(this.requiredComponents);
 
-    if (hasEntity && !EntityHasComponents) {
-      this.delete(entity.id);
+    if (!hasEntity && EntityHasComponents) {
+      this.add(entity);
       return;
     }
 
-    if (!hasEntity && EntityHasComponents) {
-      this.entities.set(entity.id, entity);
+    if (hasEntity && !EntityHasComponents) {
+      this.delete(entity.id);
     }
   }
 
-  delete(id: number) {
-    this.entities.delete(id);
+  add(entity: Entity) {
+    this.entities.set(entity.id, entity);
+  }
+
+  delete(id: number): boolean | void {
+    return this.entities.delete(id);
   }
 
   get() {

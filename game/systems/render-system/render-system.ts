@@ -1,6 +1,7 @@
 import {
   AnimationComponent,
   CollisionComponent,
+  MovementComponent,
   PositionComponent,
   SpriteComponent,
   SpriteLayer,
@@ -17,11 +18,13 @@ import {
 } from '~~/game/utils';
 
 interface EntityLeaf extends Box {
+  id: number;
   entity: Entity;
 }
 
 interface TerrainLeaf extends Box {
   terrain: Terrain;
+  id: number;
 }
 
 export class RenderSystem extends System {
@@ -31,7 +34,12 @@ export class RenderSystem extends System {
 
   private readonly engine: Engine;
 
-  private entityTree!: QuadTree<EntityLeaf>;
+  private entityTree: QuadTree<EntityLeaf> = new QuadTree(
+    0,
+    0,
+    Settings.scene.width,
+    Settings.scene.height
+  );
 
   private offsetX = 0;
 
@@ -39,12 +47,19 @@ export class RenderSystem extends System {
 
   private terrains: Terrain[] = [];
 
-  private terrainTree!: QuadTree<TerrainLeaf>;
+  private terrainTree: QuadTree<TerrainLeaf> = new QuadTree(
+    0,
+    0,
+    Settings.scene.width,
+    Settings.scene.height
+  );
 
   private viewport = {
     width: 0,
     height: 0,
   };
+
+  private movableEntityIds: number[] = [];
 
   constructor(
     gameContext: WebGL2RenderingContext,
@@ -323,35 +338,46 @@ export class RenderSystem extends System {
     this.viewport.height = window.innerHeight / Settings.ratio;
   }
 
-  check(entity: Entity) {
-    super.check(entity);
-    this.setEntityTree();
+  add(entity: Entity) {
+    super.add(entity);
+
+    if (entity.has(MovementComponent)) {
+      this.movableEntityIds.push(entity.id);
+    }
+
+    this.addToEntityTree(entity);
+  }
+
+  addToEntityTree(entity: Entity) {
+    const { x, y } = entity.get(PositionComponent);
+    const { width, height } = entity.get(SpriteComponent);
+    this.entityTree.add({
+      x,
+      y,
+      width,
+      height,
+      entity,
+      id: entity.id,
+    });
   }
 
   delete(id: number) {
     super.delete(id);
-    this.setEntityTree();
+
+    if (this.movableEntityIds.includes(id)) {
+      this.movableEntityIds.splice(this.movableEntityIds.indexOf(id), 1);
+    }
+
+    this.entityTree.delete(id);
   }
 
-  setEntityTree() {
+  reset() {
     this.entityTree = new QuadTree(
       0,
       0,
       Settings.scene.width,
       Settings.scene.height
     );
-
-    this.get().forEach((entity) => {
-      const { x, y } = entity.get(PositionComponent);
-      const { width, height } = entity.get(SpriteComponent);
-      this.entityTree.add({
-        x,
-        y,
-        width,
-        height,
-        entity,
-      });
-    });
   }
 
   setTerrains(terrains: Terrain[]) {
@@ -362,18 +388,28 @@ export class RenderSystem extends System {
       Settings.scene.width,
       Settings.scene.height
     );
-    this.terrains.forEach((terrain) => {
+    this.terrains.forEach((terrain, index) => {
       this.terrainTree.add({
         x: terrain.x,
         y: terrain.y,
         width: Settings.tileSize,
         height: Settings.tileSize,
         terrain,
+        id: index,
       });
     });
   }
 
   update() {
+    // Update movable entities in the tree
+    this.movableEntityIds.forEach((id) => {
+      this.entityTree.delete(id);
+      const entity = this.get().get(id);
+      if (entity) {
+        this.addToEntityTree(entity);
+      }
+    });
+
     this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
     this.render();
 

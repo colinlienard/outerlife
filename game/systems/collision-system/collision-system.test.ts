@@ -39,8 +39,8 @@ describe('collision system', () => {
     collisionSystem.check(environment);
     collisionSystem.check(organism);
 
-    expect(collisionSystem.colliders.items.length).toBe(1); // is a quadtree
-    expect(collisionSystem.collidings.length).toBe(1); // is just an array
+    expect(collisionSystem.colliders.items.size).toBe(1); // is a quadtree
+    expect(collisionSystem.collidings.size).toBe(1); // is just an array
   });
 
   it('should not collide', () => {

@@ -1,11 +1,10 @@
-import { Box } from '../types';
-import { IQuadTree } from './types';
+import { IQuadTree, QuadTreeItem } from './types';
 
 const MAX_ITEMS = 4;
 const MAX_DEPTH = 4;
 
-export class QuadTree<T extends Box> implements IQuadTree<T> {
-  private items: T[] | null = [];
+export class QuadTree<T extends QuadTreeItem> implements IQuadTree<T> {
+  private items: Map<number, T> | null = new Map();
 
   private nodes:
     | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
@@ -53,7 +52,11 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
   }
 
   private split(item: T) {
-    const items = [...(this.items as T[]), item];
+    if (!this.items) {
+      return;
+    }
+
+    const items = [...this.items.values(), item];
     this.items = null;
 
     const splitWidth = this.width / 2;
@@ -102,8 +105,8 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     }
 
     if (this.items) {
-      if (this.items.length < MAX_ITEMS || this.depth === MAX_DEPTH) {
-        this.items.push(item);
+      if (this.items.size < MAX_ITEMS || this.depth === MAX_DEPTH) {
+        this.items.set(item.id, item);
         return;
       }
 
@@ -114,8 +117,21 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     this.addToNode(item);
   }
 
+  delete(id: number) {
+    if (this.items) {
+      return this.items.delete(id);
+    }
+
+    return (
+      this.nodes?.reduce(
+        (previous, current) => current.delete(id) || previous,
+        false
+      ) || false
+    );
+  }
+
   clear() {
-    this.items = [];
+    this.items = new Map();
     this.nodes = null;
   }
 
@@ -130,7 +146,7 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     }
 
     if (this.items) {
-      return this.items;
+      return Array.from(this.items.values());
     }
 
     const result: T[] = [];

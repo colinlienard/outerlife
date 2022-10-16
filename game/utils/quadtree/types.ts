@@ -1,6 +1,10 @@
 import { Box } from '../types';
 
-export interface IQuadTree<T extends Box> extends Box {
+export type QuadTreeItem = Box & {
+  id: number;
+};
+
+export interface IQuadTree<T extends QuadTreeItem> extends Box {
   add(item: T): void;
 
   clear(): void;
@@ -8,4 +12,6 @@ export interface IQuadTree<T extends Box> extends Box {
   get(x: number, y: number, width: number, height: number): T[];
 
   getWithDuplicates(x: number, y: number, width: number, height: number): T[];
+
+  delete(id: number): boolean;
 }
