@@ -10,15 +10,15 @@ export class QuadTree<T extends QuadTreeItem> implements IQuadTree<T> {
     | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
     | null = null;
 
-  readonly x: number;
+  x: number;
 
-  readonly y: number;
+  y: number;
 
-  readonly width: number;
+  width: number;
 
-  readonly height: number;
+  height: number;
 
-  readonly depth: number;
+  depth: number;
 
   constructor(
     x: number,
@@ -130,11 +130,6 @@ export class QuadTree<T extends QuadTreeItem> implements IQuadTree<T> {
     );
   }
 
-  clear() {
-    this.items = new Map();
-    this.nodes = null;
-  }
-
   get(x: number, y: number, width: number, height: number) {
     const items = this.getWithDuplicates(x, y, width, height);
     return [...new Set(items)];
@@ -154,5 +149,15 @@ export class QuadTree<T extends QuadTreeItem> implements IQuadTree<T> {
       result.push(...node.get(x, y, width, height));
     });
     return result;
+  }
+
+  reset(x: number, y: number, width: number, height: number) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+
+    this.items = new Map();
+    this.nodes = null;
   }
 }

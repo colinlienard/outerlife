@@ -30,14 +30,6 @@ export class PlayerSystem extends System {
     window.addEventListener('keyup', keyListener);
     window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
-
-    // Remove event listeners when changing scene
-    Emitter.on('switch-map', () => {
-      window.removeEventListener('keydown', keyListener);
-      window.removeEventListener('keyup', keyListener);
-      window.removeEventListener('mousedown', clickListener);
-      window.removeEventListener('contextmenu', contextMenuListener);
-    });
   }
 
   private bindKeys(event: KeyboardEvent) {

@@ -5,7 +5,7 @@ import {
   PositionComponent,
   SpriteComponent,
 } from '~~/game/components';
-import { Interaction } from '~~/game/entities';
+import { Interaction, Player } from '~~/game/entities';
 import { Emitter, Entity, QuadTree, Settings, System } from '~~/game/utils';
 
 interface Leaf extends CollisionComponent {
@@ -67,12 +67,7 @@ export class CollisionSystem extends System {
   }
 
   reset() {
-    this.colliders = new QuadTree(
-      0,
-      0,
-      Settings.scene.width,
-      Settings.scene.height
-    );
+    this.colliders.reset(0, 0, Settings.scene.width, Settings.scene.height);
     this.collidings = new Map();
   }
 
@@ -124,10 +119,12 @@ export class CollisionSystem extends System {
 
               // Execute an interaction
               case 'interaction': {
-                const interaction = collider.entity as Interaction;
-                if (!interaction.entered) {
-                  interaction.enter();
-                  interaction.entered = true;
+                if (colliding instanceof Player) {
+                  const interaction = collider.entity as Interaction;
+                  if (!interaction.entered) {
+                    interaction.enter();
+                    interaction.entered = true;
+                  }
                 }
                 break;
               }

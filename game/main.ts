@@ -125,8 +125,8 @@ export class Game extends ECS {
 
       // Add a new player instance
       const player = new Player(playerX, playerY);
-      this.addEntity(player);
       this.get(PlayerSystem).setPlayer(player);
+      this.addEntity(player);
 
       this.addEntity(new Patroller(350, 300));
       this.addEntity(new Patroller(400, 300));
@@ -197,6 +197,8 @@ export class Game extends ECS {
   }
 
   private switchMap(map: string, playerX: number, playerY: number) {
+    this.get(AISystem).clear();
+
     setTimeout(() => {
       this.clearEntities();
 

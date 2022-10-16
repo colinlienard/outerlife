@@ -372,22 +372,12 @@ export class RenderSystem extends System {
   }
 
   reset() {
-    this.entityTree = new QuadTree(
-      0,
-      0,
-      Settings.scene.width,
-      Settings.scene.height
-    );
+    this.entityTree.reset(0, 0, Settings.scene.width, Settings.scene.height);
   }
 
   setTerrains(terrains: Terrain[]) {
     this.terrains = terrains;
-    this.terrainTree = new QuadTree(
-      0,
-      0,
-      Settings.scene.width,
-      Settings.scene.height
-    );
+    this.terrainTree.reset(0, 0, Settings.scene.width, Settings.scene.height);
     this.terrains.forEach((terrain, index) => {
       this.terrainTree.add({
         x: terrain.x,
