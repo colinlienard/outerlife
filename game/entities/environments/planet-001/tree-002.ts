@@ -1,14 +1,21 @@
 import { Entity } from '~~/game/utils';
-import { Collision, Position, Sprite, SpriteLayers } from '~~/game/components';
+import {
+  CollisionComponent,
+  PositionComponent,
+  SpriteComponent,
+  SpriteLayersComponent,
+} from '~~/game/components';
 
 export class Tree002 extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new Collision('environment', 24, 74, 16, 12));
-    this.add(new Position(x, y, 64, 86));
-    this.add(new Sprite('/sprites/environments-001.png', 64, 0, 64, 86));
+    this.add(new CollisionComponent('environment', 24, 74, 16, 12));
+    this.add(new PositionComponent(x, y, 64, 86));
     this.add(
-      new SpriteLayers([
+      new SpriteComponent('/sprites/environments-001.png', 64, 0, 64, 86)
+    );
+    this.add(
+      new SpriteLayersComponent([
         {
           source: '/sprites/environments-001.png',
           sourceX: 64,

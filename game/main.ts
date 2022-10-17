@@ -2,19 +2,16 @@ import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
 import { Interaction, InvisibleWall, Patroller, Player } from './entities';
 import {
   AISystem,
-  Animator,
-  Camera,
-  Collider,
-  Dasher,
-  MeleeAttacker,
-  Mover,
-  Renderer,
+  AnimationSystem,
+  CameraSystem,
+  CollisionSystem,
+  MovementSystem,
+  PlayerSystem,
+  RenderSystem,
 } from './systems';
-import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
+import { ECS, Emitter, Settings, Terrain, Tilemap } from './utils';
 
 export class Game extends ECS {
-  protected entities: Entity[] = [];
-
   private tilemap: Tilemap = map002;
 
   fps = 0;
@@ -24,6 +21,7 @@ export class Game extends ECS {
   constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
     super();
 
+    // Setup rendering context
     const options = {
       alpha: false,
       antialias: false,
@@ -32,24 +30,23 @@ export class Game extends ECS {
     const gameContext = gameCanvas.getContext('webgl2', options);
     const debugContext = debugCanvas.getContext('2d');
 
-    this.add(new Dasher());
-    this.add(new MeleeAttacker());
-    this.add(new Mover());
+    // Setup systems
+    this.add(new PlayerSystem());
     this.add(new AISystem());
-    this.add(new Collider());
-    this.add(new Animator());
-    this.add(new Camera());
+    this.add(new MovementSystem());
+    this.add(new CollisionSystem());
+    this.add(new AnimationSystem());
+    this.add(new CameraSystem());
     this.add(
-      new Renderer(
+      new RenderSystem(
         gameContext as WebGL2RenderingContext,
         debugContext as CanvasRenderingContext2D
       )
     );
 
+    // Create the world and start the game
     (async () => {
       await this.buildMap(300, 300);
-
-      this.setSystemsEntities();
 
       this.setEvents();
 
@@ -65,8 +62,9 @@ export class Game extends ECS {
       Settings.scene.width = this.tilemap.columns * Settings.tileSize;
       Settings.scene.height = this.tilemap.rows * Settings.tileSize;
 
-      // Reset the scene
-      this.entities = [];
+      // Reset world
+      this.get(CollisionSystem).reset();
+      this.get(RenderSystem).reset();
 
       // Prepare terrains for the renderer
       const terrains: Terrain[] = [];
@@ -87,7 +85,7 @@ export class Game extends ECS {
           });
           if (terrain.collision) {
             const { x, y, width, height } = terrain.collision;
-            this.entities.push(
+            this.addEntity(
               new InvisibleWall(
                 x + column * Settings.tileSize,
                 y + row * Settings.tileSize,
@@ -100,20 +98,21 @@ export class Game extends ECS {
           // Build environments
           const Environment = environmentTiles[this.tilemap.environments[tile]];
           if (Environment) {
-            const environment = new Environment(
-              column * Settings.tileSize,
-              row * Settings.tileSize
+            this.addEntity(
+              new Environment(
+                column * Settings.tileSize,
+                row * Settings.tileSize
+              )
             );
-            this.entities.push(environment);
           }
         }
       }
 
-      this.get(Renderer).setTerrains(terrains);
+      this.get(RenderSystem).setTerrains(terrains);
 
       // Build interactions
       this.tilemap.interactions.forEach((interaction) => {
-        this.entities.push(
+        this.addEntity(
           new Interaction(
             interaction.x,
             interaction.y,
@@ -126,19 +125,20 @@ export class Game extends ECS {
 
       // Add a new player instance
       const player = new Player(playerX, playerY);
-      this.entities.push(player);
+      this.get(PlayerSystem).setPlayer(player);
+      this.addEntity(player);
 
-      this.entities.push(new Patroller(350, 300));
-      this.entities.push(new Patroller(400, 300));
+      this.addEntity(new Patroller(350, 300));
+      this.addEntity(new Patroller(400, 300));
 
       // Setup camera
-      const camera = this.get(Camera);
+      const camera = this.get(CameraSystem);
       camera.setPlayer(player);
       camera.init();
 
       // Load textures
-      this.get(Renderer)
-        .loadTextures(this.entities)
+      this.get(RenderSystem)
+        .loadTextures(this.getEntities())
         .then(() => {
           Emitter.emit('scene-loaded');
           resolve(null);
@@ -156,7 +156,7 @@ export class Game extends ECS {
     }
 
     if (!this.paused) {
-      this.updateSystems();
+      this.update();
     }
 
     requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
@@ -165,14 +165,12 @@ export class Game extends ECS {
   private setEvents() {
     // Add entity to the scene
     Emitter.on('spawn', (entity) => {
-      this.entities.push(entity);
-      this.setSystemsEntities();
+      this.addEntity(entity);
     });
 
     // Remove entity from the scene
-    Emitter.on('despawn', (entity) => {
-      delete this.entities[this.entities.indexOf(entity)];
-      this.setSystemsEntities();
+    Emitter.on('despawn', (id) => {
+      this.deleteEntity(id);
     });
 
     // Switch map
@@ -193,19 +191,19 @@ export class Game extends ECS {
 
     // Resize
     window.addEventListener('resize', () => {
-      this.get(Renderer).resize();
-      this.get(Camera).resize();
+      this.get(RenderSystem).resize();
+      this.get(CameraSystem).resize();
     });
   }
 
   private switchMap(map: string, playerX: number, playerY: number) {
+    this.get(AISystem).clear();
+
     setTimeout(() => {
-      this.entities = [];
-      this.setSystemsEntities();
+      this.clearEntities();
 
       this.tilemap = tilemapIndex[map];
       this.buildMap(playerX, playerY);
-      this.setSystemsEntities();
     }, Settings.transitionDuration);
   }
 

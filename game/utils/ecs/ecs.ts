@@ -4,7 +4,7 @@ import { System, SystemContructor } from './system';
 export abstract class ECS {
   private systems: Map<SystemContructor, System> = new Map();
 
-  protected abstract entities: Entity[];
+  private entities: Map<number, Entity> = new Map();
 
   protected add(system: System) {
     this.systems.set(system.constructor as SystemContructor, system);
@@ -18,13 +18,33 @@ export abstract class ECS {
     return this.systems.get(system) as T;
   }
 
-  protected updateSystems() {
+  protected update() {
     this.systems.forEach((system) => system.update());
   }
 
-  protected setSystemsEntities() {
-    this.systems.forEach((system) => {
-      system.setEntities(this.entities);
-    });
+  protected addEntity(entity: Entity) {
+    entity.setCheck((id: number) => this.checkEntity(id));
+    this.entities.set(entity.id, entity);
+    this.systems.forEach((system) => system.check(entity));
+  }
+
+  protected deleteEntity(id: number) {
+    this.entities.delete(id);
+    this.systems.forEach((system) => system.delete(id));
+  }
+
+  protected getEntities() {
+    return Array.from(this.entities.values());
+  }
+
+  protected clearEntities() {
+    this.systems.forEach((system) => system.clear());
+  }
+
+  checkEntity(id: number) {
+    const entity = this.entities.get(id);
+    if (entity) {
+      this.systems.forEach((system) => system.check(entity));
+    }
   }
 }

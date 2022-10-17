@@ -32,3 +32,14 @@ export type Tilemap = {
 export type Horizontal = 'left' | 'right';
 
 export type Vertical = 'up' | 'down';
+
+export type Direction = Horizontal | Vertical;
+
+export type EntityState =
+  | 'idle'
+  | 'run'
+  | 'chase'
+  | 'melee-attack-anticipation'
+  | 'melee-attack'
+  | 'dash'
+  | 'dash-recovery';

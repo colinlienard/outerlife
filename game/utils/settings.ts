@@ -20,7 +20,7 @@ export abstract class Settings {
     columns: 0,
     rows: 0,
 
-    width: 0,
-    height: 0,
+    width: 1000,
+    height: 1000,
   };
 }
