@@ -1,20 +1,20 @@
 import { Component, Settings } from '~~/game/utils';
 
 export class AIComponent implements Component {
-  readonly abortAggroRange: number;
-
-  readonly attackAnticipationTime: number;
-
-  readonly attackRange: number;
-
-  readonly detectionRange: number;
-
   readonly spawnPoint: {
     x: number;
     y: number;
   };
 
-  readonly wanderDistance = 100;
+  readonly detectionRange: number;
+
+  readonly abortAggroRange: number;
+
+  readonly attackRange: number;
+
+  readonly attackAnticipationTime: number;
+
+  readonly wanderDistance: number;
 
   target: {
     x: number;
@@ -24,19 +24,21 @@ export class AIComponent implements Component {
   constructor(
     spawnX: number,
     spawnY: number,
+    wanderDistance: number,
     detectionRange: number,
     abortAggroRange: number,
     attackRange: number,
     attackAnticipationTime: number
   ) {
-    this.abortAggroRange = abortAggroRange;
-    this.attackAnticipationTime = attackAnticipationTime;
-    this.attackRange = attackRange;
-    this.detectionRange = detectionRange;
     this.spawnPoint = {
       x: spawnX,
       y: spawnY,
     };
+    this.wanderDistance = wanderDistance;
+    this.detectionRange = detectionRange;
+    this.abortAggroRange = abortAggroRange;
+    this.attackRange = attackRange;
+    this.attackAnticipationTime = attackAnticipationTime;
   }
 
   setWanderTarget() {

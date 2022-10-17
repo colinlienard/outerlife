@@ -22,9 +22,13 @@ export class PositionComponent implements Component {
   }
 
   getCenter() {
+    if (!this.width || !this.height) {
+      throw new Error('Width and/or height not provided in PositionComponent.');
+    }
+
     return {
-      x: this.x + (this.width as number) / 2,
-      y: this.y + (this.height as number) / 2,
+      x: this.x + this.width / 2,
+      y: this.y + this.height / 2,
     };
   }
 }

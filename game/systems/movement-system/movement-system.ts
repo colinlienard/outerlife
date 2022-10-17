@@ -21,6 +21,14 @@ export class MovementSystem extends System {
       const movement = entity.get(MovementComponent);
       const stateMachine = entity.get(StateMachineComponent);
 
+      const runAndChase = () => {
+        if (movement.speed < movement.maxSpeed) {
+          movement.speed += movement.acceleration;
+          return;
+        }
+        movement.speed = movement.maxSpeed;
+      };
+
       stateMachine.on({
         idle() {
           if (movement.speed > 0) {
@@ -30,21 +38,9 @@ export class MovementSystem extends System {
           movement.speed = 0;
         },
 
-        run() {
-          if (movement.speed < movement.maxSpeed) {
-            movement.speed += movement.acceleration;
-            return;
-          }
-          movement.speed = movement.maxSpeed;
-        },
+        run: runAndChase,
 
-        chase() {
-          if (movement.speed < movement.maxSpeed) {
-            movement.speed += movement.acceleration;
-            return;
-          }
-          movement.speed = movement.maxSpeed;
-        },
+        chase: runAndChase,
 
         'melee-attack-anticipation': () => {
           movement.speed = 0;
@@ -67,7 +63,11 @@ export class MovementSystem extends System {
             movement.speed = dash.speed;
             stateMachine.timer(dash.duration);
 
-            // Spawn dash dust
+            // Handle dash dust
+            if (!dash.spawnDustEffect) {
+              return;
+            }
+
             Emitter.emit(
               'spawn',
               new DashDust(
@@ -87,9 +87,14 @@ export class MovementSystem extends System {
 
         'melee-attack': ({ stateChanged }) => {
           if (stateChanged) {
-            movement.speed = entity.get(MeleeAttackComponent).speed;
+            const meleeAttack = entity.get(MeleeAttackComponent);
+            movement.speed = meleeAttack.speed;
 
-            // Spawn dash dust
+            // Handle dash dust
+            if (!meleeAttack.spawnDustEffect) {
+              return;
+            }
+
             Emitter.emit(
               'spawn',
               new DashDust(

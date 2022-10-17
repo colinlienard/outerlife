@@ -14,7 +14,7 @@ import { Entity } from '~~/game/utils';
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new AIComponent(x, y, 100, 150, 50, 30));
+    this.add(new AIComponent(x, y, 100, 100, 150, 50, 30));
     this.add(
       new AnimationComponent(
         {

@@ -7,9 +7,17 @@ export class DashComponent implements Component {
 
   readonly deceleration: number;
 
-  constructor(speed: number, duration: number, deceleration: number) {
+  readonly spawnDustEffect: boolean;
+
+  constructor(
+    speed: number,
+    duration: number,
+    deceleration: number,
+    spawnDustEffect = true
+  ) {
     this.speed = speed;
     this.duration = duration;
     this.deceleration = deceleration;
+    this.spawnDustEffect = spawnDustEffect;
   }
 }

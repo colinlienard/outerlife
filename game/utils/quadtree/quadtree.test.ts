@@ -76,7 +76,7 @@ describe('quadtree', () => {
   });
 
   it('should clear the tree', () => {
-    tree.clear();
+    tree.reset(0, 0, 500, 500);
 
     expect(tree.items.size).toBe(0);
     expect(tree.nodes).toBeNull();

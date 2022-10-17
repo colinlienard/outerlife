@@ -48,7 +48,7 @@ export class AISystem extends System {
         : false;
 
       stateMachine.interact({
-        idle: ({ stateChanged }) => {
+        idle({ stateChanged }) {
           if (shouldChase) {
             stateMachine.set('chase');
             return;
@@ -64,7 +64,7 @@ export class AISystem extends System {
           }
         },
 
-        run: ({ stateChanged }) => {
+        run({ stateChanged }) {
           if (shouldChase) {
             stateMachine.set('chase');
             return;

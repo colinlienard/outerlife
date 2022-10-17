@@ -1,105 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
-  AnimationComponent,
   PositionComponent,
   MovementComponent,
-  SpriteLayersComponent,
   StateMachineComponent,
+  DashComponent,
+  MeleeAttackComponent,
 } from '~~/game/components';
 import { Entity } from '~~/game/utils';
 import { MovementSystem } from './movement-system';
 
 class MovingEntity extends Entity {
   constructor() {
-    const spriteAnimation = {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      depth: 1,
-    };
-
     super();
-    this.add(
-      new AnimationComponent({
-        idle: {
-          frameStart: 1,
-          frameNumber: 3,
-          framesPerSecond: 16,
-        },
-        run: {
-          frameStart: 4,
-          frameNumber: 3,
-          framesPerSecond: 16,
-        },
-        'melee-attack': {
-          frameStart: 7,
-          frameNumber: 3,
-          framesPerSecond: 16,
-        },
-        dash: {
-          frameStart: 10,
-          frameNumber: 1,
-          framesPerSecond: 16,
-        },
-        'dash-recovery': {
-          frameStart: 10,
-          frameNumber: 1,
-          framesPerSecond: 16,
-        },
-      })
-    );
+    this.add(new DashComponent(8, 10, 1, false));
     this.add(new PositionComponent(0, 0));
+    this.add(new MeleeAttackComponent(4, 1, false));
     this.add(new MovementComponent(2, 0.1, 0.2));
-    this.add(
-      new SpriteLayersComponent([
-        {
-          source: '',
-          sourceX: 0,
-          sourceY: 0,
-          width: 16,
-          height: 16,
-          x: 0,
-          y: 0,
-          rotation: 0,
-          depth: 1,
-          animation: {
-            idle: {
-              up: spriteAnimation,
-              down: spriteAnimation,
-              left: spriteAnimation,
-              right: spriteAnimation,
-            },
-            run: {
-              up: spriteAnimation,
-              down: spriteAnimation,
-              left: spriteAnimation,
-              right: {
-                rotation: 45,
-                depth: -1,
-              },
-            },
-            'melee-attack': {
-              up: spriteAnimation,
-              down: spriteAnimation,
-              left: spriteAnimation,
-              right: spriteAnimation,
-            },
-            dash: {
-              up: {},
-              down: {},
-              left: {},
-              right: {},
-            },
-            'dash-recovery': {
-              up: {},
-              down: {},
-              left: {},
-              right: {},
-            },
-          },
-        },
-      ])
-    );
     this.add(new StateMachineComponent());
   }
 }
@@ -113,9 +29,36 @@ describe('movement system', () => {
   const movementSystem = new MovementSystem();
   movementSystem.check(entity);
 
-  it("should change the entity's position", () => {
-    stateMachine.set('run');
+  const resetMovement = () => {
     movement.angle = 45;
+    movement.speed = 0;
+    position.x = 0;
+    position.y = 0;
+  };
+
+  it("should change the entity's position when running", () => {
+    stateMachine.set('run');
+    resetMovement();
+
+    movementSystem.update();
+
+    expect(position.x).toBeGreaterThan(0);
+    expect(position.y).toBeGreaterThan(0);
+  });
+
+  it("should change the entity's position when dashing", () => {
+    stateMachine.set('dash');
+    resetMovement();
+
+    movementSystem.update();
+
+    expect(position.x).toBeGreaterThan(0);
+    expect(position.y).toBeGreaterThan(0);
+  });
+
+  it("should change the entity's position when performing melee attack", () => {
+    stateMachine.set('melee-attack');
+    resetMovement();
 
     movementSystem.update();
 

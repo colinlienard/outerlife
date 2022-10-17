@@ -107,51 +107,53 @@ export class PlayerSystem extends System {
       return;
     }
 
-    const isMoving = Object.values(this.input).reduce(
+    const entry = Object.values(this.input).reduce(
       (previous, current) => previous || current
     );
 
     // Set movement state
-    this.player.stateMachine.set(isMoving ? 'run' : 'idle');
+    this.player.stateMachine.set(entry ? 'run' : 'idle');
+
+    if (!entry) {
+      return;
+    }
 
     // Set movement angle
-    if (isMoving) {
-      if (this.input.down) {
-        if (this.input.left) {
-          this.player.movement.angle = 135;
-          return;
-        }
-
-        if (this.input.right) {
-          this.player.movement.angle = 45;
-          return;
-        }
-
-        this.player.movement.angle = 90;
-        return;
-      }
-
-      if (this.input.up) {
-        if (this.input.left) {
-          this.player.movement.angle = 225;
-          return;
-        }
-
-        if (this.input.right) {
-          this.player.movement.angle = 315;
-          return;
-        }
-
-        this.player.movement.angle = 270;
-        return;
-      }
-
+    if (this.input.down) {
       if (this.input.left) {
-        this.player.movement.angle = 180;
+        this.player.movement.angle = 135;
         return;
       }
 
-      this.player.movement.angle = 0;
+      if (this.input.right) {
+        this.player.movement.angle = 45;
+        return;
+      }
+
+      this.player.movement.angle = 90;
+      return;
     }
+
+    if (this.input.up) {
+      if (this.input.left) {
+        this.player.movement.angle = 225;
+        return;
+      }
+
+      if (this.input.right) {
+        this.player.movement.angle = 315;
+        return;
+      }
+
+      this.player.movement.angle = 270;
+      return;
+    }
+
+    if (this.input.left) {
+      this.player.movement.angle = 180;
+      return;
+    }
+
+    this.player.movement.angle = 0;
   }
 }

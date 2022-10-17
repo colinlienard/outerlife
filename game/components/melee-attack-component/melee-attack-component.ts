@@ -5,8 +5,11 @@ export class MeleeAttackComponent implements Component {
 
   readonly deceleration: number;
 
-  constructor(speed: number, deceleration: number) {
+  readonly spawnDustEffect: boolean;
+
+  constructor(speed: number, deceleration: number, spawnDustEffect = true) {
     this.speed = speed;
     this.deceleration = deceleration;
+    this.spawnDustEffect = spawnDustEffect;
   }
 }
