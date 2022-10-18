@@ -1,4 +1,4 @@
-import { Component } from '~~/game/utils/ecs';
+import { Component } from '~~/game/utils';
 
 export class SpriteComponent implements Component {
   readonly source: string;

@@ -5,8 +5,7 @@ import {
   SpriteLayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, System } from '~~/game/utils';
-import { getDirectionFromAngle } from '~~/game/utils/helpers/getDirectionFromAngle';
+import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
 
 export class AnimationSystem extends System {
   protected readonly requiredComponents = [AnimationComponent, SpriteComponent];

@@ -1,5 +1,6 @@
 import {
   AnimationComponent,
+  Collision,
   CollisionComponent,
   PositionComponent,
   SpriteComponent,
@@ -22,7 +23,8 @@ export class Slash extends Entity {
         row,
         [
           {
-            action: () => this.addCollision(),
+            action: () =>
+              this.add(new CollisionComponent([this.getCollision()])),
             frame: 1,
           },
           {
@@ -58,22 +60,42 @@ export class Slash extends Entity {
     this.row = row;
   }
 
-  addCollision() {
+  getCollision(): Collision {
     switch (this.row) {
       case 0:
-        this.add(new CollisionComponent('damage', 0, 4, 40, 20));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 0,
+          y: 4,
+          width: 40,
+          height: 20,
+        };
       case 1:
-        this.add(new CollisionComponent('damage', 0, 16, 40, 20));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 0,
+          y: 16,
+          width: 40,
+          height: 20,
+        };
       case 2:
-        this.add(new CollisionComponent('damage', 4, 0, 20, 40));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 4,
+          y: 0,
+          width: 20,
+          height: 40,
+        };
       case 3:
-        this.add(new CollisionComponent('damage', 16, 0, 20, 40));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 16,
+          y: 0,
+          width: 20,
+          height: 40,
+        };
       default:
-        break;
+        throw new Error(`Invalid row '${this.row}' in Slash entity.`);
     }
   }
 }

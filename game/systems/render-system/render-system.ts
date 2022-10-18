@@ -169,7 +169,7 @@ export class RenderSystem extends System {
     this.engine.render();
   }
 
-  private renderCollision(boxes: CollisionComponent[], color: string) {
+  private renderCollisionsByColor(boxes: Box[], color: string) {
     this.debugContext.lineWidth = 2;
     this.debugContext.strokeStyle = color;
 
@@ -183,51 +183,45 @@ export class RenderSystem extends System {
     });
   }
 
-  private renderCollisions() {
-    // Get collisions of environments and organisms
-    const { blue, green, red } = this.getAsArray().reduce<
-      Record<string, CollisionComponent[]>
-    >(
-      (previous, current) => {
-        if (current.has(CollisionComponent) && current.has(PositionComponent)) {
-          const collision = current.get(CollisionComponent);
-          const position = current.get(PositionComponent);
+  private renderAllCollisions() {
+    const red: Box[] = [];
+    const blue: Box[] = [];
+    const green: Box[] = [];
+    const yellow: Box[] = [];
 
-          const c: CollisionComponent = {
-            ...collision,
-            x: collision.x + position.x,
-            y: collision.y + position.y,
-          };
-
+    this.getAsArray().forEach((entity) => {
+      if (entity.has(CollisionComponent)) {
+        const { x, y } = entity.get(PositionComponent);
+        const { collisions } = entity.get(CollisionComponent);
+        collisions.forEach((collision) => {
+          const box = { ...collision, x: collision.x + x, y: collision.y + y };
           switch (collision.type) {
+            case 'hitbox':
             case 'environment':
-            case 'organism':
-              previous.red.push(c);
+              blue.push(box);
               break;
-            case 'damage':
             case 'interaction':
-              previous.blue.push(c);
+              yellow.push(box);
               break;
-            case 'alive':
-              previous.green.push(c);
+            case 'damage-player':
+            case 'damage-ai':
+              red.push(box);
+              break;
+            case 'player-hurtbox':
+            case 'ai-hurtbox':
+              green.push(box);
               break;
             default:
-              throw new Error(`Invalid collision type: '${collision.type}'`);
+              break;
           }
-        }
-
-        return previous;
-      },
-      {
-        blue: [],
-        green: [],
-        red: [],
+        });
       }
-    );
+    });
 
-    this.renderCollision(red, 'red');
-    this.renderCollision(blue, 'blue');
-    this.renderCollision(green, 'lime');
+    this.renderCollisionsByColor(red, 'red');
+    this.renderCollisionsByColor(blue, 'blue');
+    this.renderCollisionsByColor(green, 'lime');
+    this.renderCollisionsByColor(yellow, 'yellow');
   }
 
   private renderGrid() {
@@ -410,7 +404,7 @@ export class RenderSystem extends System {
         Settings.scene.width * Settings.ratio,
         Settings.scene.height * Settings.ratio
       );
-      this.renderCollisions();
+      this.renderAllCollisions();
       this.renderGrid();
     }
   }

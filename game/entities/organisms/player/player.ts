@@ -74,7 +74,17 @@ export class Player extends Entity {
         ]
       )
     );
-    this.add(new CollisionComponent('organism', 10, 26, 12, 8));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'hitbox',
+          x: 10,
+          y: 26,
+          width: 12,
+          height: 8,
+        },
+      ])
+    );
     this.add(new DashComponent(7, 4, 0.5));
     this.add(new MeleeAttackComponent(3, 0.3));
     this.add(new MovementComponent(1.5, 0.1, 0.15));

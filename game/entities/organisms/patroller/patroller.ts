@@ -49,7 +49,17 @@ export class Patroller extends Entity {
         1
       )
     );
-    this.add(new CollisionComponent('organism', 10, 26, 12, 8));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'hitbox',
+          x: 10,
+          y: 26,
+          width: 12,
+          height: 8,
+        },
+      ])
+    );
     this.add(new MeleeAttackComponent(3, 0.2));
     this.add(new MovementComponent(0.4, 0.02, 0.04));
     this.add(new PositionComponent(x, y, 32, 32));
