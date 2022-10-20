@@ -8,6 +8,8 @@ export class AIComponent implements Component {
 
   readonly detectionRange: number;
 
+  readonly minDetectionRange: number;
+
   readonly abortAggroRange: number;
 
   readonly attackRange: number;
@@ -26,6 +28,7 @@ export class AIComponent implements Component {
     spawnY: number,
     wanderDistance: number,
     detectionRange: number,
+    minDetectionRange: number,
     abortAggroRange: number,
     attackRange: number,
     attackAnticipationTime: number
@@ -36,6 +39,7 @@ export class AIComponent implements Component {
     };
     this.wanderDistance = wanderDistance;
     this.detectionRange = detectionRange;
+    this.minDetectionRange = minDetectionRange;
     this.abortAggroRange = abortAggroRange;
     this.attackRange = attackRange;
     this.attackAnticipationTime = attackAnticipationTime;

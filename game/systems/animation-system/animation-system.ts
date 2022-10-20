@@ -14,6 +14,18 @@ export class AnimationSystem extends System {
     this.get().forEach((entity) => {
       const animation = entity.get(AnimationComponent);
 
+      // Handle actions
+      if (animation.frameWaiter === 0 && animation.actions) {
+        for (const action of animation.actions) {
+          if (
+            action.frame === animation.column + 1 &&
+            (action.on ? action.on === animation.getCurrent() : true)
+          ) {
+            action.action();
+          }
+        }
+      }
+
       // Execute the following every {specified number} frames per second
       if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
         animation.frameWaiter = 0;
@@ -21,18 +33,6 @@ export class AnimationSystem extends System {
         // Move forward in the animation
         if (animation.column < animation.current.frameNumber - 1) {
           animation.column += 1;
-
-          // Handle actions
-          if (animation.actions) {
-            for (const action of animation.actions) {
-              if (
-                action.frame === animation.column &&
-                (action.on ? action.on === animation.getCurrent() : true)
-              ) {
-                action.action();
-              }
-            }
-          }
 
           // When the animation ends
         } else if (animation.current.then) {
@@ -60,7 +60,9 @@ export class AnimationSystem extends System {
         );
 
         // Update animation row
-        animation.row = animationRow;
+        if (state !== 'hit') {
+          animation.row = animationRow;
+        }
 
         // Update animation type
         if (animation.getCurrent() !== state) {

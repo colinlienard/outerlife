@@ -9,7 +9,7 @@ import {
   SpriteLayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, Entity } from '~~/game/utils';
+import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
 
 export class Player extends Entity {
@@ -19,6 +19,11 @@ export class Player extends Entity {
       new AnimationComponent(
         {
           idle: {
+            frameStart: 1,
+            frameNumber: 8,
+            framesPerSecond: 8,
+          },
+          hit: {
             frameStart: 1,
             frameNumber: 8,
             framesPerSecond: 8,
@@ -50,25 +55,30 @@ export class Player extends Entity {
         [
           {
             action: () => this.spawnDust(),
-            frame: 1,
+            frame: 2,
             on: 'run',
           },
           {
             action: () => this.spawnDust(),
-            frame: 5,
+            frame: 6,
             on: 'run',
           },
           {
             action: () => {
-              const position = this.get(PositionComponent);
-              const animation = this.get(AnimationComponent);
+              const position = this.get(PositionComponent).getCenter();
+              const { row } = this.get(AnimationComponent);
+              const { angle } = this.get(MovementComponent);
 
-              Emitter.emit(
-                'spawn',
-                new Slash(position.x + 16, position.y + 16, animation.row, 18)
+              const point = getPointFromAngle(
+                angle,
+                position.x,
+                position.y,
+                16
               );
+
+              Emitter.emit('spawn', new Slash(point.x, point.y, row));
             },
-            frame: 1,
+            frame: 2,
             on: 'melee-attack',
           },
         ]
@@ -78,10 +88,17 @@ export class Player extends Entity {
       new CollisionComponent([
         {
           type: 'hitbox',
-          x: 10,
+          x: 8,
           y: 26,
-          width: 12,
+          width: 16,
           height: 8,
+        },
+        {
+          type: 'player-hurtbox',
+          x: 11,
+          y: 2,
+          width: 10,
+          height: 30,
         },
       ])
     );

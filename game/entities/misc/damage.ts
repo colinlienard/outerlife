@@ -11,7 +11,7 @@ export class Damage extends Entity {
     this.add(
       new CollisionComponent([
         {
-          type: 'damage-ai',
+          type: 'damage-player',
           x: 0,
           y: 0,
           width,
@@ -19,7 +19,7 @@ export class Damage extends Entity {
         },
       ])
     );
-    this.add(new PositionComponent(x, y));
+    this.add(new PositionComponent(x - width / 2, y - height / 2));
     this.add(new SpriteComponent('/sprites/player.png', 0, 0, 0, 0)); // Fake sprite so that its collision can be rendered
   }
 }

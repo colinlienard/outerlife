@@ -2,11 +2,20 @@ import {
   AIComponent,
   ColliderType,
   CollisionComponent,
+  MovementComponent,
   PositionComponent,
   SpriteComponent,
+  StateMachineComponent,
 } from '~~/game/components';
 import { Interaction, Player } from '~~/game/entities';
-import { Box, Entity, QuadTree, Settings, System } from '~~/game/utils';
+import {
+  Box,
+  Entity,
+  getAngleFromPoints,
+  QuadTree,
+  Settings,
+  System,
+} from '~~/game/utils';
 
 interface Leaf extends Box {
   id: number;
@@ -112,52 +121,66 @@ export class CollisionSystem extends System {
             }
 
             // If there is a collision
-            switch (col.type) {
-              // Handle regular collisions
-              case 'hitbox':
-                switch (collider.type) {
-                  case 'environment': {
-                    // If the entity is an AI, reset its wander target
-                    if (colliding.has(AIComponent)) {
-                      colliding.get(AIComponent).target = null;
-                    }
 
-                    const overlapX = widthX - Math.abs(distanceX);
-                    const overlapY = widthY - Math.abs(distanceY);
+            // Handle regular collisions
+            if (col.type === 'hitbox') {
+              switch (collider.type) {
+                case 'environment': {
+                  // If the entity is an AI, reset its wander target
+                  if (
+                    colliding.has(AIComponent) &&
+                    colliding.get(StateMachineComponent).get() !== 'hit'
+                  ) {
+                    colliding.get(AIComponent).target = null;
+                  }
 
-                    // Remove overlap
-                    if (overlapX < overlapY) {
-                      pos.x += distanceX > 0 ? overlapX : -overlapX;
-                      return;
-                    }
-                    pos.y += distanceY > 0 ? overlapY : -overlapY;
-                    break;
+                  const overlapX = widthX - Math.abs(distanceX);
+                  const overlapY = widthY - Math.abs(distanceY);
+
+                  // Remove overlap
+                  if (overlapX < overlapY) {
+                    pos.x += distanceX > 0 ? overlapX : -overlapX;
+                    return;
                   }
-                  case 'interaction': {
-                    if (colliding instanceof Player) {
-                      const interaction = collider.entity as Interaction;
-                      if (!interaction.entered) {
-                        interaction.enter();
-                        interaction.entered = true;
-                      }
-                    }
-                    break;
-                  }
-                  default:
-                    break;
+                  pos.y += distanceY > 0 ? overlapY : -overlapY;
+                  return;
                 }
-                break;
+                case 'interaction': {
+                  if (colliding instanceof Player) {
+                    const interaction = collider.entity as Interaction;
+                    if (!interaction.entered) {
+                      interaction.enter();
+                      interaction.entered = true;
+                    }
+                  }
+                  return;
+                }
+                default:
+                  return;
+              }
+            }
 
-              // Handle player gets hurt
-              case 'player-hurtbox':
-                break;
+            // Handle player or ai gets hurt
+            if (
+              (col.type === 'player-hurtbox' &&
+                collider.type === 'damage-player') ||
+              (col.type === 'ai-hurtbox' && collider.type === 'damage-ai')
+            ) {
+              const movement = colliding.get(MovementComponent);
+              const stateMachine = colliding.get(StateMachineComponent);
 
-              // Handle ai gets hurt
-              case 'ai-hurtbox':
-                break;
+              if (stateMachine.get() === 'hit') {
+                return;
+              }
 
-              default:
-                break;
+              movement.angle = getAngleFromPoints(
+                pos.x + col.x + col.width / 2,
+                pos.y + col.y + col.height / 2,
+                collider.x + collider.width / 2,
+                collider.y + collider.height / 2
+              );
+
+              stateMachine.set('hit');
             }
           });
       });

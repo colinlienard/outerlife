@@ -128,7 +128,6 @@ export class Game extends ECS {
       this.get(PlayerSystem).setPlayer(player);
       this.addEntity(player);
 
-      this.addEntity(new Patroller(350, 300));
       this.addEntity(new Patroller(400, 300));
 
       // Setup camera

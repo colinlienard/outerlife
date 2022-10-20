@@ -43,8 +43,9 @@ export class AISystem extends System {
       );
 
       const shouldChase = stateMachine.is(['idle', 'run'])
-        ? distanceFromPlayer <= ai.detectionRange &&
-          this.canSee(movement.angle, position, playerPosition)
+        ? distanceFromPlayer <= ai.minDetectionRange ||
+          (distanceFromPlayer <= ai.detectionRange &&
+            this.canSee(movement.angle, position, playerPosition))
         : false;
 
       stateMachine.interact({

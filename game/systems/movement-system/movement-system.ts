@@ -113,6 +113,23 @@ export class MovementSystem extends System {
             movement.speed = 0;
           }
         },
+
+        hit({ stateChanged }) {
+          if (stateChanged) {
+            movement.speed = 3;
+            stateMachine.timer(30);
+          }
+
+          movement.speed -= 0.2;
+
+          if (movement.speed < 0) {
+            movement.speed = 0;
+          }
+
+          if (stateMachine.timer()) {
+            stateMachine.set('idle');
+          }
+        },
       });
 
       // Update position

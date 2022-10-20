@@ -42,4 +42,5 @@ export type EntityState =
   | 'melee-attack-anticipation'
   | 'melee-attack'
   | 'dash'
-  | 'dash-recovery';
+  | 'dash-recovery'
+  | 'hit';
