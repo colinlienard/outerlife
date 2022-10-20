@@ -11,6 +11,8 @@ export class SpriteComponent implements Component {
 
   readonly height: number;
 
+  hit = false;
+
   constructor(
     source: string,
     sourceX: number,
@@ -23,5 +25,13 @@ export class SpriteComponent implements Component {
     this.sourceY = sourceY;
     this.width = width;
     this.height = height;
+  }
+
+  setHit() {
+    this.hit = true;
+
+    setTimeout(() => {
+      this.hit = false;
+    }, 100);
   }
 }

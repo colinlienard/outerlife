@@ -4,6 +4,7 @@ import {
   StateMachineComponent,
   DashComponent,
   MeleeAttackComponent,
+  AIComponent,
 } from '~~/game/components';
 import { DashDust } from '~~/game/entities';
 import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
@@ -127,7 +128,7 @@ export class MovementSystem extends System {
           }
 
           if (stateMachine.timer()) {
-            stateMachine.set('idle');
+            stateMachine.set(entity.has(AIComponent) ? 'chase' : 'idle');
           }
         },
       });

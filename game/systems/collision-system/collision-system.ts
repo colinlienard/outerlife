@@ -167,6 +167,7 @@ export class CollisionSystem extends System {
               (col.type === 'ai-hurtbox' && collider.type === 'damage-ai')
             ) {
               const movement = colliding.get(MovementComponent);
+              const sprite = colliding.get(SpriteComponent);
               const stateMachine = colliding.get(StateMachineComponent);
 
               if (stateMachine.get() === 'hit') {
@@ -181,6 +182,7 @@ export class CollisionSystem extends System {
               );
 
               stateMachine.set('hit');
+              sprite.setHit();
             }
           });
       });

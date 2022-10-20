@@ -138,7 +138,9 @@ export class RenderSystem extends System {
           Math.floor(position.x * Settings.ratio),
           Math.floor(position.y * Settings.ratio),
           sprite.width * Settings.ratio,
-          sprite.height * Settings.ratio
+          sprite.height * Settings.ratio,
+          0,
+          sprite.hit
         );
       }
 
