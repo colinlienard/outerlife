@@ -2,6 +2,7 @@ import {
   AnimationComponent,
   CollisionComponent,
   DashComponent,
+  HealthComponent,
   MeleeAttackComponent,
   MovementComponent,
   PositionComponent,
@@ -76,7 +77,7 @@ export class Player extends Entity {
                 16
               );
 
-              Emitter.emit('spawn', new Slash(point.x, point.y, row));
+              Emitter.emit('spawn', new Slash(point.x, point.y, row, 30));
             },
             frame: 2,
             on: 'melee-attack',
@@ -103,6 +104,7 @@ export class Player extends Entity {
       ])
     );
     this.add(new DashComponent(7, 4, 0.5));
+    this.add(new HealthComponent(this.id, 100));
     this.add(new MeleeAttackComponent(3, 0.3));
     this.add(new MovementComponent(1.5, 0.1, 0.15));
     this.add(new PositionComponent(x, y, 32, 32));

@@ -10,7 +10,7 @@ import { Entity } from '~~/game/utils';
 export class Slash extends Entity {
   private readonly row: number;
 
-  constructor(x: number, y: number, row: number) {
+  constructor(x: number, y: number, row: number, damages: number) {
     super();
     this.add(
       new AnimationComponent(
@@ -24,7 +24,7 @@ export class Slash extends Entity {
         [
           {
             action: () =>
-              this.add(new CollisionComponent([this.getCollision()])),
+              this.add(new CollisionComponent([this.getCollision(damages)])),
             frame: 2,
           },
           {
@@ -34,33 +34,13 @@ export class Slash extends Entity {
         ]
       )
     );
-
-    // let effectX = 0;
-    // let effectY = 0;
-    // switch (row) {
-    //   case 0:
-    //     effectY -= range;
-    //     break;
-    //   case 1:
-    //     effectY += range;
-    //     break;
-    //   case 2:
-    //     effectX -= range;
-    //     break;
-    //   case 3:
-    //     effectX += range;
-    //     break;
-    //   default:
-    //     break;
-    // }
-
     this.add(new PositionComponent(x - 20, y - 20));
     this.add(new SpriteComponent('/sprites/slash.png', 0, 0, 40, 40));
 
     this.row = row;
   }
 
-  getCollision(): Collision {
+  getCollision(damages: number): Collision {
     switch (this.row) {
       case 0:
         return {
@@ -69,6 +49,7 @@ export class Slash extends Entity {
           y: 0,
           width: 40,
           height: 32,
+          damages,
         };
       case 1:
         return {
@@ -77,6 +58,7 @@ export class Slash extends Entity {
           y: 8,
           width: 40,
           height: 32,
+          damages,
         };
       case 2:
         return {
@@ -85,6 +67,7 @@ export class Slash extends Entity {
           y: 0,
           width: 32,
           height: 40,
+          damages,
         };
       case 3:
         return {
@@ -93,6 +76,7 @@ export class Slash extends Entity {
           y: 0,
           width: 32,
           height: 40,
+          damages,
         };
       default:
         throw new Error(`Invalid row '${this.row}' in Slash entity.`);

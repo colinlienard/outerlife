@@ -2,6 +2,7 @@ import {
   AIComponent,
   AnimationComponent,
   CollisionComponent,
+  HealthComponent,
   MeleeAttackComponent,
   MovementComponent,
   PositionComponent,
@@ -51,6 +52,12 @@ export class Patroller extends Entity {
             framesPerSecond: 8,
             then: 'chase',
           },
+          dead: {
+            frameStart: 19,
+            frameNumber: 5,
+            framesPerSecond: 4,
+            then: 'die',
+          },
         },
         1,
         [
@@ -80,6 +87,7 @@ export class Patroller extends Entity {
         },
       ])
     );
+    this.add(new HealthComponent(this.id, 100));
     this.add(new MeleeAttackComponent(3.5, 0.25));
     this.add(new MovementComponent(0.4, 0.02, 0.04));
     this.add(new PositionComponent(x, y, 32, 32));
@@ -117,6 +125,6 @@ export class Patroller extends Entity {
 
     const { x, y } = getPointFromAngle(angle, position.x, position.y, 10);
 
-    return new Damage(x, y, 24, 24);
+    return new Damage(x, y, 24, 24, 30);
   }
 }

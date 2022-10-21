@@ -2,6 +2,7 @@ import {
   AIComponent,
   ColliderType,
   CollisionComponent,
+  HealthComponent,
   MovementComponent,
   PositionComponent,
   SpriteComponent,
@@ -9,7 +10,6 @@ import {
 } from '~~/game/components';
 import { Interaction, Player } from '~~/game/entities';
 import {
-  Box,
   Entity,
   getAngleFromPoints,
   QuadTree,
@@ -17,11 +17,36 @@ import {
   System,
 } from '~~/game/utils';
 
-interface Leaf extends Box {
-  id: number;
-  type: ColliderType;
-  entity: Entity;
-}
+type Leaf =
+  | {
+      id: number;
+      type: Exclude<
+        ColliderType,
+        'damage-ai' | 'damage-player' | 'interaction'
+      >;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | {
+      id: number;
+      type: Extract<ColliderType, 'damage-player' | 'damage-ai'>;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      damages: number;
+    }
+  | {
+      id: number;
+      type: 'interaction';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      interaction: Interaction;
+    };
 
 export class CollisionSystem extends System {
   protected readonly requiredComponents = [
@@ -44,32 +69,52 @@ export class CollisionSystem extends System {
     const { x: positionX, y: positionY } = entity.get(PositionComponent);
     const { collisions } = entity.get(CollisionComponent);
 
-    collisions.forEach(({ type, x, y, width, height }) => {
+    collisions.forEach((collision) => {
+      const { type, x, y } = collision;
+      const { id } = entity;
+
       switch (type) {
         case 'environment':
-        case 'interaction':
-        case 'damage-player':
-        case 'damage-ai': {
           this.colliders.add({
-            entity,
-            id: entity.id,
+            ...collision,
+            id,
             type,
             x: x + positionX,
             y: y + positionY,
-            width,
-            height,
           });
           return;
-        }
+
+        case 'interaction':
+          this.colliders.add({
+            ...collision,
+            id,
+            type,
+            x: x + positionX,
+            y: y + positionY,
+            interaction: entity.get(Interaction),
+          });
+          return;
+
+        case 'damage-player':
+        case 'damage-ai':
+          this.colliders.add({
+            ...collision,
+            id,
+            type,
+            x: x + positionX,
+            y: y + positionY,
+            damages: collision.damages,
+          });
+          return;
 
         case 'hitbox':
         case 'player-hurtbox':
         case 'ai-hurtbox':
-          if (this.collidings.has(entity.id)) {
+          if (this.collidings.has(id)) {
             return;
           }
 
-          this.collidings.set(entity.id, entity);
+          this.collidings.set(id, entity);
           return;
 
         default:
@@ -147,7 +192,7 @@ export class CollisionSystem extends System {
                 }
                 case 'interaction': {
                   if (colliding instanceof Player) {
-                    const interaction = collider.entity as Interaction;
+                    const { interaction } = collider;
                     if (!interaction.entered) {
                       interaction.enter();
                       interaction.entered = true;
@@ -166,23 +211,30 @@ export class CollisionSystem extends System {
                 collider.type === 'damage-player') ||
               (col.type === 'ai-hurtbox' && collider.type === 'damage-ai')
             ) {
-              const movement = colliding.get(MovementComponent);
-              const sprite = colliding.get(SpriteComponent);
               const stateMachine = colliding.get(StateMachineComponent);
 
-              if (stateMachine.get() === 'hit') {
+              if (stateMachine.is(['hit', 'dead'])) {
                 return;
               }
 
-              movement.angle = getAngleFromPoints(
+              // Make the sprite flash white
+              colliding.get(SpriteComponent).setHit();
+
+              // Set angle for repulsing the hit entity
+              colliding.get(MovementComponent).angle = getAngleFromPoints(
                 pos.x + col.x + col.width / 2,
                 pos.y + col.y + col.height / 2,
                 collider.x + collider.width / 2,
                 collider.y + collider.height / 2
               );
 
+              // Decrease entity's health and set dead state if health = 0
+              if (colliding.get(HealthComponent).damage(collider.damages)) {
+                stateMachine.set('dead');
+                return;
+              }
+
               stateMachine.set('hit');
-              sprite.setHit();
             }
           });
       });

@@ -1,3 +1,4 @@
+export * from './entityDies';
 export * from './getAngleFromPoints';
 export * from './getDirectionFromAngle';
 export * from './getDirectionFromPoints';

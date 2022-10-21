@@ -6,7 +6,13 @@ import {
 import { Entity } from '~~/game/utils';
 
 export class Damage extends Entity {
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    damages: number
+  ) {
     super();
     this.add(
       new CollisionComponent([
@@ -16,6 +22,7 @@ export class Damage extends Entity {
           y: 0,
           width,
           height,
+          damages,
         },
       ])
     );

@@ -6,10 +6,21 @@ export type ColliderType =
   | 'damage-player'
   | 'damage-ai';
 
-export type Collision = {
-  type: CollidingType | ColliderType;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+type CollisionType = CollidingType | ColliderType;
+
+export type Collision =
+  | {
+      type: Exclude<CollisionType, 'damage-ai' | 'damage-player'>;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  | {
+      type: Extract<CollisionType, 'damage-player' | 'damage-ai'>;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      damages: number;
+    };
