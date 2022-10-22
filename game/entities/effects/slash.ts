@@ -1,5 +1,6 @@
 import {
   AnimationComponent,
+  Collision,
   CollisionComponent,
   PositionComponent,
   SpriteComponent,
@@ -9,7 +10,7 @@ import { Entity } from '~~/game/utils';
 export class Slash extends Entity {
   private readonly row: number;
 
-  constructor(x: number, y: number, row: number, range: number) {
+  constructor(x: number, y: number, row: number, damages: number) {
     super();
     this.add(
       new AnimationComponent(
@@ -22,58 +23,63 @@ export class Slash extends Entity {
         row,
         [
           {
-            action: () => this.addCollision(),
-            frame: 1,
+            action: () =>
+              this.add(new CollisionComponent([this.getCollision(damages)])),
+            frame: 2,
           },
           {
             action: () => this.delete(CollisionComponent),
-            frame: 2,
+            frame: 3,
           },
         ]
       )
     );
-
-    let effectX = 0;
-    let effectY = 0;
-    switch (row) {
-      case 0:
-        effectY -= range;
-        break;
-      case 1:
-        effectY += range;
-        break;
-      case 2:
-        effectX -= range;
-        break;
-      case 3:
-        effectX += range;
-        break;
-      default:
-        break;
-    }
-
-    this.add(new PositionComponent(x - 20 + effectX, y - 20 + effectY));
+    this.add(new PositionComponent(x - 20, y - 20));
     this.add(new SpriteComponent('/sprites/slash.png', 0, 0, 40, 40));
 
     this.row = row;
   }
 
-  addCollision() {
+  getCollision(damages: number): Collision {
     switch (this.row) {
       case 0:
-        this.add(new CollisionComponent('damage', 0, 4, 40, 20));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 0,
+          y: 0,
+          width: 40,
+          height: 32,
+          damages,
+        };
       case 1:
-        this.add(new CollisionComponent('damage', 0, 16, 40, 20));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 0,
+          y: 8,
+          width: 40,
+          height: 32,
+          damages,
+        };
       case 2:
-        this.add(new CollisionComponent('damage', 4, 0, 20, 40));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 0,
+          y: 0,
+          width: 32,
+          height: 40,
+          damages,
+        };
       case 3:
-        this.add(new CollisionComponent('damage', 16, 0, 20, 40));
-        break;
+        return {
+          type: 'damage-ai',
+          x: 8,
+          y: 0,
+          width: 32,
+          height: 40,
+          damages,
+        };
       default:
-        break;
+        throw new Error(`Invalid row '${this.row}' in Slash entity.`);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component } from '~~/game/utils/ecs';
+import { Component } from '~~/game/utils';
 
 export class SpriteComponent implements Component {
   readonly source: string;
@@ -10,6 +10,8 @@ export class SpriteComponent implements Component {
   readonly width: number;
 
   readonly height: number;
+
+  hit = false;
 
   constructor(
     source: string,
@@ -23,5 +25,13 @@ export class SpriteComponent implements Component {
     this.sourceY = sourceY;
     this.width = width;
     this.height = height;
+  }
+
+  setHit() {
+    this.hit = true;
+
+    setTimeout(() => {
+      this.hit = false;
+    }, 100);
   }
 }

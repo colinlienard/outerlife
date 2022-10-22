@@ -9,7 +9,17 @@ import {
 export class Tree001 extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new CollisionComponent('environment', 20, 68, 14, 12));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'environment',
+          x: 20,
+          y: 68,
+          width: 14,
+          height: 12,
+        },
+      ])
+    );
     this.add(new PositionComponent(x, y, 64, 80));
     this.add(
       new SpriteComponent('/sprites/environments-001.png', 0, 0, 64, 80)

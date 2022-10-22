@@ -10,7 +10,7 @@ class EntityId {
   }
 }
 
-export abstract class Entity {
+export class Entity {
   readonly id: number;
 
   // eslint-disable-next-line class-methods-use-this

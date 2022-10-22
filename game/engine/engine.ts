@@ -12,6 +12,7 @@ export class Engine {
     depth: 2,
     modelMatrix: 3,
     textureMatrix: 7,
+    white: 11,
   };
 
   program: WebGLProgram;
@@ -80,7 +81,7 @@ export class Engine {
     // Create the buffer that will be used by the following attributes
     const bufferData = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bufferData);
-    const stride = (1 + 16 + 16) * 4;
+    const stride = (1 + 16 + 16 + 1) * 4;
 
     // Bind the depth attribute
     this.gl.vertexAttribPointer(
@@ -123,6 +124,18 @@ export class Engine {
       this.gl.vertexAttribDivisor(location, 1);
       this.gl.enableVertexAttribArray(location);
     }
+
+    // Bind the white attribute
+    this.gl.vertexAttribPointer(
+      this.locations.white,
+      1,
+      this.gl.FLOAT,
+      false,
+      stride,
+      4 * 16 + 4 * 16 + 4
+    );
+    this.gl.vertexAttribDivisor(this.locations.white, 1);
+    this.gl.enableVertexAttribArray(this.locations.white);
   }
 
   clear() {
@@ -235,7 +248,8 @@ export class Engine {
     y: number,
     width: number,
     height: number,
-    rotation: number = 0
+    rotation = 0,
+    white = false
   ) {
     // Texture source
     const textureUnit = this.sourcesIndex[source];
@@ -288,7 +302,12 @@ export class Engine {
     );
 
     // Add all the data in the same array
-    this.renderData.push(textureUnit, ...modelMatrix, ...textureMatrix);
+    this.renderData.push(
+      textureUnit,
+      ...modelMatrix,
+      ...textureMatrix,
+      white ? 1 : 0
+    );
 
     this.renderQueueLenght += 1;
   }

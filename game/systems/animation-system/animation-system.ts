@@ -5,8 +5,12 @@ import {
   SpriteLayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, System } from '~~/game/utils';
-import { getDirectionFromAngle } from '~~/game/utils/helpers/getDirectionFromAngle';
+import {
+  Emitter,
+  entityDies,
+  getDirectionFromAngle,
+  System,
+} from '~~/game/utils';
 
 export class AnimationSystem extends System {
   protected readonly requiredComponents = [AnimationComponent, SpriteComponent];
@@ -14,6 +18,18 @@ export class AnimationSystem extends System {
   update() {
     this.get().forEach((entity) => {
       const animation = entity.get(AnimationComponent);
+
+      // Handle actions
+      if (animation.frameWaiter === 0 && animation.actions) {
+        for (const action of animation.actions) {
+          if (
+            action.frame === animation.column + 1 &&
+            (action.on ? action.on === animation.getCurrent() : true)
+          ) {
+            action.action();
+          }
+        }
+      }
 
       // Execute the following every {specified number} frames per second
       if (animation.frameWaiter >= 60 / animation.current.framesPerSecond) {
@@ -23,24 +39,18 @@ export class AnimationSystem extends System {
         if (animation.column < animation.current.frameNumber - 1) {
           animation.column += 1;
 
-          // Handle actions
-          if (animation.actions) {
-            for (const action of animation.actions) {
-              if (
-                action.frame === animation.column &&
-                (action.on ? action.on === animation.getCurrent() : true)
-              ) {
-                action.action();
-              }
-            }
-          }
-
           // When the animation ends
         } else if (animation.current.then) {
-          if (animation.current.then === 'despawn') {
-            Emitter.emit('despawn', entity.id);
-          } else {
-            entity.get(StateMachineComponent).set(animation.current.then);
+          switch (animation.current.then) {
+            case 'despawn':
+              Emitter.emit('despawn', entity.id);
+              break;
+            case 'die':
+              entityDies(entity);
+              break;
+            default:
+              entity.get(StateMachineComponent).set(animation.current.then);
+              break;
           }
 
           // Reset animation
@@ -61,7 +71,11 @@ export class AnimationSystem extends System {
         );
 
         // Update animation row
-        animation.row = animationRow;
+        if (state === 'dead') {
+          animation.row = 1;
+        } else if (state !== 'hit') {
+          animation.row = animationRow;
+        }
 
         // Update animation type
         if (animation.getCurrent() !== state) {

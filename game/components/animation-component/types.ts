@@ -4,7 +4,7 @@ export type AnimationData = {
   frameStart: number;
   frameNumber: number;
   framesPerSecond: number;
-  then?: 'despawn' | EntityState;
+  then?: 'despawn' | 'die' | EntityState;
 };
 
 export type Animations = Partial<Record<EntityState, AnimationData>> &

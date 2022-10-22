@@ -2,6 +2,7 @@ import {
   AnimationComponent,
   CollisionComponent,
   DashComponent,
+  HealthComponent,
   MeleeAttackComponent,
   MovementComponent,
   PositionComponent,
@@ -9,7 +10,7 @@ import {
   SpriteLayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, Entity } from '~~/game/utils';
+import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
 
 export class Player extends Entity {
@@ -19,6 +20,11 @@ export class Player extends Entity {
       new AnimationComponent(
         {
           idle: {
+            frameStart: 1,
+            frameNumber: 8,
+            framesPerSecond: 8,
+          },
+          hit: {
             frameStart: 1,
             frameNumber: 8,
             framesPerSecond: 8,
@@ -45,37 +51,71 @@ export class Player extends Entity {
             framesPerSecond: 8,
             then: 'idle',
           },
+          dead: {
+            frameStart: 27,
+            frameNumber: 5,
+            framesPerSecond: 6,
+            then: 'die',
+          },
         },
         1,
         [
           {
             action: () => this.spawnDust(),
-            frame: 1,
+            frame: 2,
             on: 'run',
           },
           {
             action: () => this.spawnDust(),
-            frame: 5,
+            frame: 6,
             on: 'run',
           },
           {
             action: () => {
-              const position = this.get(PositionComponent);
-              const animation = this.get(AnimationComponent);
+              const position = this.get(PositionComponent).getCenter();
+              const { row } = this.get(AnimationComponent);
+              const { angle } = this.get(MovementComponent);
 
-              Emitter.emit(
-                'spawn',
-                new Slash(position.x + 16, position.y + 16, animation.row, 18)
+              const point = getPointFromAngle(
+                angle,
+                position.x,
+                position.y,
+                16
               );
+
+              Emitter.emit('spawn', new Slash(point.x, point.y, row, 30));
             },
-            frame: 1,
+            frame: 2,
             on: 'melee-attack',
+          },
+          {
+            action: () => this.delete(SpriteLayersComponent),
+            frame: 1,
+            on: 'dead',
           },
         ]
       )
     );
-    this.add(new CollisionComponent('organism', 10, 26, 12, 8));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'hitbox',
+          x: 8,
+          y: 26,
+          width: 16,
+          height: 8,
+        },
+        {
+          type: 'player-hurtbox',
+          x: 11,
+          y: 2,
+          width: 10,
+          height: 30,
+        },
+      ])
+    );
     this.add(new DashComponent(7, 4, 0.5));
+    this.add(new HealthComponent(this.id, 100));
     this.add(new MeleeAttackComponent(3, 0.3));
     this.add(new MovementComponent(1.5, 0.1, 0.15));
     this.add(new PositionComponent(x, y, 32, 32));
@@ -579,7 +619,12 @@ export class Player extends Entity {
 
     // Add an event to get the center position
     Emitter.on('get-player-position', () =>
-      this.get(PositionComponent).getCenter()
+      this.get(StateMachineComponent).get() === 'dead'
+        ? {
+            x: 9999,
+            y: 9999,
+          }
+        : this.get(PositionComponent).getCenter()
     );
 
     // Remove the event when changing scene

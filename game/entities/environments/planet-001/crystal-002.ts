@@ -9,7 +9,17 @@ import {
 export class Crystal002 extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new CollisionComponent('environment', 4, 22, 26, 10));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'environment',
+          x: 4,
+          y: 22,
+          width: 26,
+          height: 10,
+        },
+      ])
+    );
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(
       new SpriteComponent('/sprites/environments-001.png', 48, 112, 32, 32)

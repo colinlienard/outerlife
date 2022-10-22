@@ -11,7 +11,17 @@ import { CollisionSystem } from './collision-system';
 class CollidingEnvironment extends Entity {
   constructor() {
     super();
-    this.add(new CollisionComponent('environment', 0, 0, 10, 10));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'environment',
+          x: 0,
+          y: 0,
+          width: 10,
+          height: 10,
+        },
+      ])
+    );
     this.add(new PositionComponent(20, 0));
   }
 }
@@ -19,7 +29,17 @@ class CollidingEnvironment extends Entity {
 class CollidingOrganism extends Entity {
   constructor() {
     super();
-    this.add(new CollisionComponent('organism', 0, 0, 10, 10));
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'hitbox',
+          x: 0,
+          y: 0,
+          width: 10,
+          height: 10,
+        },
+      ])
+    );
     this.add(new PositionComponent(0, 0));
     this.add(new SpriteComponent('', 0, 0, 32, 32));
   }

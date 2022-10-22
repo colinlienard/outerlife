@@ -11,7 +11,7 @@ import { AISystem } from './ai-system';
 class AI extends Entity {
   constructor(x: number, y: number) {
     super();
-    this.add(new AIComponent(x, y, 100, 50, 75, 20, 10));
+    this.add(new AIComponent(x, y, 100, 125, 50, 75, 20, 10));
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new MovementComponent(2, 0.1, 0.2));
     this.add(new StateMachineComponent());
@@ -48,12 +48,12 @@ describe('ai system', () => {
 
   it('should not detect the player', () => {
     position.x = 200;
-    position.y = 240;
+    position.y = 350;
     movement.angle = 90;
 
     updateAISystem(2);
 
-    expect(!stateMachine.is(['chase'])).toBeTruthy();
+    expect(stateMachine.is(['chase'])).toBeFalsy();
   });
 
   it('should detect the player', () => {
