@@ -55,7 +55,7 @@ export class Patroller extends Entity {
           dead: {
             frameStart: 19,
             frameNumber: 5,
-            framesPerSecond: 4,
+            framesPerSecond: 6,
             then: 'die',
           },
         },

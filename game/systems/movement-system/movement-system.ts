@@ -54,6 +54,10 @@ export class MovementSystem extends System {
             movement.speed = 0;
           }
         },
+
+        dead() {
+          movement.speed = 0;
+        },
       });
 
       stateMachine.interact({

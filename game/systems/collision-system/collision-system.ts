@@ -91,7 +91,7 @@ export class CollisionSystem extends System {
             type,
             x: x + positionX,
             y: y + positionY,
-            interaction: entity.get(Interaction),
+            interaction: entity as Interaction,
           });
           return;
 

@@ -51,6 +51,12 @@ export class Player extends Entity {
             framesPerSecond: 8,
             then: 'idle',
           },
+          dead: {
+            frameStart: 27,
+            frameNumber: 5,
+            framesPerSecond: 6,
+            then: 'die',
+          },
         },
         1,
         [
@@ -81,6 +87,11 @@ export class Player extends Entity {
             },
             frame: 2,
             on: 'melee-attack',
+          },
+          {
+            action: () => this.delete(SpriteLayersComponent),
+            frame: 1,
+            on: 'dead',
           },
         ]
       )
@@ -608,7 +619,12 @@ export class Player extends Entity {
 
     // Add an event to get the center position
     Emitter.on('get-player-position', () =>
-      this.get(PositionComponent).getCenter()
+      this.get(StateMachineComponent).get() === 'dead'
+        ? {
+            x: 9999,
+            y: 9999,
+          }
+        : this.get(PositionComponent).getCenter()
     );
 
     // Remove the event when changing scene
