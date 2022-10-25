@@ -100,7 +100,7 @@ export class RenderSystem extends System {
         this.viewport.height
       )
       .forEach(({ terrain }) => {
-        this.engine.queueRender(
+        this.engine.renderTexture(
           terrain.source,
           terrain.sourceX,
           terrain.sourceY,
@@ -129,7 +129,7 @@ export class RenderSystem extends System {
       // Render animated entity
       if (entity.has(AnimationComponent)) {
         const animation = entity.get(AnimationComponent);
-        this.engine.queueRender(
+        this.engine.renderTexture(
           sprite.source,
           sprite.width * (animation.column + animation.current.frameStart - 1),
           sprite.height * animation.row,
@@ -146,7 +146,7 @@ export class RenderSystem extends System {
 
       // Render non animated entity
       else {
-        this.engine.queueRender(
+        this.engine.renderTexture(
           sprite.source,
           sprite.sourceX,
           sprite.sourceY,
@@ -167,6 +167,8 @@ export class RenderSystem extends System {
         );
       }
     });
+
+    this.engine.renderGlow(0, 200, 500, [0, 0, 1], 0.5);
 
     this.engine.render();
   }
@@ -252,7 +254,7 @@ export class RenderSystem extends System {
     position: PositionComponent
   ) {
     layers.forEach((layer) => {
-      this.engine.queueRender(
+      this.engine.renderTexture(
         layer.source,
         layer.sourceX,
         layer.sourceY,

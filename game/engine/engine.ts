@@ -1,12 +1,20 @@
 import { glMatrix, mat4, vec3 } from 'gl-matrix';
-import fragmentSource from './fragmentSource';
 import Program from './program';
-import vertexSource from './vertexSource';
+import {
+  glowFragmentShader,
+  glowVertexShader,
+  textureFragmentShader,
+  textureVertexShader,
+} from './shaders';
 
 export class Engine {
-  gl: WebGL2RenderingContext;
+  private readonly gl: WebGL2RenderingContext;
 
-  locations = {
+  private readonly textureProgram: WebGLProgram;
+
+  private readonly glowProgram: WebGLProgram;
+
+  private readonly textureLocations = {
     position: 0,
     textureCoord: 1,
     depth: 2,
@@ -15,20 +23,38 @@ export class Engine {
     white: 11,
   };
 
-  program: WebGLProgram;
+  private readonly glowLocations = {
+    position: 0,
+    matrix: 1,
+    size: 5,
+    color: 6,
+    opacity: 7,
+  };
 
-  renderData: number[] = [];
+  private textureSourcesIndex = <{ [key: string]: number }>{};
 
-  renderQueueLenght = 0;
+  private maxTextureSize = 0;
 
-  sourcesIndex = <{ [key: string]: number }>{};
-
-  MaxTextureSize = 0;
-
-  translation = {
+  private translation = {
     x: 0,
     y: 0,
   };
+
+  private renderTextureData: number[] = [];
+
+  private renderTextureQueueLength = 0;
+
+  private renderGlowData: number[] = [];
+
+  private renderGlowQueueLength = 0;
+
+  private textureVAO: WebGLVertexArrayObject;
+
+  private glowVAO: WebGLVertexArrayObject;
+
+  textureBuffer: WebGLBuffer;
+
+  glowBuffer: WebGLBuffer;
 
   constructor(context: WebGL2RenderingContext) {
     this.gl = context;
@@ -36,11 +62,41 @@ export class Engine {
     // Context settings
     this.gl.clearColor(0, 0, 0, 1);
     this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
-    // Get a shader program
-    this.program = new Program(this.gl, vertexSource, fragmentSource).get();
-    this.gl.useProgram(this.program);
+    // Create shader programs
+    this.textureProgram = new Program(
+      this.gl,
+      textureVertexShader,
+      textureFragmentShader
+    ).get();
+    this.glowProgram = new Program(
+      this.gl,
+      glowVertexShader,
+      glowFragmentShader
+    ).get();
+
+    // Setup Vertex Array Objects
+    this.textureVAO = this.gl.createVertexArray() as WebGLVertexArrayObject;
+    this.glowVAO = this.gl.createVertexArray() as WebGLVertexArrayObject;
+
+    // Setup buffers
+    this.textureBuffer = this.gl.createBuffer() as WebGLBuffer;
+    this.glowBuffer = this.gl.createBuffer() as WebGLBuffer;
+
+    // Setup programs
+    this.setupTextureProgram();
+    this.setupGlowProgram();
+  }
+
+  setupTextureProgram() {
+    this.gl.bindVertexArray(this.textureVAO);
+
+    // Set the texture unit to 0 for mobile
+    this.gl.useProgram(this.textureProgram);
+    this.gl.uniform1i(
+      this.gl.getUniformLocation(this.textureProgram, 'uSampler'),
+      0
+    );
 
     // Create a position for the vertices
     const positionBuffer = this.gl.createBuffer();
@@ -51,14 +107,14 @@ export class Engine {
       this.gl.STATIC_DRAW
     );
     this.gl.vertexAttribPointer(
-      this.locations.position,
+      this.textureLocations.position,
       2,
       this.gl.FLOAT,
       false,
       0,
       0
     );
-    this.gl.enableVertexAttribArray(this.locations.position);
+    this.gl.enableVertexAttribArray(this.textureLocations.position);
 
     // Create texture coordinates
     const textureCoordBuffer = this.gl.createBuffer();
@@ -69,35 +125,34 @@ export class Engine {
       this.gl.STATIC_DRAW
     );
     this.gl.vertexAttribPointer(
-      this.locations.textureCoord,
+      this.textureLocations.textureCoord,
       2,
       this.gl.FLOAT,
       false,
       0,
       0
     );
-    this.gl.enableVertexAttribArray(this.locations.textureCoord);
+    this.gl.enableVertexAttribArray(this.textureLocations.textureCoord);
 
-    // Create the buffer that will be used by the following attributes
-    const bufferData = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bufferData);
+    // Bind the buffer that will be used by the following attributes
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureBuffer);
     const stride = (1 + 16 + 16 + 1) * 4;
 
     // Bind the depth attribute
     this.gl.vertexAttribPointer(
-      this.locations.depth,
+      this.textureLocations.depth,
       1,
       this.gl.FLOAT,
       false,
       stride,
       0
     );
-    this.gl.vertexAttribDivisor(this.locations.depth, 1);
-    this.gl.enableVertexAttribArray(this.locations.depth);
+    this.gl.vertexAttribDivisor(this.textureLocations.depth, 1);
+    this.gl.enableVertexAttribArray(this.textureLocations.depth);
 
     // Bind the model matrix attribute
     for (let index = 0; index < 4; index += 1) {
-      const location = this.locations.modelMatrix + index;
+      const location = this.textureLocations.modelMatrix + index;
       this.gl.vertexAttribPointer(
         location,
         4,
@@ -112,7 +167,7 @@ export class Engine {
 
     // Bind the texture matrix attribute
     for (let index = 0; index < 4; index += 1) {
-      const location = this.locations.textureMatrix + index;
+      const location = this.textureLocations.textureMatrix + index;
       this.gl.vertexAttribPointer(
         location,
         4,
@@ -127,15 +182,96 @@ export class Engine {
 
     // Bind the white attribute
     this.gl.vertexAttribPointer(
-      this.locations.white,
+      this.textureLocations.white,
       1,
       this.gl.FLOAT,
       false,
       stride,
       4 * 16 + 4 * 16 + 4
     );
-    this.gl.vertexAttribDivisor(this.locations.white, 1);
-    this.gl.enableVertexAttribArray(this.locations.white);
+    this.gl.vertexAttribDivisor(this.textureLocations.white, 1);
+    this.gl.enableVertexAttribArray(this.textureLocations.white);
+
+    this.gl.bindVertexArray(null);
+  }
+
+  setupGlowProgram() {
+    this.gl.bindVertexArray(this.glowVAO);
+
+    // Create a position for the vertices
+    const positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]),
+      this.gl.STATIC_DRAW
+    );
+    this.gl.vertexAttribPointer(
+      this.glowLocations.position,
+      2,
+      this.gl.FLOAT,
+      false,
+      0,
+      0
+    );
+    this.gl.enableVertexAttribArray(this.glowLocations.position);
+
+    // Bind the buffer that will be used by the following attributes
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glowBuffer);
+    const stride = (16 + 3 + 3 + 1) * 4;
+
+    // Bind the matrix attribute
+    for (let index = 0; index < 4; index += 1) {
+      const location = this.glowLocations.matrix + index;
+      this.gl.vertexAttribPointer(
+        location,
+        4,
+        this.gl.FLOAT,
+        false,
+        stride,
+        index * 16
+      );
+      this.gl.vertexAttribDivisor(location, 1);
+      this.gl.enableVertexAttribArray(location);
+    }
+
+    // Bind the size attribute
+    this.gl.vertexAttribPointer(
+      this.glowLocations.size,
+      3,
+      this.gl.FLOAT,
+      false,
+      stride,
+      16 * 4
+    );
+    this.gl.vertexAttribDivisor(this.glowLocations.size, 1);
+    this.gl.enableVertexAttribArray(this.glowLocations.size);
+
+    // Bind the color attribute
+    this.gl.vertexAttribPointer(
+      this.glowLocations.color,
+      3,
+      this.gl.FLOAT,
+      false,
+      stride,
+      (16 + 3) * 4
+    );
+    this.gl.vertexAttribDivisor(this.glowLocations.color, 1);
+    this.gl.enableVertexAttribArray(this.glowLocations.color);
+
+    // Bind the opacity attribute
+    this.gl.vertexAttribPointer(
+      this.glowLocations.opacity,
+      1,
+      this.gl.FLOAT,
+      false,
+      stride,
+      (16 + 3 + 3) * 4
+    );
+    this.gl.vertexAttribDivisor(this.glowLocations.opacity, 1);
+    this.gl.enableVertexAttribArray(this.glowLocations.opacity);
+
+    this.gl.bindVertexArray(null);
   }
 
   clear() {
@@ -158,9 +294,6 @@ export class Engine {
 
   loadTextures(sources: string[]) {
     return new Promise<void>(async (resolve) => {
-      // Set the texture unit to 0 for mobile
-      this.gl.uniform1i(this.gl.getUniformLocation(this.program, 'sampler'), 0);
-
       // Create and bind texture
       const texture = this.gl.createTexture() as WebGLTexture;
       this.gl.activeTexture(this.gl.TEXTURE0);
@@ -179,15 +312,15 @@ export class Engine {
         (previous, current) => Math.max(previous, current.height),
         0
       );
-      this.MaxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
+      this.maxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
 
       // Create a texture array with the max size
       this.gl.texStorage3D(
         this.gl.TEXTURE_2D_ARRAY,
         1,
         this.gl.RGBA8,
-        this.MaxTextureSize,
-        this.MaxTextureSize,
+        this.maxTextureSize,
+        this.maxTextureSize,
         sources.length
       );
 
@@ -209,7 +342,7 @@ export class Engine {
         );
 
         // Save the depth of each source in the array
-        this.sourcesIndex[sources[index]] = index;
+        this.textureSourcesIndex[sources[index]] = index;
       }
 
       // Texture settings
@@ -238,7 +371,7 @@ export class Engine {
     });
   }
 
-  queueRender(
+  renderTexture(
     source: string,
     sourceX: number,
     sourceY: number,
@@ -252,7 +385,7 @@ export class Engine {
     white = false
   ) {
     // Texture source
-    const textureUnit = this.sourcesIndex[source];
+    const textureUnit = this.textureSourcesIndex[source];
     if (textureUnit === undefined) {
       throw new Error(`The source '${source}' is not loaded.`);
     }
@@ -286,8 +419,8 @@ export class Engine {
       textureMatrix,
       textureMatrix,
       vec3.fromValues(
-        sourceX / this.MaxTextureSize,
-        sourceY / this.MaxTextureSize,
+        sourceX / this.maxTextureSize,
+        sourceY / this.maxTextureSize,
         0
       )
     );
@@ -295,28 +428,60 @@ export class Engine {
       textureMatrix,
       textureMatrix,
       vec3.fromValues(
-        sourceWidth / this.MaxTextureSize,
-        sourceHeight / this.MaxTextureSize,
+        sourceWidth / this.maxTextureSize,
+        sourceHeight / this.maxTextureSize,
         1
       )
     );
 
     // Add all the data in the same array
-    this.renderData.push(
+    this.renderTextureData.push(
       textureUnit,
       ...modelMatrix,
       ...textureMatrix,
       white ? 1 : 0
     );
 
-    this.renderQueueLenght += 1;
+    this.renderTextureQueueLength += 1;
+  }
+
+  renderGlow(
+    x: number,
+    y: number,
+    size: number,
+    color: [number, number, number],
+    opacity: number
+  ) {
+    // Matrix
+    const matrix = mat4.create();
+    mat4.ortho(matrix, 0, window.innerWidth, window.innerHeight, 0, -1, 1);
+    mat4.translate(matrix, matrix, vec3.fromValues(x, y, 0));
+    mat4.scale(matrix, matrix, vec3.fromValues(size, size, 1));
+
+    // Size
+    const sizes = [
+      size / 2 + x,
+      size / 2 + window.innerHeight - size - y,
+      size,
+    ];
+
+    // Add all the data in the same array
+    this.renderGlowData.push(...matrix, ...sizes, ...color, opacity);
+
+    this.renderGlowQueueLength += 1;
   }
 
   render() {
+    // Use texture setup
+    this.gl.useProgram(this.textureProgram);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.gl.bindVertexArray(this.textureVAO);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureBuffer);
+
     // Use the new data
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
-      new Float32Array(this.renderData),
+      new Float32Array(this.renderTextureData),
       this.gl.DYNAMIC_DRAW
     );
 
@@ -325,12 +490,35 @@ export class Engine {
       this.gl.TRIANGLES,
       0,
       6,
-      this.renderQueueLenght
+      this.renderTextureQueueLength
+    );
+
+    // Use glow setup
+    this.gl.useProgram(this.glowProgram);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE);
+    this.gl.bindVertexArray(this.glowVAO);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glowBuffer);
+
+    // Use the new data
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(this.renderGlowData),
+      this.gl.DYNAMIC_DRAW
+    );
+
+    // Render
+    this.gl.drawArraysInstanced(
+      this.gl.TRIANGLES,
+      0,
+      6,
+      this.renderGlowQueueLength
     );
 
     // Reset the data for the next render
-    this.renderData = [];
-    this.renderQueueLenght = 0;
+    this.renderTextureData = [];
+    this.renderTextureQueueLength = 0;
+    this.renderGlowData = [];
+    this.renderGlowQueueLength = 0;
   }
 
   resize() {
