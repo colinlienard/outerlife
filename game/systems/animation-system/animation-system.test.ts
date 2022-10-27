@@ -3,7 +3,7 @@ import {
   AnimationComponent,
   MovementComponent,
   SpriteComponent,
-  SpriteLayersComponent,
+  LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
 import { Entity } from '~~/game/utils';
@@ -46,17 +46,14 @@ class AnimatedEntity extends Entity {
     this.add(new SpriteComponent('', 0, 0, 0, 0));
 
     this.add(
-      new SpriteLayersComponent([
+      new LayersComponent([
         {
+          type: 'sprite',
           source: '',
           sourceX: 0,
           sourceY: 0,
           width: 16,
           height: 16,
-          x: 0,
-          y: 0,
-          rotation: 0,
-          depth: 1,
           animation: {
             idle: {
               up: spriteAnimation,
@@ -69,11 +66,20 @@ class AnimatedEntity extends Entity {
               down: spriteAnimation,
               left: spriteAnimation,
               right: {
+                x: 0,
+                y: 0,
                 rotation: 45,
                 depth: -1,
               },
             },
           },
+          data: {
+            x: 0,
+            y: 0,
+            rotation: 0,
+            depth: 1,
+          },
+          render: true,
         },
       ])
     );
@@ -85,7 +91,7 @@ describe('animation system', () => {
   const entity = new AnimatedEntity();
   const animation = entity.get(AnimationComponent);
   const movement = entity.get(MovementComponent);
-  const spriteLayers = entity.get(SpriteLayersComponent);
+  const layers = entity.get(LayersComponent);
   const stateMachine = entity.get(StateMachineComponent);
 
   const animationSystem = new AnimationSystem();
@@ -135,15 +141,15 @@ describe('animation system', () => {
   });
 
   it('should update sprite layers', () => {
-    expect(spriteLayers.getBack().length).toBe(0);
-    expect(spriteLayers.getFront().length).toBe(1);
+    expect(layers.getBackSprites().length).toBe(0);
+    expect(layers.getFrontSprites().length).toBe(1);
 
     stateMachine.set('run');
     movement.angle = 0;
     updateAnimationSystem(1);
 
-    expect(spriteLayers.layers[0].rotation).toBe(45);
-    expect(spriteLayers.getBack().length).toBe(1);
-    expect(spriteLayers.getFront().length).toBe(0);
+    expect(layers.spriteLayers[0].data.rotation).toBe(45);
+    expect(layers.getBackSprites().length).toBe(1);
+    expect(layers.getFrontSprites().length).toBe(0);
   });
 });

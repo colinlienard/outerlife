@@ -7,7 +7,7 @@ import {
   MovementComponent,
   PositionComponent,
   SpriteComponent,
-  SpriteLayersComponent,
+  LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
 import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
@@ -88,11 +88,6 @@ export class Player extends Entity {
             frame: 2,
             on: 'melee-attack',
           },
-          {
-            action: () => this.delete(SpriteLayersComponent),
-            frame: 1,
-            on: 'dead',
-          },
         ]
       )
     );
@@ -116,60 +111,60 @@ export class Player extends Entity {
     );
     this.add(new DashComponent(7, 4, 0.5));
     this.add(new HealthComponent(this.id, 100));
-    this.add(new MeleeAttackComponent(3, 0.3));
-    this.add(new MovementComponent(1.5, 0.1, 0.15));
-    this.add(new PositionComponent(x, y, 32, 32));
-    this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
+
+    const layerItemIdle = {
+      up: {
+        x: 8,
+        y: 8,
+        rotation: -45,
+        depth: 1,
+      },
+      down: {
+        x: 8,
+        y: 8,
+        rotation: 45,
+        depth: -1,
+      },
+      left: {
+        x: 12,
+        y: 8,
+        rotation: 20,
+        depth: -1,
+      },
+      right: {
+        x: 2,
+        y: 8,
+        rotation: 15,
+        depth: -1,
+      },
+    };
     this.add(
-      new SpriteLayersComponent([
+      new LayersComponent([
         {
+          type: 'sprite',
           source: '/sprites/player.png',
           sourceX: 0,
           sourceY: 128,
           width: 12,
           height: 5,
-          x: 10,
-          y: 29,
-          rotation: 0,
-          depth: -1,
+          render: true,
+          data: {
+            x: 10,
+            y: 29,
+            rotation: 0,
+            depth: -1,
+          },
         },
         {
+          type: 'sprite',
           source: '/sprites/items.png',
           sourceX: 0,
           sourceY: 0,
           width: 16,
           height: 16,
-          x: 8,
-          y: 8,
-          rotation: 45,
-          depth: -1,
           animation: {
-            idle: {
-              up: {
-                x: 8,
-                y: 8,
-                rotation: -45,
-                depth: 1,
-              },
-              down: {
-                x: 8,
-                y: 8,
-                rotation: 45,
-                depth: -1,
-              },
-              left: {
-                x: 12,
-                y: 8,
-                rotation: 20,
-                depth: -1,
-              },
-              right: {
-                x: 2,
-                y: 8,
-                rotation: 15,
-                depth: -1,
-              },
-            },
+            idle: layerItemIdle,
+            hit: layerItemIdle,
             run: {
               up: [
                 {
@@ -612,9 +607,20 @@ export class Player extends Entity {
               ],
             },
           },
+          render: true,
+          data: {
+            x: 8,
+            y: 8,
+            rotation: -45,
+            depth: 1,
+          },
         },
       ])
     );
+    this.add(new MeleeAttackComponent(3, 0.3));
+    this.add(new MovementComponent(1.5, 0.1, 0.15));
+    this.add(new PositionComponent(x, y, 32, 32));
+    this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(new StateMachineComponent());
 
     // Add an event to get the center position

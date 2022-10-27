@@ -3,7 +3,7 @@ import {
   CollisionComponent,
   PositionComponent,
   SpriteComponent,
-  SpriteLayersComponent,
+  LayersComponent,
 } from '~~/game/components';
 
 export class Tree002 extends Entity {
@@ -25,17 +25,21 @@ export class Tree002 extends Entity {
       new SpriteComponent('/sprites/environments-001.png', 64, 0, 64, 86)
     );
     this.add(
-      new SpriteLayersComponent([
+      new LayersComponent([
         {
+          type: 'sprite',
           source: '/sprites/environments-001.png',
           sourceX: 64,
           sourceY: 96,
           width: 64,
           height: 16,
-          x: 0,
-          y: 74,
-          rotation: 0,
-          depth: -1,
+          render: true,
+          data: {
+            x: 0,
+            y: 74,
+            rotation: 0,
+            depth: -1,
+          },
         },
       ])
     );

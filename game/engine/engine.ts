@@ -52,9 +52,9 @@ export class Engine {
 
   private glowVAO: WebGLVertexArrayObject;
 
-  textureBuffer: WebGLBuffer;
+  private textureBuffer: WebGLBuffer;
 
-  glowBuffer: WebGLBuffer;
+  private glowBuffer: WebGLBuffer;
 
   constructor(context: WebGL2RenderingContext) {
     this.gl = context;
@@ -446,22 +446,26 @@ export class Engine {
   }
 
   renderGlow(
+    color: [number, number, number],
+    opacity: number,
     x: number,
     y: number,
-    size: number,
-    color: [number, number, number],
-    opacity: number
+    size: number
   ) {
     // Matrix
     const matrix = mat4.create();
     mat4.ortho(matrix, 0, window.innerWidth, window.innerHeight, 0, -1, 1);
-    mat4.translate(matrix, matrix, vec3.fromValues(x, y, 0));
+    mat4.translate(
+      matrix,
+      matrix,
+      vec3.fromValues(x + this.translation.x, y + this.translation.y, 0)
+    );
     mat4.scale(matrix, matrix, vec3.fromValues(size, size, 1));
 
     // Size
     const sizes = [
-      size / 2 + x,
-      size / 2 + window.innerHeight - size - y,
+      size / 2 + x + this.translation.x,
+      size / 2 + window.innerHeight - size - y - this.translation.y,
       size,
     ];
 

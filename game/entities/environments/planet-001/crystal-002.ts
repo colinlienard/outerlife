@@ -3,7 +3,7 @@ import {
   CollisionComponent,
   PositionComponent,
   SpriteComponent,
-  SpriteLayersComponent,
+  LayersComponent,
 } from '~~/game/components';
 
 export class Crystal002 extends Entity {
@@ -25,17 +25,21 @@ export class Crystal002 extends Entity {
       new SpriteComponent('/sprites/environments-001.png', 48, 112, 32, 32)
     );
     this.add(
-      new SpriteLayersComponent([
+      new LayersComponent([
         {
+          type: 'sprite',
           source: '/sprites/environments-001.png',
           sourceX: 48,
           sourceY: 144,
           width: 32,
           height: 16,
-          x: 0,
-          y: 22,
-          rotation: 0,
-          depth: -1,
+          render: true,
+          data: {
+            x: 0,
+            y: 22,
+            rotation: 0,
+            depth: -1,
+          },
         },
       ])
     );
