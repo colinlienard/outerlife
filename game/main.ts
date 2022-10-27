@@ -14,6 +14,8 @@ import { ECS, Emitter, Settings, Terrain, Tilemap } from './utils';
 export class Game extends ECS {
   private tilemap: Tilemap = map002;
 
+  private freeze = false;
+
   fps = 0;
 
   paused = false;
@@ -155,7 +157,7 @@ export class Game extends ECS {
         ) / 10;
     }
 
-    if (!this.paused) {
+    if (!this.paused && !this.freeze) {
       this.update();
     }
 
@@ -188,6 +190,16 @@ export class Game extends ECS {
         this.switchMap(map, playerX, playerY);
       }
     );
+
+    Emitter.on('hit', () => {
+      if (this.freeze) {
+        return;
+      }
+      this.freeze = true;
+      setTimeout(() => {
+        this.freeze = false;
+      }, 50);
+    });
 
     // Resize
     window.addEventListener('resize', () => {
