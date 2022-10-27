@@ -10,6 +10,7 @@ import {
 } from '~~/game/components';
 import { Interaction, Player } from '~~/game/entities';
 import {
+  Emitter,
   Entity,
   getAngleFromPoints,
   QuadTree,
@@ -219,6 +220,8 @@ export class CollisionSystem extends System {
 
               // Make the sprite flash white
               colliding.get(SpriteComponent).setHit();
+
+              Emitter.emit('hit');
 
               // Set angle for repulsing the hit entity
               colliding.get(MovementComponent).angle = getAngleFromPoints(
