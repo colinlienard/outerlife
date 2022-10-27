@@ -89,7 +89,7 @@ export class Patroller extends Entity {
     );
     this.add(new HealthComponent(this.id, 100));
 
-    const layerGlowIdle = {
+    const layerGlow = {
       down: {
         x: 2,
         y: 0,
@@ -122,16 +122,16 @@ export class Patroller extends Entity {
         },
         {
           type: 'glow',
-          color: [1, 0.1, 0.1],
+          color: [1, 0.2, 0.1],
           opacity: 0.5,
           size: 24,
           animation: {
-            idle: layerGlowIdle,
-            hit: layerGlowIdle,
-            run: layerGlowIdle,
-            chase: layerGlowIdle,
-            'melee-attack-anticipation': layerGlowIdle,
-            'melee-attack': layerGlowIdle,
+            idle: layerGlow,
+            hit: layerGlow,
+            run: layerGlow,
+            chase: layerGlow,
+            'melee-attack-anticipation': layerGlow,
+            'melee-attack': layerGlow,
             dead: {
               down: [
                 {
