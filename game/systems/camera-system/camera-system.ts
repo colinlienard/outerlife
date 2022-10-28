@@ -29,6 +29,7 @@ export class CameraSystem extends System {
     // Easing
     this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
 
+    // Camera shake
     if (this.shaking) {
       this.x += Math.random() > 0.5 ? this.shakeAmount : -this.shakeAmount;
     }
@@ -40,6 +41,7 @@ export class CameraSystem extends System {
     // Easing
     this.y += (this.getTargetY() - this.y) * Settings.cameraEasing;
 
+    // Camera shake
     if (this.shaking) {
       this.y += Math.random() > 0.5 ? this.shakeAmount : -this.shakeAmount;
     }
@@ -92,6 +94,7 @@ export class CameraSystem extends System {
     this.x = this.getTargetX();
     this.y = this.getTargetY();
 
+    // Shake camera on hit
     Emitter.on('hit', () => {
       if (this.shaking) {
         return;

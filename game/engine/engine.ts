@@ -14,6 +14,14 @@ export class Engine {
 
   private readonly glowProgram: WebGLProgram;
 
+  private readonly textureVAO: WebGLVertexArrayObject;
+
+  private readonly glowVAO: WebGLVertexArrayObject;
+
+  private readonly textureBuffer: WebGLBuffer;
+
+  private readonly glowBuffer: WebGLBuffer;
+
   private readonly textureLocations = {
     position: 0,
     textureCoord: 1,
@@ -31,15 +39,6 @@ export class Engine {
     opacity: 7,
   };
 
-  private textureSourcesIndex = <{ [key: string]: number }>{};
-
-  private maxTextureSize = 0;
-
-  private translation = {
-    x: 0,
-    y: 0,
-  };
-
   private renderTextureData: number[] = [];
 
   private renderTextureQueueLength = 0;
@@ -48,13 +47,14 @@ export class Engine {
 
   private renderGlowQueueLength = 0;
 
-  private textureVAO: WebGLVertexArrayObject;
+  private textureSourcesIndex = <{ [key: string]: number }>{};
 
-  private glowVAO: WebGLVertexArrayObject;
+  private maxTextureSize = 0;
 
-  private textureBuffer: WebGLBuffer;
-
-  private glowBuffer: WebGLBuffer;
+  private translation = {
+    x: 0,
+    y: 0,
+  };
 
   constructor(context: WebGL2RenderingContext) {
     this.gl = context;

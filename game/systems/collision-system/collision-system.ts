@@ -177,7 +177,7 @@ export class CollisionSystem extends System {
                     colliding.has(AIComponent) &&
                     colliding.get(StateMachineComponent).get() !== 'hit'
                   ) {
-                    colliding.get(AIComponent).target = null;
+                    colliding.get(AIComponent).setWanderTarget();
                   }
 
                   const overlapX = widthX - Math.abs(distanceX);

@@ -16,9 +16,9 @@ export class Game extends ECS {
 
   private freeze = false;
 
-  fps = 0;
+  private paused = false;
 
-  paused = false;
+  fps = 0;
 
   constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
     super();

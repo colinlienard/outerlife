@@ -5,7 +5,7 @@
 <style scoped lang="scss">
 .vignette {
   position: absolute;
-  width: 121%;
+  width: 121vmax;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   top: 50%;
