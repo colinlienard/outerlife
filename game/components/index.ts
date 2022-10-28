@@ -7,5 +7,5 @@ export * from './melee-attack-component';
 export * from './movement-component';
 export * from './position-component';
 export * from './sprite-component';
-export * from './sprite-layers-component';
+export * from './layers-component';
 export * from './state-machine-component';

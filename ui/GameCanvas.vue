@@ -29,6 +29,8 @@ onMounted(() => {
       ref="debugCanvas"
       :class="['debug-canvas', { visible: debugMode }]"
     />
+    <GameVignette />
+    <GameNoise />
     <GameTransition />
     <FPSVisualizer v-if="debugMode" />
     <LoadingScreen />
@@ -41,6 +43,7 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 
   .game-canvas {
     width: 100vw;

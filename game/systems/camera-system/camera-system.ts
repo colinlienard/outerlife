@@ -1,9 +1,11 @@
-import { Settings, System } from '~~/game/utils';
+import { Emitter, Settings, System } from '~~/game/utils';
 import { Player } from '~~/game/entities';
 import { PositionComponent, SpriteComponent } from '~~/game/components';
 
 export class CameraSystem extends System {
   protected readonly requiredComponents = [];
+
+  private readonly shakeAmount = 1;
 
   private player!: Player;
 
@@ -21,9 +23,16 @@ export class CameraSystem extends System {
 
   private y = 0;
 
+  private shaking = false;
+
   private getCameraX(): number {
     // Easing
     this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
+
+    // Camera shake
+    if (this.shaking) {
+      this.x += Math.random() > 0.5 ? this.shakeAmount : -this.shakeAmount;
+    }
 
     return this.x;
   }
@@ -31,6 +40,11 @@ export class CameraSystem extends System {
   private getCameraY(): number {
     // Easing
     this.y += (this.getTargetY() - this.y) * Settings.cameraEasing;
+
+    // Camera shake
+    if (this.shaking) {
+      this.y += Math.random() > 0.5 ? this.shakeAmount : -this.shakeAmount;
+    }
 
     return this.y;
   }
@@ -79,6 +93,17 @@ export class CameraSystem extends System {
 
     this.x = this.getTargetX();
     this.y = this.getTargetY();
+
+    // Shake camera on hit
+    Emitter.on('hit', () => {
+      if (this.shaking) {
+        return;
+      }
+      this.shaking = true;
+      setTimeout(() => {
+        this.shaking = false;
+      }, 50);
+    });
   }
 
   resize() {

@@ -10,6 +10,7 @@ import {
 } from '~~/game/components';
 import { Interaction, Player } from '~~/game/entities';
 import {
+  Emitter,
   Entity,
   getAngleFromPoints,
   QuadTree,
@@ -176,7 +177,7 @@ export class CollisionSystem extends System {
                     colliding.has(AIComponent) &&
                     colliding.get(StateMachineComponent).get() !== 'hit'
                   ) {
-                    colliding.get(AIComponent).target = null;
+                    colliding.get(AIComponent).setWanderTarget();
                   }
 
                   const overlapX = widthX - Math.abs(distanceX);
@@ -219,6 +220,8 @@ export class CollisionSystem extends System {
 
               // Make the sprite flash white
               colliding.get(SpriteComponent).setHit();
+
+              Emitter.emit('hit');
 
               // Set angle for repulsing the hit entity
               colliding.get(MovementComponent).angle = getAngleFromPoints(

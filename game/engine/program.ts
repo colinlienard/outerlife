@@ -1,7 +1,7 @@
 class Program {
-  gl: WebGL2RenderingContext;
+  readonly gl: WebGL2RenderingContext;
 
-  program: WebGLProgram;
+  readonly program: WebGLProgram;
 
   constructor(
     context: WebGL2RenderingContext,

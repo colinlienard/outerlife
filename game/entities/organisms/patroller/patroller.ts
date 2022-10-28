@@ -7,7 +7,7 @@ import {
   MovementComponent,
   PositionComponent,
   SpriteComponent,
-  SpriteLayersComponent,
+  LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
 import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
@@ -88,25 +88,75 @@ export class Patroller extends Entity {
       ])
     );
     this.add(new HealthComponent(this.id, 100));
-    this.add(new MeleeAttackComponent(3.5, 0.25));
-    this.add(new MovementComponent(0.4, 0.02, 0.04));
-    this.add(new PositionComponent(x, y, 32, 32));
-    this.add(new SpriteComponent('/sprites/patroller.png', 0, 0, 32, 32));
+
+    const layerGlow = {
+      down: {
+        x: 2,
+        y: 0,
+      },
+      left: {
+        x: 2,
+        y: 0,
+      },
+      right: {
+        x: 6,
+        y: 0,
+      },
+    };
     this.add(
-      new SpriteLayersComponent([
+      new LayersComponent([
         {
+          type: 'sprite',
           source: '/sprites/patroller.png',
           sourceX: 0,
           sourceY: 128,
           width: 12,
           height: 5,
-          x: 10,
-          y: 29,
-          rotation: 0,
-          depth: -1,
+          render: true,
+          data: {
+            x: 10,
+            y: 29,
+            rotation: 0,
+            depth: -1,
+          },
+        },
+        {
+          type: 'glow',
+          color: [1, 0.2, 0.1],
+          opacity: 0.5,
+          size: 24,
+          animation: {
+            idle: layerGlow,
+            hit: layerGlow,
+            run: layerGlow,
+            chase: layerGlow,
+            'melee-attack-anticipation': layerGlow,
+            'melee-attack': layerGlow,
+            dead: {
+              down: [
+                {
+                  x: 2,
+                  y: 0,
+                },
+                {
+                  x: 2,
+                  y: 0,
+                },
+              ],
+            },
+          },
+          render: true,
+          data: {
+            x: 0,
+            y: 0,
+          },
         },
       ])
     );
+    this.add(new MeleeAttackComponent(3.5, 0.25));
+    this.add(new MovementComponent(0.4, 0.02, 0.04));
+    this.add(new PositionComponent(x, y, 32, 32));
+    this.add(new SpriteComponent('/sprites/patroller.png', 0, 0, 32, 32));
     this.add(new StateMachineComponent());
   }
 

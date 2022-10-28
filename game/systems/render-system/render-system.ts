@@ -4,8 +4,9 @@ import {
   MovementComponent,
   PositionComponent,
   SpriteComponent,
+  LayersComponent,
   SpriteLayer,
-  SpriteLayersComponent,
+  GlowLayer,
 } from '~~/game/components';
 import { Engine } from '~~/game/engine';
 import {
@@ -100,7 +101,7 @@ export class RenderSystem extends System {
         this.viewport.height
       )
       .forEach(({ terrain }) => {
-        this.engine.queueRender(
+        this.engine.renderTexture(
           terrain.source,
           terrain.sourceX,
           terrain.sourceY,
@@ -117,19 +118,17 @@ export class RenderSystem extends System {
     this.getSortedEntities().forEach((entity) => {
       const sprite = entity.get(SpriteComponent);
       const position = entity.get(PositionComponent);
+      const layers = entity.get(LayersComponent);
 
       // Render back sprite layers
-      if (entity.has(SpriteLayersComponent)) {
-        this.renderSpriteLayers(
-          entity.get(SpriteLayersComponent).getBack(),
-          position
-        );
+      if (layers) {
+        this.renderSpriteLayers(layers.getBackSprites(), position);
       }
 
       // Render animated entity
       if (entity.has(AnimationComponent)) {
         const animation = entity.get(AnimationComponent);
-        this.engine.queueRender(
+        this.engine.renderTexture(
           sprite.source,
           sprite.width * (animation.column + animation.current.frameStart - 1),
           sprite.height * animation.row,
@@ -142,11 +141,10 @@ export class RenderSystem extends System {
           0,
           sprite.hit
         );
-      }
 
-      // Render non animated entity
-      else {
-        this.engine.queueRender(
+        // Render non animated entity
+      } else {
+        this.engine.renderTexture(
           sprite.source,
           sprite.sourceX,
           sprite.sourceY,
@@ -159,12 +157,12 @@ export class RenderSystem extends System {
         );
       }
 
-      // Render front sprite layers
-      if (entity.has(SpriteLayersComponent)) {
-        this.renderSpriteLayers(
-          entity.get(SpriteLayersComponent).getFront(),
-          position
-        );
+      if (layers) {
+        // Render front sprite layers
+        this.renderSpriteLayers(layers.getFrontSprites(), position);
+
+        // Render glow
+        this.renderGlowLayers(layers.getGlow(), position);
       }
     });
 
@@ -252,17 +250,29 @@ export class RenderSystem extends System {
     position: PositionComponent
   ) {
     layers.forEach((layer) => {
-      this.engine.queueRender(
+      this.engine.renderTexture(
         layer.source,
         layer.sourceX,
         layer.sourceY,
         layer.width,
         layer.height,
-        Math.floor((position.x + layer.x) * Settings.ratio),
-        Math.floor((position.y + layer.y) * Settings.ratio),
+        Math.floor((position.x + layer.data.x) * Settings.ratio),
+        Math.floor((position.y + layer.data.y) * Settings.ratio),
         layer.width * Settings.ratio,
         layer.height * Settings.ratio,
-        layer.rotation
+        layer.data.rotation
+      );
+    });
+  }
+
+  private renderGlowLayers(layers: GlowLayer[], position: PositionComponent) {
+    layers.forEach((layer) => {
+      this.engine.renderGlow(
+        layer.color,
+        layer.opacity,
+        Math.floor((position.x + layer.data.x) * Settings.ratio),
+        Math.floor((position.y + layer.data.y) * Settings.ratio),
+        layer.size * Settings.ratio
       );
     });
   }
