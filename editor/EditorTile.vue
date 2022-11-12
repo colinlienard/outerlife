@@ -20,7 +20,7 @@ onMounted(() => {
       context.imageSmoothingEnabled = false;
 
       const image = new Image();
-      image.src = `/sprites/${source}.png`;
+      image.src = source;
       image.onload = () => {
         context.drawImage(
           image,
@@ -41,7 +41,7 @@ onMounted(() => {
 
 <template>
   <button :class="['tile', { selected: selected }]" @click="$emit('click')">
-    <canvas ref="canvas" class="canvas"></canvas>
+    <canvas ref="canvas" class="canvas" />
   </button>
 </template>
 

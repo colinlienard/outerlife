@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // import { environmentTiles, terrainTiles } from '~~/game/data';
 import { Tilemap } from '~~/game/utils';
-import Editor from './editor';
+import Editor from './oldEditor';
 import EditorTile from './EditorTile.vue';
 
 const tileSize = 16;

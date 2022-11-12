@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import EditorCanvas from '../editor/EditorCanvas.vue';
+import { MapEditor } from '~~/editor';
 </script>
 
 <template>
-  <EditorCanvas />
+  <MapEditor />
 </template>
