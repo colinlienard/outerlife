@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { terrainTiles } from '~~/game/data';
+import { terrainsIndex } from '~~/game/data';
 import { Settings } from '~~/game/utils';
 import { Editor } from './editor';
 import EditorTile from './EditorTile.vue';
@@ -12,11 +12,25 @@ const columns = ref(20);
 const ratio = ref(5);
 const pan = ref({ x: 0, y: 0 });
 const showGrid = ref(true);
+const map = ref<(number | null)[]>([]);
 
-const panning = ref(false);
 let panningPosition = { x: 0, y: 0 };
-const selectedItem = ref('');
+const selectedItem = ref<number | null>(null);
 const selectedType = ref<'terrain' | 'environment'>('terrain');
+
+const placeTerrain = (x: number, y: number) => {
+  const column = Math.trunc(
+    (x - pan.value.x) / Settings.tileSize / ratio.value
+  );
+  const row = Math.trunc((y - pan.value.y) / Settings.tileSize / ratio.value);
+  const index = row * columns.value + column;
+
+  // Update map
+  map.value = map.value.map((v, i) => (i === index ? selectedItem.value : v));
+
+  // Render
+  (editor.value as Editor).render(map.value);
+};
 
 const zoomEventHandler = (event: WheelEvent) => {
   const oldRatio = ratio.value;
@@ -39,33 +53,32 @@ const zoomEventHandler = (event: WheelEvent) => {
 };
 
 const mouseEventHandler = (event: MouseEvent) => {
-  switch (event.type) {
-    case 'mousedown':
-      if (event.button === 1) {
-        panning.value = true;
+  switch (event.buttons) {
+    // Handle click
+    case 1:
+      placeTerrain(event.clientX, event.clientY);
+      break;
+
+    // Handle pan
+    case 4:
+      if (event.type === 'mousedown') {
         panningPosition = {
           x: event.clientX,
           y: event.clientY,
         };
+        return;
       }
-      break;
 
-    case 'mouseup':
-      panning.value = false;
-      break;
-
-    case 'mousemove':
-      if (panning.value) {
+      if (event.type === 'mousemove') {
         const x = event.clientX;
         const y = event.clientY;
-
         pan.value = {
           x: pan.value.x + x - panningPosition.x,
           y: pan.value.y + y - panningPosition.y,
         };
-
         panningPosition = { x, y };
       }
+
       break;
 
     default:
@@ -82,11 +95,13 @@ onMounted(() => {
     columns.value,
     ratio.value
   );
+
+  map.value = [...new Array(rows.value * columns.value)].map(() => null);
 });
 
 watch([rows, columns, ratio, pan, showGrid], (values) => {
   (editor.value as Editor).updateSettings(...values);
-  (editor.value as Editor).render([]);
+  (editor.value as Editor).render(map.value);
 });
 </script>
 
@@ -111,14 +126,24 @@ watch([rows, columns, ratio, pan, showGrid], (values) => {
         <input id="columns" v-model="columns" type="number" />
       </label>
       <ul class="wrapper tile-list">
-        <li v-for="(terrain, tile, index) in terrainTiles" :key="index">
+        <li>
           <EditorTile
-            :source="terrain.source"
-            :x="terrain.x"
-            :y="terrain.y"
+            source="/sprites/eraser.png"
+            :x="0"
+            :y="0"
             :size="Settings.tileSize"
-            :selected="selectedType === 'terrain' && selectedItem === tile"
-            @click="selectedItem = (tile as string)"
+            :selected="selectedType === 'terrain' && selectedItem === null"
+            @click="selectedItem = null"
+          />
+        </li>
+        <li v-for="([source, x, y], index) in terrainsIndex" :key="index">
+          <EditorTile
+            :source="source"
+            :x="x"
+            :y="y"
+            :size="Settings.tileSize"
+            :selected="selectedType === 'terrain' && selectedItem === index"
+            @click="selectedItem = index"
           />
         </li>
       </ul>

@@ -28,4 +28,8 @@ const updateValue = (event: Event) => {
   </label>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.label {
+  display: flex;
+}
+</style>

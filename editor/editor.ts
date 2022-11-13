@@ -1,4 +1,4 @@
-import { terrainTiles } from '~~/game/data';
+import { terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
 import { Settings } from '~~/game/utils';
 
@@ -47,30 +47,34 @@ export class Editor {
       });
   }
 
-  render(terrains: string[]) {
+  render(terrains: (number | null)[]) {
     this.engine.clear();
 
-    if (this.showGrid) {
-      this.renderGrid();
-    }
-
     terrains.forEach((item, index) => {
-      const terrain = terrainTiles[item];
-      const row = Math.floor(this.rows / index);
-      const column = Math.floor(this.columns / index);
+      if (item === null) {
+        return;
+      }
+
+      const [source, x, y] = terrainsIndex[item];
+      const column = index % this.columns;
+      const row = Math.floor(index / this.columns);
 
       this.engine.renderTexture(
-        terrain.source,
-        terrain.x,
-        terrain.y,
+        source,
+        x,
+        y,
         Settings.tileSize,
         Settings.tileSize,
-        row * this.ratio,
-        column * this.ratio,
+        column * Settings.tileSize * this.ratio,
+        row * Settings.tileSize * this.ratio,
         Settings.tileSize * this.ratio,
         Settings.tileSize * this.ratio
       );
     });
+
+    if (this.showGrid) {
+      this.renderGrid();
+    }
 
     this.engine.render();
   }
