@@ -7,12 +7,12 @@ import EditorTile from './EditorTile.vue';
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
 
-const rows = ref(20);
-const columns = ref(20);
+const rows = ref(5);
+const columns = ref(5);
+const addSizeAfter = ref(true);
 const ratio = ref(5);
 const pan = ref({ x: 0, y: 0 });
 const showGrid = ref(true);
-const map = ref<(number | null)[]>([]);
 
 let panningPosition = { x: 0, y: 0 };
 const selectedItem = ref<number | null>(null);
@@ -23,13 +23,9 @@ const placeTerrain = (x: number, y: number) => {
     (x - pan.value.x) / Settings.tileSize / ratio.value
   );
   const row = Math.trunc((y - pan.value.y) / Settings.tileSize / ratio.value);
-  const index = row * columns.value + column;
 
-  // Update map
-  map.value = map.value.map((v, i) => (i === index ? selectedItem.value : v));
-
-  // Render
-  (editor.value as Editor).render(map.value);
+  editor.value?.placeTerrain(column, row, selectedItem.value);
+  editor.value?.render();
 };
 
 const zoomEventHandler = (event: WheelEvent) => {
@@ -95,13 +91,11 @@ onMounted(() => {
     columns.value,
     ratio.value
   );
-
-  map.value = [...new Array(rows.value * columns.value)].map(() => null);
 });
 
-watch([rows, columns, ratio, pan, showGrid], (values) => {
-  (editor.value as Editor).updateSettings(...values);
-  (editor.value as Editor).render(map.value);
+watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
+  editor.value?.updateSettings(...values);
+  editor.value?.render();
 });
 </script>
 
@@ -125,6 +119,9 @@ watch([rows, columns, ratio, pan, showGrid], (values) => {
         Columns
         <input id="columns" v-model="columns" type="number" />
       </label>
+      <button @click="addSizeAfter = !addSizeAfter">
+        Add/remove {{ addSizeAfter ? 'after' : 'before' }}
+      </button>
       <ul class="wrapper tile-list">
         <li>
           <EditorTile

@@ -5,6 +5,8 @@ import { Settings } from '~~/game/utils';
 export class Editor {
   private readonly engine: Engine;
 
+  private terrainMap: (number | null)[] = [];
+
   private ratio: number;
 
   private showGrid: boolean = true;
@@ -36,6 +38,8 @@ export class Editor {
     this.rows = rows;
     this.columns = columns;
 
+    this.terrainMap = [...new Array(rows * columns)].map(() => null);
+
     this.engine
       .loadTextures([
         '/sprites/guidelines.png',
@@ -43,14 +47,25 @@ export class Editor {
         '/sprites/environments-001.png',
       ])
       .then(() => {
-        this.render([]);
+        this.render();
       });
   }
 
-  render(terrains: (number | null)[]) {
+  placeTerrain(column: number, row: number, value: number | null) {
+    // Avoid placing terrain out of the map
+    if (column > this.columns - 1) {
+      return;
+    }
+
+    // Update map
+    const index = row * this.columns + column;
+    this.terrainMap = this.terrainMap.map((v, i) => (i === index ? value : v));
+  }
+
+  render() {
     this.engine.clear();
 
-    terrains.forEach((item, index) => {
+    this.terrainMap.forEach((item, index) => {
       if (item === null) {
         return;
       }
@@ -116,8 +131,43 @@ export class Editor {
     columns: number,
     ratio: number,
     pan: { x: number; y: number },
-    showGrid: boolean
+    showGrid: boolean,
+    addSizeAfter: boolean
   ) {
+    // Handle row added or removed
+    if (rows !== this.rows) {
+      if (rows > this.rows) {
+        const newRow = [...new Array(this.columns)].map(() => null);
+        this.terrainMap = addSizeAfter
+          ? [...this.terrainMap, ...newRow]
+          : [...newRow, ...this.terrainMap];
+      } else {
+        this.terrainMap.splice(
+          addSizeAfter ? this.terrainMap.length - this.columns : 0,
+          columns
+        );
+      }
+    }
+
+    // Handle column added or removed
+    if (columns !== this.columns) {
+      if (columns > this.columns) {
+        for (let row = 1; row < rows + 1; row += 1) {
+          const start = addSizeAfter
+            ? this.columns * row + row - 1
+            : this.columns * (row - 1) + row - 1;
+          this.terrainMap.splice(start, 0, null);
+        }
+      } else {
+        for (let row = 1; row < rows + 1; row += 1) {
+          const start = addSizeAfter
+            ? this.columns * row - row
+            : this.columns * (row - 1) - (row - 1);
+          this.terrainMap.splice(start, 1);
+        }
+      }
+    }
+
     this.rows = rows;
     this.columns = columns;
     this.ratio = ratio;
