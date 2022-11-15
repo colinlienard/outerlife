@@ -1,3 +1,4 @@
 export * from './tilemaps';
 export * from './tiles';
-export * from './terrainsIndex';
+export * from './environments-index';
+export * from './terrains-index';

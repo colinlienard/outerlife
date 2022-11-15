@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { terrainsIndex } from '~~/game/data';
+import { SpriteComponent } from '~~/game/components';
+import { environmentsIndex, terrainsIndex } from '~~/game/data';
 import { Settings } from '~~/game/utils';
 import { Editor } from './editor';
 import EditorTile from './EditorTile.vue';
@@ -7,8 +8,8 @@ import EditorTile from './EditorTile.vue';
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
 
-const rows = ref(5);
-const columns = ref(5);
+const rows = ref(20);
+const columns = ref(20);
 const addSizeAfter = ref(true);
 const ratio = ref(5);
 const pan = ref({ x: 0, y: 0 });
@@ -25,6 +26,18 @@ const placeTerrain = (x: number, y: number) => {
   const row = Math.trunc((y - pan.value.y) / Settings.tileSize / ratio.value);
 
   editor.value?.placeTerrain(column, row, selectedItem.value);
+  editor.value?.render();
+};
+
+const placeEnvironment = (x: number, y: number) => {
+  if (selectedItem.value === null) {
+    return;
+  }
+
+  const placeX = Math.round((x - pan.value.x) / ratio.value);
+  const placeY = Math.round((y - pan.value.y) / ratio.value);
+
+  editor.value?.placeEnvironment(placeX, placeY, selectedItem.value);
   editor.value?.render();
 };
 
@@ -52,7 +65,14 @@ const mouseEventHandler = (event: MouseEvent) => {
   switch (event.buttons) {
     // Handle click
     case 1:
-      placeTerrain(event.clientX, event.clientY);
+      if (selectedType.value === 'environment' && event.type === 'mousedown') {
+        placeEnvironment(event.clientX, event.clientY);
+        return;
+      }
+
+      if (selectedType.value === 'terrain') {
+        placeTerrain(event.clientX, event.clientY);
+      }
       break;
 
     // Handle pan
@@ -122,7 +142,10 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
       <button @click="addSizeAfter = !addSizeAfter">
         Add/remove {{ addSizeAfter ? 'after' : 'before' }}
       </button>
-      <ul class="wrapper tile-list">
+      <br />
+      <button @click="selectedType = 'terrain'">Terrains</button>
+      <button @click="selectedType = 'environment'">Environments</button>
+      <ul v-if="selectedType === 'terrain'">
         <li>
           <EditorTile
             source="/sprites/eraser.png"
@@ -140,6 +163,23 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
             :y="y"
             :size="Settings.tileSize"
             :selected="selectedType === 'terrain' && selectedItem === index"
+            @click="selectedItem = index"
+          />
+        </li>
+      </ul>
+      <ul v-if="selectedType === 'environment'">
+        <li v-for="(environment, index) in environmentsIndex" :key="index">
+          <EditorTile
+            :source="new environment(0, 0).get(SpriteComponent).source"
+            :x="new environment(0, 0).get(SpriteComponent).sourceX"
+            :y="new environment(0, 0).get(SpriteComponent).sourceY"
+            :size="
+              new environment(0, 0).get(SpriteComponent).width <
+              new environment(0, 0).get(SpriteComponent).height
+                ? new environment(0, 0).get(SpriteComponent).width
+                : new environment(0, 0).get(SpriteComponent).height
+            "
+            :selected="selectedType === 'environment' && selectedItem === index"
             @click="selectedItem = index"
           />
         </li>

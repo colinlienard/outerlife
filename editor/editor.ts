@@ -1,11 +1,20 @@
-import { terrainsIndex } from '~~/game/data';
+import { SpriteComponent } from '~~/game/components';
+import { environmentsIndex, terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
 import { Settings } from '~~/game/utils';
+
+type EnvironmentInMap = {
+  x: number;
+  y: number;
+  constructorId: number;
+};
 
 export class Editor {
   private readonly engine: Engine;
 
   private terrainMap: (number | null)[] = [];
+
+  private environmentMap: EnvironmentInMap[] = [];
 
   private ratio: number;
 
@@ -62,9 +71,28 @@ export class Editor {
     this.terrainMap = this.terrainMap.map((v, i) => (i === index ? value : v));
   }
 
+  placeEnvironment(x: number, y: number, constructorId: number) {
+    const { width, height } = new environmentsIndex[constructorId]().get(
+      SpriteComponent
+    );
+    this.environmentMap.push({
+      x: x - width / 2,
+      y: y - height / 2,
+      constructorId,
+    });
+    this.environmentMap.sort((a, b) =>
+      a.y +
+        new environmentsIndex[a.constructorId]().get(SpriteComponent).height >
+      b.y + new environmentsIndex[b.constructorId]().get(SpriteComponent).height
+        ? 1
+        : -1
+    );
+  }
+
   render() {
     this.engine.clear();
 
+    // Render terrains
     this.terrainMap.forEach((item, index) => {
       if (item === null) {
         return;
@@ -84,6 +112,25 @@ export class Editor {
         row * Settings.tileSize * this.ratio,
         Settings.tileSize * this.ratio,
         Settings.tileSize * this.ratio
+      );
+    });
+
+    // Render environments
+    this.environmentMap.forEach(({ x, y, constructorId }) => {
+      const environment = new environmentsIndex[constructorId]();
+      const { source, sourceX, sourceY, width, height } =
+        environment.get(SpriteComponent);
+
+      this.engine.renderTexture(
+        source,
+        sourceX,
+        sourceY,
+        width,
+        height,
+        x * this.ratio,
+        y * this.ratio,
+        width * this.ratio,
+        height * this.ratio
       );
     });
 
@@ -141,11 +188,25 @@ export class Editor {
         this.terrainMap = addSizeAfter
           ? [...this.terrainMap, ...newRow]
           : [...newRow, ...this.terrainMap];
+
+        if (!addSizeAfter) {
+          this.environmentMap = this.environmentMap.map((environment) => ({
+            ...environment,
+            y: environment.y + Settings.tileSize,
+          }));
+        }
       } else {
         this.terrainMap.splice(
           addSizeAfter ? this.terrainMap.length - this.columns : 0,
           columns
         );
+
+        if (!addSizeAfter) {
+          this.environmentMap = this.environmentMap.map((environment) => ({
+            ...environment,
+            y: environment.y - Settings.tileSize,
+          }));
+        }
       }
     }
 
@@ -158,12 +219,26 @@ export class Editor {
             : this.columns * (row - 1) + row - 1;
           this.terrainMap.splice(start, 0, null);
         }
+
+        if (!addSizeAfter) {
+          this.environmentMap = this.environmentMap.map((environment) => ({
+            ...environment,
+            x: environment.x + Settings.tileSize,
+          }));
+        }
       } else {
         for (let row = 1; row < rows + 1; row += 1) {
           const start = addSizeAfter
             ? this.columns * row - row
             : this.columns * (row - 1) - (row - 1);
           this.terrainMap.splice(start, 1);
+        }
+
+        if (!addSizeAfter) {
+          this.environmentMap = this.environmentMap.map((environment) => ({
+            ...environment,
+            x: environment.x - Settings.tileSize,
+          }));
         }
       }
     }
