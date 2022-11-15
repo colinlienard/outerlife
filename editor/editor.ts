@@ -89,6 +89,41 @@ export class Editor {
     );
   }
 
+  selectEnvironment(x: number, y: number) {
+    for (const environment of this.environmentMap) {
+      const sprite = new environmentsIndex[environment.constructorId]().get(
+        SpriteComponent
+      );
+      if (
+        x > environment.x &&
+        x < environment.x + sprite.width &&
+        y > environment.y &&
+        y < environment.y + sprite.height
+      ) {
+        return {
+          x: environment.x,
+          y: environment.y,
+          index: this.environmentMap.indexOf(environment),
+        };
+      }
+    }
+
+    return null;
+  }
+
+  updateEnvironment(x: number, y: number, index: number) {
+    for (let i = 0; i < this.environmentMap.length; i += 1) {
+      if (i === index) {
+        this.environmentMap[index] = { ...this.environmentMap[index], x, y };
+        return;
+      }
+    }
+  }
+
+  deleteEnvironment(index: number) {
+    this.environmentMap = this.environmentMap.filter((_, i) => i !== index);
+  }
+
   render() {
     this.engine.clear();
 

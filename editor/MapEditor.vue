@@ -18,6 +18,9 @@ const showGrid = ref(true);
 let panningPosition = { x: 0, y: 0 };
 const selectedItem = ref<number | null>(null);
 const selectedType = ref<'terrain' | 'environment'>('terrain');
+const selectedEnvironment = ref<{ x: number; y: number; index: number } | null>(
+  null
+);
 
 const placeTerrain = (x: number, y: number) => {
   const column = Math.trunc(
@@ -30,15 +33,38 @@ const placeTerrain = (x: number, y: number) => {
 };
 
 const placeEnvironment = (x: number, y: number) => {
-  if (selectedItem.value === null) {
-    return;
-  }
-
   const placeX = Math.round((x - pan.value.x) / ratio.value);
   const placeY = Math.round((y - pan.value.y) / ratio.value);
 
+  if (selectedItem.value === null) {
+    selectedEnvironment.value = (editor.value as Editor).selectEnvironment(
+      placeX,
+      placeY
+    );
+    return;
+  }
+
   editor.value?.placeEnvironment(placeX, placeY, selectedItem.value);
   editor.value?.render();
+};
+
+const updateEnvironment = () => {
+  if (selectedEnvironment.value) {
+    editor.value?.updateEnvironment(
+      selectedEnvironment.value.x,
+      selectedEnvironment.value.y,
+      selectedEnvironment.value.index
+    );
+    editor.value?.render();
+  }
+};
+
+const deleteEnvironment = () => {
+  if (selectedEnvironment.value) {
+    editor.value?.deleteEnvironment(selectedEnvironment.value.index);
+    editor.value?.render();
+    selectedEnvironment.value = null;
+  }
 };
 
 const zoomEventHandler = (event: WheelEvent) => {
@@ -145,6 +171,27 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
       <br />
       <button @click="selectedType = 'terrain'">Terrains</button>
       <button @click="selectedType = 'environment'">Environments</button>
+      <div v-if="selectedEnvironment">
+        <label for="x">
+          x
+          <input
+            id="x"
+            v-model="selectedEnvironment.x"
+            type="number"
+            @change="updateEnvironment"
+          />
+        </label>
+        <label for="y">
+          y
+          <input
+            id="y"
+            v-model="selectedEnvironment.y"
+            type="number"
+            @change="updateEnvironment"
+          />
+        </label>
+        <button @click="deleteEnvironment">Delete</button>
+      </div>
       <ul v-if="selectedType === 'terrain'">
         <li>
           <EditorTile
@@ -152,7 +199,7 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
             :x="0"
             :y="0"
             :size="Settings.tileSize"
-            :selected="selectedType === 'terrain' && selectedItem === null"
+            :selected="selectedItem === null"
             @click="selectedItem = null"
           />
         </li>
@@ -162,12 +209,22 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
             :x="x"
             :y="y"
             :size="Settings.tileSize"
-            :selected="selectedType === 'terrain' && selectedItem === index"
+            :selected="selectedItem === index"
             @click="selectedItem = index"
           />
         </li>
       </ul>
       <ul v-if="selectedType === 'environment'">
+        <li>
+          <EditorTile
+            source="/sprites/player.png"
+            :x="0"
+            :y="0"
+            :size="Settings.tileSize"
+            :selected="selectedItem === null"
+            @click="selectedItem = null"
+          />
+        </li>
         <li v-for="(environment, index) in environmentsIndex" :key="index">
           <EditorTile
             :source="new environment(0, 0).get(SpriteComponent).source"
@@ -179,7 +236,7 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
                 ? new environment(0, 0).get(SpriteComponent).width
                 : new environment(0, 0).get(SpriteComponent).height
             "
-            :selected="selectedType === 'environment' && selectedItem === index"
+            :selected="selectedItem === index"
             @click="selectedItem = index"
           />
         </li>
