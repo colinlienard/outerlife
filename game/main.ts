@@ -16,7 +16,7 @@ export class Game extends ECS {
 
   private freeze = false;
 
-  private paused = false;
+  paused = false;
 
   fps = 0;
 

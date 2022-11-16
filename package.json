@@ -15,6 +15,7 @@
     "prepare": "nuxt prepare && husky install"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.4.3",
     "gl-matrix": "^3.4.3"
   },
   "devDependencies": {
@@ -27,7 +28,7 @@
     "eslint-plugin-import": "2.25.2",
     "eslint-plugin-vue": "^8.6.0",
     "husky": "^7.0.4",
-    "nuxt": "3.0.0-rc.11",
+    "nuxt": "3.0.0",
     "postcss": "^8.4.12",
     "postcss-html": "^1.4.1",
     "prettier": "^2.6.2",
