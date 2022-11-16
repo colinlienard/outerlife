@@ -29,6 +29,21 @@ export type Tilemap = {
   interactions: Interaction[];
 };
 
+export type MapEnvironment = {
+  x: number;
+  y: number;
+  constructorId: number;
+};
+
+export type MapTerrain = number | null;
+
+export type Map = {
+  rows: number;
+  columns: number;
+  terrains: MapTerrain[];
+  environments: MapEnvironment[];
+};
+
 export type Horizontal = 'left' | 'right';
 
 export type Vertical = 'up' | 'down';

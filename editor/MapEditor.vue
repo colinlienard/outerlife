@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { SpriteComponent } from '~~/game/components';
 import { environmentsIndex, terrainsIndex } from '~~/game/data';
-import { Settings } from '~~/game/utils';
+import { Map, Settings } from '~~/game/utils';
 import { Editor } from './editor';
 import EditorTile from './EditorTile.vue';
+import FileUploader from './FileUploader.vue';
 
 const canvas = ref<HTMLCanvasElement>();
 const editor = ref<Editor>();
@@ -79,10 +80,10 @@ const zoomEventHandler = (event: WheelEvent) => {
   // Edit panning to zoom in center
   const x =
     pan.value.x +
-    ((oldRatio - ratio.value) / 2) * rows.value * Settings.tileSize;
+    ((oldRatio - ratio.value) / 2) * columns.value * Settings.tileSize;
   const y =
     pan.value.y +
-    ((oldRatio - ratio.value) / 2) * columns.value * Settings.tileSize;
+    ((oldRatio - ratio.value) / 2) * rows.value * Settings.tileSize;
 
   pan.value = { x, y };
 };
@@ -128,6 +129,28 @@ const mouseEventHandler = (event: MouseEvent) => {
   }
 };
 
+const downloadMap = () => {
+  const map = editor.value?.getMap();
+  useDownload(map, 'map.json');
+};
+
+const handleMapUpload = (data: string) => {
+  try {
+    const map = JSON.parse(data) as Map;
+
+    rows.value = map.rows;
+    columns.value = map.columns;
+
+    setTimeout(() => {
+      editor.value?.setTerrainsAndEnvironments(map.terrains, map.environments);
+      editor.value?.render();
+    }, 10);
+  } catch {
+    // eslint-disable-next-line no-alert
+    alert('File error.');
+  }
+};
+
 const mouseMoveHandler = useThrottle((event) => mouseEventHandler(event), 10);
 
 onMounted(() => {
@@ -168,6 +191,9 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
       <button @click="addSizeAfter = !addSizeAfter">
         Add/remove {{ addSizeAfter ? 'after' : 'before' }}
       </button>
+      <br />
+      <button @click="downloadMap">Download map as json</button>
+      <FileUploader @upload="handleMapUpload" />
       <br />
       <button @click="selectedType = 'terrain'">Terrains</button>
       <button @click="selectedType = 'environment'">Environments</button>

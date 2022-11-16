@@ -1,20 +1,14 @@
 import { SpriteComponent } from '~~/game/components';
 import { environmentsIndex, terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
-import { Settings } from '~~/game/utils';
-
-type EnvironmentInMap = {
-  x: number;
-  y: number;
-  constructorId: number;
-};
+import { Map, MapEnvironment, MapTerrain, Settings } from '~~/game/utils';
 
 export class Editor {
   private readonly engine: Engine;
 
-  private terrainMap: (number | null)[] = [];
+  private terrains: MapTerrain[] = [];
 
-  private environmentMap: EnvironmentInMap[] = [];
+  private environments: MapEnvironment[] = [];
 
   private ratio: number;
 
@@ -47,7 +41,7 @@ export class Editor {
     this.rows = rows;
     this.columns = columns;
 
-    this.terrainMap = [...new Array(rows * columns)].map(() => null);
+    this.terrains = [...new Array(rows * columns)].map(() => null);
 
     this.engine
       .loadTextures([
@@ -68,19 +62,19 @@ export class Editor {
 
     // Update map
     const index = row * this.columns + column;
-    this.terrainMap = this.terrainMap.map((v, i) => (i === index ? value : v));
+    this.terrains = this.terrains.map((v, i) => (i === index ? value : v));
   }
 
   placeEnvironment(x: number, y: number, constructorId: number) {
     const { width, height } = new environmentsIndex[constructorId]().get(
       SpriteComponent
     );
-    this.environmentMap.push({
+    this.environments.push({
       x: x - width / 2,
       y: y - height / 2,
       constructorId,
     });
-    this.environmentMap.sort((a, b) =>
+    this.environments.sort((a, b) =>
       a.y +
         new environmentsIndex[a.constructorId]().get(SpriteComponent).height >
       b.y + new environmentsIndex[b.constructorId]().get(SpriteComponent).height
@@ -90,7 +84,7 @@ export class Editor {
   }
 
   selectEnvironment(x: number, y: number) {
-    for (const environment of this.environmentMap) {
+    for (const environment of this.environments) {
       const sprite = new environmentsIndex[environment.constructorId]().get(
         SpriteComponent
       );
@@ -103,7 +97,7 @@ export class Editor {
         return {
           x: environment.x,
           y: environment.y,
-          index: this.environmentMap.indexOf(environment),
+          index: this.environments.indexOf(environment),
         };
       }
     }
@@ -112,23 +106,40 @@ export class Editor {
   }
 
   updateEnvironment(x: number, y: number, index: number) {
-    for (let i = 0; i < this.environmentMap.length; i += 1) {
+    for (let i = 0; i < this.environments.length; i += 1) {
       if (i === index) {
-        this.environmentMap[index] = { ...this.environmentMap[index], x, y };
+        this.environments[index] = { ...this.environments[index], x, y };
         return;
       }
     }
   }
 
   deleteEnvironment(index: number) {
-    this.environmentMap = this.environmentMap.filter((_, i) => i !== index);
+    this.environments = this.environments.filter((_, i) => i !== index);
+  }
+
+  getMap(): Map {
+    return {
+      rows: this.rows,
+      columns: this.columns,
+      terrains: this.terrains,
+      environments: this.environments,
+    };
+  }
+
+  setTerrainsAndEnvironments(
+    terrains: MapTerrain[],
+    environments: MapEnvironment[]
+  ) {
+    this.terrains = terrains;
+    this.environments = environments;
   }
 
   render() {
     this.engine.clear();
 
     // Render terrains
-    this.terrainMap.forEach((item, index) => {
+    this.terrains.forEach((item, index) => {
       if (item === null) {
         return;
       }
@@ -151,7 +162,7 @@ export class Editor {
     });
 
     // Render environments
-    this.environmentMap.forEach(({ x, y, constructorId }) => {
+    this.environments.forEach(({ x, y, constructorId }) => {
       const environment = new environmentsIndex[constructorId]();
       const { source, sourceX, sourceY, width, height } =
         environment.get(SpriteComponent);
@@ -220,24 +231,24 @@ export class Editor {
     if (rows !== this.rows) {
       if (rows > this.rows) {
         const newRow = [...new Array(this.columns)].map(() => null);
-        this.terrainMap = addSizeAfter
-          ? [...this.terrainMap, ...newRow]
-          : [...newRow, ...this.terrainMap];
+        this.terrains = addSizeAfter
+          ? [...this.terrains, ...newRow]
+          : [...newRow, ...this.terrains];
 
         if (!addSizeAfter) {
-          this.environmentMap = this.environmentMap.map((environment) => ({
+          this.environments = this.environments.map((environment) => ({
             ...environment,
             y: environment.y + Settings.tileSize,
           }));
         }
       } else {
-        this.terrainMap.splice(
-          addSizeAfter ? this.terrainMap.length - this.columns : 0,
+        this.terrains.splice(
+          addSizeAfter ? this.terrains.length - this.columns : 0,
           columns
         );
 
         if (!addSizeAfter) {
-          this.environmentMap = this.environmentMap.map((environment) => ({
+          this.environments = this.environments.map((environment) => ({
             ...environment,
             y: environment.y - Settings.tileSize,
           }));
@@ -252,11 +263,11 @@ export class Editor {
           const start = addSizeAfter
             ? this.columns * row + row - 1
             : this.columns * (row - 1) + row - 1;
-          this.terrainMap.splice(start, 0, null);
+          this.terrains.splice(start, 0, null);
         }
 
         if (!addSizeAfter) {
-          this.environmentMap = this.environmentMap.map((environment) => ({
+          this.environments = this.environments.map((environment) => ({
             ...environment,
             x: environment.x + Settings.tileSize,
           }));
@@ -266,11 +277,11 @@ export class Editor {
           const start = addSizeAfter
             ? this.columns * row - row
             : this.columns * (row - 1) - (row - 1);
-          this.terrainMap.splice(start, 1);
+          this.terrains.splice(start, 1);
         }
 
         if (!addSizeAfter) {
-          this.environmentMap = this.environmentMap.map((environment) => ({
+          this.environments = this.environments.map((environment) => ({
             ...environment,
             x: environment.x - Settings.tileSize,
           }));
