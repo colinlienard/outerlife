@@ -29,7 +29,7 @@ export type Tilemap = {
   interactions: Interaction[];
 };
 
-export type MapEnvironment = {
+export type MapEntity = {
   x: number;
   y: number;
   constructorId: number;
@@ -41,8 +41,15 @@ export type Map = {
   rows: number;
   columns: number;
   terrains: MapTerrain[];
-  environments: MapEnvironment[];
+  environments: MapEntity[];
+  organisms: MapEntity[];
 };
+
+export type MapItemType =
+  | 'terrain'
+  | 'environment'
+  | 'organism'
+  | 'interaction';
 
 export type Horizontal = 'left' | 'right';
 

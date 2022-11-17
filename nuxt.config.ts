@@ -9,6 +9,5 @@ export default defineNuxtConfig({
   ssr: false,
   typescript: {
     strict: true,
-    typeCheck: true,
   },
 });

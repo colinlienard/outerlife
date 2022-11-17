@@ -1,14 +1,22 @@
-import { SpriteComponent } from '~~/game/components';
-import { environmentsIndex, terrainsIndex } from '~~/game/data';
+import { AnimationComponent, SpriteComponent } from '~~/game/components';
+import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
-import { Map, MapEnvironment, MapTerrain, Settings } from '~~/game/utils';
+import {
+  Map,
+  MapEntity,
+  MapItemType,
+  MapTerrain,
+  Settings,
+} from '~~/game/utils';
+
+type EditorEntity = MapEntity & { type: MapItemType };
 
 export class Editor {
   private readonly engine: Engine;
 
   private terrains: MapTerrain[] = [];
 
-  private environments: MapEnvironment[] = [];
+  private entities: EditorEntity[] = [];
 
   private ratio: number;
 
@@ -43,15 +51,13 @@ export class Editor {
 
     this.terrains = [...new Array(rows * columns)].map(() => null);
 
-    this.engine
-      .loadTextures([
-        '/sprites/guidelines.png',
-        '/sprites/terrain-001.png',
-        '/sprites/environments-001.png',
-      ])
-      .then(() => {
-        this.render();
-      });
+    const spritesFolder = import.meta.glob('/public/sprites/*.png');
+    const sources = Object.keys(spritesFolder).map((source) =>
+      source.replace('/public', '')
+    );
+    this.engine.loadTextures(sources).then(() => {
+      this.render();
+    });
   }
 
   placeTerrain(column: number, row: number, value: number | null) {
@@ -65,57 +71,62 @@ export class Editor {
     this.terrains = this.terrains.map((v, i) => (i === index ? value : v));
   }
 
-  placeEnvironment(x: number, y: number, constructorId: number) {
-    const { width, height } = new environmentsIndex[constructorId]().get(
-      SpriteComponent
-    );
-    this.environments.push({
+  placeEntity(x: number, y: number, constructorId: number, type: MapItemType) {
+    const index = type === 'environment' ? environmentsIndex : organismsIndex;
+    const { width, height } = new index[constructorId]().get(SpriteComponent);
+    this.entities.push({
       x: x - width / 2,
       y: y - height / 2,
       constructorId,
+      type,
     });
-    this.environments.sort((a, b) =>
-      a.y +
-        new environmentsIndex[a.constructorId]().get(SpriteComponent).height >
-      b.y + new environmentsIndex[b.constructorId]().get(SpriteComponent).height
+    this.entities.sort((a, b) => {
+      const indexA =
+        type === 'environment' ? environmentsIndex : organismsIndex;
+      const indexB =
+        type === 'environment' ? environmentsIndex : organismsIndex;
+      return a.y + new indexA[a.constructorId]().get(SpriteComponent).height >
+        b.y + new indexB[b.constructorId]().get(SpriteComponent).height
         ? 1
-        : -1
-    );
+        : -1;
+    });
   }
 
-  selectEnvironment(x: number, y: number) {
-    for (const environment of this.environments) {
-      const sprite = new environmentsIndex[environment.constructorId]().get(
-        SpriteComponent
-      );
-      if (
-        x > environment.x &&
-        x < environment.x + sprite.width &&
-        y > environment.y &&
-        y < environment.y + sprite.height
-      ) {
-        return {
-          x: environment.x,
-          y: environment.y,
-          index: this.environments.indexOf(environment),
-        };
+  selectEntity(x: number, y: number, type: MapItemType) {
+    for (const entity of this.entities) {
+      if (entity.type === type) {
+        const index =
+          type === 'environment' ? environmentsIndex : organismsIndex;
+        const sprite = new index[entity.constructorId]().get(SpriteComponent);
+        if (
+          x > entity.x &&
+          x < entity.x + sprite.width &&
+          y > entity.y &&
+          y < entity.y + sprite.height
+        ) {
+          return {
+            x: entity.x,
+            y: entity.y,
+            index: this.entities.indexOf(entity),
+          };
+        }
       }
     }
 
     return null;
   }
 
-  updateEnvironment(x: number, y: number, index: number) {
-    for (let i = 0; i < this.environments.length; i += 1) {
+  updateEntity(x: number, y: number, index: number) {
+    for (let i = 0; i < this.entities.length; i += 1) {
       if (i === index) {
-        this.environments[index] = { ...this.environments[index], x, y };
+        this.entities[index] = { ...this.entities[index], x, y };
         return;
       }
     }
   }
 
-  deleteEnvironment(index: number) {
-    this.environments = this.environments.filter((_, i) => i !== index);
+  deleteEntity(index: number) {
+    this.entities = this.entities.filter((_, i) => i !== index);
   }
 
   getMap(): Map {
@@ -123,16 +134,24 @@ export class Editor {
       rows: this.rows,
       columns: this.columns,
       terrains: this.terrains,
-      environments: this.environments,
+      environments: this.entities.filter(
+        (entity) => entity.type === 'environment'
+      ),
+      organisms: this.entities.filter((entity) => entity.type === 'organism'),
     };
   }
 
-  setTerrainsAndEnvironments(
-    terrains: MapTerrain[],
-    environments: MapEnvironment[]
-  ) {
-    this.terrains = terrains;
-    this.environments = environments;
+  setMapData(map: Map) {
+    this.terrains = map.terrains;
+    const environments = map.environments.map((environment) => ({
+      ...environment,
+      type: 'environment',
+    })) as EditorEntity[];
+    const organisms = map.organisms.map((organism) => ({
+      ...organism,
+      type: 'organism',
+    })) as EditorEntity[];
+    this.entities = [...environments, ...organisms];
   }
 
   render() {
@@ -161,16 +180,18 @@ export class Editor {
       );
     });
 
-    // Render environments
-    this.environments.forEach(({ x, y, constructorId }) => {
-      const environment = new environmentsIndex[constructorId]();
+    // Render entitiess
+    this.entities.forEach(({ x, y, constructorId, type }) => {
+      const index = type === 'environment' ? environmentsIndex : organismsIndex;
+      const entity = new index[constructorId]();
       const { source, sourceX, sourceY, width, height } =
-        environment.get(SpriteComponent);
+        entity.get(SpriteComponent);
+      const animation = entity.get(AnimationComponent);
 
       this.engine.renderTexture(
         source,
-        sourceX,
-        sourceY,
+        animation ? 0 : sourceX,
+        animation ? height : sourceY,
         width,
         height,
         x * this.ratio,
@@ -192,7 +213,7 @@ export class Editor {
     for (let index = 0; index < this.rows + 1; index += 1) {
       this.engine.renderTexture(
         '/sprites/guidelines.png',
-        0,
+        2,
         0,
         1,
         1,
@@ -207,7 +228,7 @@ export class Editor {
     for (let index = 0; index < this.columns + 1; index += 1) {
       this.engine.renderTexture(
         '/sprites/guidelines.png',
-        0,
+        2,
         0,
         1,
         1,
@@ -236,9 +257,9 @@ export class Editor {
           : [...newRow, ...this.terrains];
 
         if (!addSizeAfter) {
-          this.environments = this.environments.map((environment) => ({
-            ...environment,
-            y: environment.y + Settings.tileSize,
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            y: entity.y + Settings.tileSize,
           }));
         }
       } else {
@@ -248,9 +269,9 @@ export class Editor {
         );
 
         if (!addSizeAfter) {
-          this.environments = this.environments.map((environment) => ({
-            ...environment,
-            y: environment.y - Settings.tileSize,
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            y: entity.y - Settings.tileSize,
           }));
         }
       }
@@ -267,9 +288,9 @@ export class Editor {
         }
 
         if (!addSizeAfter) {
-          this.environments = this.environments.map((environment) => ({
-            ...environment,
-            x: environment.x + Settings.tileSize,
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            x: entity.x + Settings.tileSize,
           }));
         }
       } else {
@@ -281,9 +302,9 @@ export class Editor {
         }
 
         if (!addSizeAfter) {
-          this.environments = this.environments.map((environment) => ({
-            ...environment,
-            x: environment.x - Settings.tileSize,
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            x: entity.x - Settings.tileSize,
           }));
         }
       }

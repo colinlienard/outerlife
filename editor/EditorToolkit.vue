@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import { SpriteComponent } from '~~/game/components';
-import { environmentsIndex, terrainsIndex } from '~~/game/data';
-import { Map, Settings } from '~~/game/utils';
+import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
+import { Map } from '~~/game/utils';
 import { useEditorStore } from './editor-store';
 import EditorTile from './EditorTile.vue';
 import FileUploader from './FileUploader.vue';
 
 const store = useEditorStore();
 
-const updateEnvironment = () => {
-  if (store.selectedEnvironment) {
-    store.editor?.updateEnvironment(
-      store.selectedEnvironment.x,
-      store.selectedEnvironment.y,
-      store.selectedEnvironment.index
+const updateEntity = () => {
+  if (store.selectedEntity) {
+    store.editor?.updateEntity(
+      store.selectedEntity.x,
+      store.selectedEntity.y,
+      store.selectedEntity.index
     );
     store.editor?.render();
   }
 };
 
-const deleteEnvironment = () => {
-  if (store.selectedEnvironment) {
-    store.editor?.deleteEnvironment(store.selectedEnvironment.index);
+const deleteEntity = () => {
+  if (store.selectedEntity) {
+    store.editor?.deleteEntity(store.selectedEntity.index);
     store.editor?.render();
-    store.selectedEnvironment = null;
+    store.selectedEntity = null;
   }
 };
 
@@ -40,7 +39,7 @@ const handleMapUpload = (data: string) => {
     store.columns = map.columns;
 
     setTimeout(() => {
-      store.editor?.setTerrainsAndEnvironments(map.terrains, map.environments);
+      store.editor?.setMapData(map);
       store.editor?.render();
     }, 10);
   } catch {
@@ -78,46 +77,40 @@ const handleMapUpload = (data: string) => {
     <br />
     <button @click="store.selectedType = 'terrain'">Terrains</button>
     <button @click="store.selectedType = 'environment'">Environments</button>
-    <button @click="store.selectedType = 'npcs'">NPCs</button>
-    <button @click="store.selectedType = 'interactions'">Interactions</button>
-    <div v-if="store.selectedEnvironment">
+    <button @click="store.selectedType = 'organism'">Organisms</button>
+    <button @click="store.selectedType = 'interaction'">Interactions</button>
+    <div v-if="store.selectedEntity">
       <label for="x">
         x
         <input
           id="x"
-          v-model="store.selectedEnvironment.x"
+          v-model="store.selectedEntity.x"
           type="number"
-          @change="updateEnvironment"
+          @change="updateEntity"
         />
       </label>
       <label for="y">
         y
         <input
           id="y"
-          v-model="store.selectedEnvironment.y"
+          v-model="store.selectedEntity.y"
           type="number"
-          @change="updateEnvironment"
+          @change="updateEntity"
         />
       </label>
-      <button @click="deleteEnvironment">Delete</button>
+      <button @click="deleteEntity">Delete</button>
     </div>
     <ul v-if="store.selectedType === 'terrain'">
       <li>
         <EditorTile
-          source="/sprites/eraser.png"
-          :x="0"
-          :y="0"
-          :size="Settings.tileSize"
+          :terrain="['/sprites/editor-tools.png', 0, 0]"
           :selected="store.selectedItem === null"
           @click="store.selectedItem = null"
         />
       </li>
-      <li v-for="([source, x, y], index) in terrainsIndex" :key="index">
+      <li v-for="(terrain, index) in terrainsIndex" :key="index">
         <EditorTile
-          :source="source"
-          :x="x"
-          :y="y"
-          :size="Settings.tileSize"
+          :terrain="terrain"
           :selected="store.selectedItem === index"
           @click="store.selectedItem = index"
         />
@@ -126,25 +119,30 @@ const handleMapUpload = (data: string) => {
     <ul v-if="store.selectedType === 'environment'">
       <li>
         <EditorTile
-          source="/sprites/player.png"
-          :x="0"
-          :y="0"
-          :size="Settings.tileSize"
+          :terrain="['/sprites/editor-tools.png', 16, 0]"
           :selected="store.selectedItem === null"
           @click="store.selectedItem = null"
         />
       </li>
       <li v-for="(environment, index) in environmentsIndex" :key="index">
         <EditorTile
-          :source="new environment(0, 0).get(SpriteComponent).source"
-          :x="new environment(0, 0).get(SpriteComponent).sourceX"
-          :y="new environment(0, 0).get(SpriteComponent).sourceY"
-          :size="
-            new environment(0, 0).get(SpriteComponent).width <
-            new environment(0, 0).get(SpriteComponent).height
-              ? new environment(0, 0).get(SpriteComponent).width
-              : new environment(0, 0).get(SpriteComponent).height
-          "
+          :entity="environment"
+          :selected="store.selectedItem === index"
+          @click="store.selectedItem = index"
+        />
+      </li>
+    </ul>
+    <ul v-if="store.selectedType === 'organism'">
+      <li>
+        <EditorTile
+          :terrain="['/sprites/editor-tools.png', 16, 0]"
+          :selected="store.selectedItem === null"
+          @click="store.selectedItem = null"
+        />
+      </li>
+      <li v-for="(organism, index) in organismsIndex" :key="index">
+        <EditorTile
+          :entity="organism"
           :selected="store.selectedItem === index"
           @click="store.selectedItem = index"
         />

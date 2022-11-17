@@ -22,19 +22,25 @@ const placeTerrain = (x: number, y: number) => {
   store.editor?.render();
 };
 
-const placeEnvironment = (x: number, y: number) => {
+const placeEntity = (x: number, y: number) => {
   const placeX = Math.round((x - pan.value.x) / ratio.value);
   const placeY = Math.round((y - pan.value.y) / ratio.value);
 
   if (store.selectedItem === null) {
-    store.selectedEnvironment = (store.editor as Editor).selectEnvironment(
+    store.selectedEntity = (store.editor as Editor).selectEntity(
       placeX,
-      placeY
+      placeY,
+      store.selectedType
     );
     return;
   }
 
-  store.editor?.placeEnvironment(placeX, placeY, store.selectedItem);
+  store.editor?.placeEntity(
+    placeX,
+    placeY,
+    store.selectedItem,
+    store.selectedType
+  );
   store.editor?.render();
 };
 
@@ -62,8 +68,8 @@ const mouseEventHandler = (event: MouseEvent) => {
   switch (event.buttons) {
     // Handle click
     case 1:
-      if (store.selectedType === 'environment' && event.type === 'mousedown') {
-        placeEnvironment(event.clientX, event.clientY);
+      if (store.selectedType !== 'terrain' && event.type === 'mousedown') {
+        placeEntity(event.clientX, event.clientY);
         return;
       }
 

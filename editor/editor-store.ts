@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { Editor } from './editor';
-
-type SelectionType = 'terrain' | 'environment' | 'npcs' | 'interactions';
+import { MapItemType } from '~~/game/utils';
 
 export const useEditorStore = defineStore('editor', () => {
   const editor = ref<Editor>();
@@ -13,8 +12,8 @@ export const useEditorStore = defineStore('editor', () => {
   const pan = ref({ x: 0, y: 0 });
   const showGrid = ref(true);
   const selectedItem = ref<number | null>(null);
-  const selectedType = ref<SelectionType>('terrain');
-  const selectedEnvironment = ref<{
+  const selectedType = ref<MapItemType>('terrain');
+  const selectedEntity = ref<{
     x: number;
     y: number;
     index: number;
@@ -30,6 +29,6 @@ export const useEditorStore = defineStore('editor', () => {
     showGrid,
     selectedItem,
     selectedType,
-    selectedEnvironment,
+    selectedEntity,
   };
 });
