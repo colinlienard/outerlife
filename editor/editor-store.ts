@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { Editor } from './editor';
 import { GameMapInteraction, GameMapItemType } from '~~/game/utils';
+import { Editor } from './editor';
 
 export const useEditorStore = defineStore('editor', () => {
   const editor = ref<Editor>();
