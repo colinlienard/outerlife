@@ -120,7 +120,7 @@ export class Game extends ECS {
             interaction.y,
             interaction.width,
             interaction.height,
-            interaction.enter
+            interaction.data
           )
         );
       });

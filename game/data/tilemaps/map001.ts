@@ -1,4 +1,4 @@
-import { Emitter, Tilemap } from '~~/game/utils';
+import { Tilemap } from '~~/game/utils';
 
 export const map001: Tilemap = {
   rows: 30,
@@ -2413,12 +2413,12 @@ export const map001: Tilemap = {
       y: 32,
       width: 16,
       height: 16,
-      enter: () =>
-        Emitter.emit('switch-map', {
-          map: '002',
-          playerX: 100,
-          playerY: 100,
-        }),
+      data: {
+        type: 'switch-map',
+        map: '002',
+        playerX: 100,
+        playerY: 100,
+      },
     },
   ],
 };
