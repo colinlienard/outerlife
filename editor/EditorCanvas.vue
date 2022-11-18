@@ -44,6 +44,22 @@ const placeEntity = (x: number, y: number) => {
   store.editor?.render();
 };
 
+const placeInteraction = (x: number, y: number) => {
+  const placeX = Math.round((x - pan.value.x) / ratio.value);
+  const placeY = Math.round((y - pan.value.y) / ratio.value);
+
+  if (store.selectedItem === null) {
+    store.selectedInteraction = (store.editor as Editor).selectInteraction(
+      placeX,
+      placeY
+    );
+    return;
+  }
+
+  store.editor?.placeInteraction(placeX, placeY);
+  store.editor?.render();
+};
+
 const zoomEventHandler = (event: WheelEvent) => {
   const oldRatio = ratio.value;
 
@@ -68,14 +84,22 @@ const mouseEventHandler = (event: MouseEvent) => {
   switch (event.buttons) {
     // Handle click
     case 1:
-      if (store.selectedType !== 'terrain' && event.type === 'mousedown') {
-        placeEntity(event.clientX, event.clientY);
+      if (store.selectedType === 'terrain') {
+        placeTerrain(event.clientX, event.clientY);
         return;
       }
 
-      if (store.selectedType === 'terrain') {
-        placeTerrain(event.clientX, event.clientY);
+      if (event.type !== 'mousedown') {
+        return;
       }
+
+      if (store.selectedType === 'interaction') {
+        placeInteraction(event.clientX, event.clientY);
+        return;
+      }
+
+      placeEntity(event.clientX, event.clientY);
+
       break;
 
     // Handle pan
@@ -114,6 +138,10 @@ onMounted(() => {
     store.columns,
     store.ratio
   );
+});
+
+onUnmounted(() => {
+  store.editor = undefined;
 });
 
 watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {

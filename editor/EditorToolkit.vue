@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
-import { Map } from '~~/game/utils';
+import { GameMap } from '~~/game/utils';
 import { useEditorStore } from './editor-store';
 import EditorTile from './EditorTile.vue';
 import FileUploader from './FileUploader.vue';
 
 const store = useEditorStore();
+const { selectedItem, selectedType } = storeToRefs(store);
 
 const updateEntity = () => {
   if (store.selectedEntity) {
@@ -26,6 +28,24 @@ const deleteEntity = () => {
   }
 };
 
+const updateInteraction = () => {
+  if (store.selectedInteraction) {
+    store.editor?.updateInteraction(
+      store.selectedInteraction,
+      store.selectedInteraction.index
+    );
+    store.editor?.render();
+  }
+};
+
+const deleteInteraction = () => {
+  if (store.selectedInteraction) {
+    store.editor?.deleteInteraction(store.selectedInteraction.index);
+    store.editor?.render();
+    store.selectedInteraction = null;
+  }
+};
+
 const downloadMap = () => {
   const map = store.editor?.getMap();
   useDownload(map, 'map.json');
@@ -33,7 +53,7 @@ const downloadMap = () => {
 
 const handleMapUpload = (data: string) => {
   try {
-    const map = JSON.parse(data) as Map;
+    const map = JSON.parse(data) as GameMap;
 
     store.rows = map.rows;
     store.columns = map.columns;
@@ -47,6 +67,15 @@ const handleMapUpload = (data: string) => {
     alert('File error.');
   }
 };
+
+watch([selectedItem, selectedType], () => {
+  store.selectedEntity = null;
+  store.selectedInteraction = null;
+});
+
+watch([selectedType], () => {
+  store.selectedItem = null;
+});
 </script>
 
 <template>
@@ -100,6 +129,84 @@ const handleMapUpload = (data: string) => {
       </label>
       <button @click="deleteEntity">Delete</button>
     </div>
+    <div v-if="store.selectedInteraction">
+      <label for="x">
+        x
+        <input
+          id="x"
+          v-model="store.selectedInteraction.x"
+          type="number"
+          @change="updateInteraction"
+        />
+      </label>
+      <label for="y">
+        y
+        <input
+          id="y"
+          v-model="store.selectedInteraction.y"
+          type="number"
+          @change="updateInteraction"
+        />
+      </label>
+      <label for="width">
+        width
+        <input
+          id="width"
+          v-model="store.selectedInteraction.width"
+          type="number"
+          @change="updateInteraction"
+        />
+      </label>
+      <label for="height">
+        height
+        <input
+          id="height"
+          v-model="store.selectedInteraction.height"
+          type="number"
+          @change="updateInteraction"
+        />
+      </label>
+      <label for="type">
+        height
+        <select
+          id="type"
+          v-model="store.selectedInteraction.data.type"
+          @change="updateInteraction"
+        >
+          <option value="switch-map">Map switcher</option>
+        </select>
+      </label>
+      <div v-if="store.selectedInteraction.data.type === 'switch-map'">
+        <label for="map">
+          map
+          <input
+            id="map"
+            v-model="store.selectedInteraction.data.map"
+            type="text"
+            @change="updateInteraction"
+          />
+        </label>
+        <label for="player-x">
+          player x
+          <input
+            id="player-x"
+            v-model="store.selectedInteraction.data.playerX"
+            type="number"
+            @change="updateInteraction"
+          />
+        </label>
+        <label for="player-y">
+          player y
+          <input
+            id="player-y"
+            v-model="store.selectedInteraction.data.playerY"
+            type="number"
+            @change="updateInteraction"
+          />
+        </label>
+      </div>
+      <button @click="deleteInteraction">Delete</button>
+    </div>
     <ul v-if="store.selectedType === 'terrain'">
       <li>
         <EditorTile
@@ -145,6 +252,22 @@ const handleMapUpload = (data: string) => {
           :entity="organism"
           :selected="store.selectedItem === index"
           @click="store.selectedItem = index"
+        />
+      </li>
+    </ul>
+    <ul v-if="store.selectedType === 'interaction'">
+      <li>
+        <EditorTile
+          :terrain="['/sprites/editor-tools.png', 16, 0]"
+          :selected="store.selectedItem === null"
+          @click="store.selectedItem = null"
+        />
+      </li>
+      <li>
+        <EditorTile
+          :terrain="['/sprites/player.png', 16, 0]"
+          :selected="store.selectedItem === 1"
+          @click="store.selectedItem = 1"
         />
       </li>
     </ul>

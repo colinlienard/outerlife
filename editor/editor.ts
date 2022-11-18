@@ -2,21 +2,24 @@ import { AnimationComponent, SpriteComponent } from '~~/game/components';
 import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
 import {
-  Map,
-  MapEntity,
-  MapItemType,
-  MapTerrain,
+  GameMap,
+  GameMapEntity,
+  GameMapInteraction,
+  GameMapItemType,
+  GameMapTerrain,
   Settings,
 } from '~~/game/utils';
 
-type EditorEntity = MapEntity & { type: MapItemType };
+type EditorEntity = GameMapEntity & { type: GameMapItemType };
 
 export class Editor {
   private readonly engine: Engine;
 
-  private terrains: MapTerrain[] = [];
+  private terrains: GameMapTerrain[] = [];
 
   private entities: EditorEntity[] = [];
+
+  private interactions: GameMapInteraction[] = [];
 
   private ratio: number;
 
@@ -71,7 +74,12 @@ export class Editor {
     this.terrains = this.terrains.map((v, i) => (i === index ? value : v));
   }
 
-  placeEntity(x: number, y: number, constructorId: number, type: MapItemType) {
+  placeEntity(
+    x: number,
+    y: number,
+    constructorId: number,
+    type: GameMapItemType
+  ) {
     const index = type === 'environment' ? environmentsIndex : organismsIndex;
     const { width, height } = new index[constructorId]().get(SpriteComponent);
     this.entities.push({
@@ -92,7 +100,7 @@ export class Editor {
     });
   }
 
-  selectEntity(x: number, y: number, type: MapItemType) {
+  selectEntity(x: number, y: number, type: GameMapItemType) {
     for (const entity of this.entities) {
       if (entity.type === type) {
         const index =
@@ -129,20 +137,79 @@ export class Editor {
     this.entities = this.entities.filter((_, i) => i !== index);
   }
 
-  getMap(): Map {
+  placeInteraction(x: number, y: number) {
+    const width = 16;
+    const height = 16;
+    this.interactions.push({
+      x: x - width / 2,
+      y: y - height / 2,
+      width,
+      height,
+      data: {
+        type: 'switch-map',
+        map: '',
+        playerX: 0,
+        playerY: 0,
+      },
+    });
+  }
+
+  selectInteraction(x: number, y: number) {
+    for (const interaction of this.interactions) {
+      if (
+        x > interaction.x &&
+        x < interaction.x + interaction.width &&
+        y > interaction.y &&
+        y < interaction.y + interaction.height
+      ) {
+        return {
+          ...interaction,
+          index: this.interactions.indexOf(interaction),
+        };
+      }
+    }
+
+    return null;
+  }
+
+  updateInteraction(data: GameMapInteraction, index: number) {
+    for (let i = 0; i < this.interactions.length; i += 1) {
+      if (i === index) {
+        this.interactions[index] = { ...this.interactions[index], ...data };
+        return;
+      }
+    }
+  }
+
+  deleteInteraction(index: number) {
+    this.interactions = this.interactions.filter((_, i) => i !== index);
+  }
+
+  getInteractions() {
+    return this.interactions;
+  }
+
+  getMap(): GameMap {
+    const environments = this.entities.filter(
+      (entity) => entity.type === 'environment'
+    );
+    const organisms = this.entities.filter(
+      (entity) => entity.type === 'organism'
+    );
+
     return {
       rows: this.rows,
       columns: this.columns,
       terrains: this.terrains,
-      environments: this.entities.filter(
-        (entity) => entity.type === 'environment'
-      ),
-      organisms: this.entities.filter((entity) => entity.type === 'organism'),
+      environments,
+      organisms,
+      interactions: this.interactions,
     };
   }
 
-  setMapData(map: Map) {
+  setMapData(map: GameMap) {
     this.terrains = map.terrains;
+
     const environments = map.environments.map((environment) => ({
       ...environment,
       type: 'environment',
@@ -152,6 +219,8 @@ export class Editor {
       type: 'organism',
     })) as EditorEntity[];
     this.entities = [...environments, ...organisms];
+
+    this.interactions = map.interactions;
   }
 
   render() {
@@ -194,6 +263,21 @@ export class Editor {
         animation ? height : sourceY,
         width,
         height,
+        x * this.ratio,
+        y * this.ratio,
+        width * this.ratio,
+        height * this.ratio
+      );
+    });
+
+    // Render interactions
+    this.interactions.forEach(({ x, y, width, height }) => {
+      this.engine.renderTexture(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
         x * this.ratio,
         y * this.ratio,
         width * this.ratio,

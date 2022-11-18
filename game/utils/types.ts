@@ -23,7 +23,7 @@ export type InteractionData = {
   playerY: number;
 };
 
-export interface MapInteraction extends Box {
+export interface GameMapInteraction extends Box {
   data: InteractionData;
 }
 
@@ -32,26 +32,27 @@ export type Tilemap = {
   columns: number;
   terrains: string[];
   environments: string[];
-  interactions: MapInteraction[];
+  interactions: GameMapInteraction[];
 };
 
-export type MapEntity = {
+export type GameMapEntity = {
   x: number;
   y: number;
   constructorId: number;
 };
 
-export type MapTerrain = number | null;
+export type GameMapTerrain = number | null;
 
-export type Map = {
+export type GameMap = {
   rows: number;
   columns: number;
-  terrains: MapTerrain[];
-  environments: MapEntity[];
-  organisms: MapEntity[];
+  terrains: GameMapTerrain[];
+  environments: GameMapEntity[];
+  organisms: GameMapEntity[];
+  interactions: GameMapInteraction[];
 };
 
-export type MapItemType =
+export type GameMapItemType =
   | 'terrain'
   | 'environment'
   | 'organism'
