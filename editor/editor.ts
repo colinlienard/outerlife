@@ -335,7 +335,10 @@ export class Editor {
     // Handle row added or removed
     if (rows !== this.rows) {
       if (rows > this.rows) {
-        const newRow = [...new Array(this.columns)].map(() => null);
+        const difference = rows - this.rows;
+        const newRow = [...new Array(this.columns * difference)].map(
+          () => null
+        );
         this.terrains = addSizeAfter
           ? [...this.terrains, ...newRow]
           : [...newRow, ...this.terrains];
@@ -347,9 +350,10 @@ export class Editor {
           }));
         }
       } else {
+        const difference = this.rows - rows;
         this.terrains.splice(
-          addSizeAfter ? this.terrains.length - this.columns : 0,
-          columns
+          addSizeAfter ? this.terrains.length - this.columns * difference : 0,
+          columns * difference
         );
 
         if (!addSizeAfter) {
@@ -364,11 +368,16 @@ export class Editor {
     // Handle column added or removed
     if (columns !== this.columns) {
       if (columns > this.columns) {
+        const difference = columns - this.columns;
         for (let row = 1; row < rows + 1; row += 1) {
           const start = addSizeAfter
-            ? this.columns * row + row - 1
-            : this.columns * (row - 1) + row - 1;
-          this.terrains.splice(start, 0, null);
+            ? this.columns * row + difference * (row - 1)
+            : this.columns * (row - 1) + difference * (row - 1);
+          this.terrains.splice(
+            start,
+            0,
+            ...[...new Array(difference)].map(() => null)
+          );
         }
 
         if (!addSizeAfter) {
@@ -378,11 +387,10 @@ export class Editor {
           }));
         }
       } else {
+        const difference = this.columns - columns;
         for (let row = 1; row < rows + 1; row += 1) {
-          const start = addSizeAfter
-            ? this.columns * row - row
-            : this.columns * (row - 1) - (row - 1);
-          this.terrains.splice(start, 1);
+          const start = addSizeAfter ? columns * row : columns * (row - 1);
+          this.terrains.splice(start, difference);
         }
 
         if (!addSizeAfter) {
