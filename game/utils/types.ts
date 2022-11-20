@@ -35,11 +35,7 @@ export type Tilemap = {
   interactions: GameMapInteraction[];
 };
 
-export type GameMapEntity = {
-  x: number;
-  y: number;
-  constructorId: number;
-};
+export type GameMapEntity = [number, number, number];
 
 export type GameMapTerrain = number | null;
 

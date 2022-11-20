@@ -244,20 +244,20 @@ export class CollisionSystem extends System {
 
       // Scene limits on the x axis
       const width = colliding.has(SpriteComponent)
-        ? colliding.get(SpriteComponent).width / 2
+        ? colliding.get(SpriteComponent).width
         : 0;
-      if (pos.x < 0 - width) {
-        pos.x = -width;
+      if (pos.x < 0) {
+        pos.x = 0;
       } else if (pos.x > Settings.scene.width - width) {
         pos.x = Settings.scene.width - width;
       }
 
       // Scene limits on the y axis
       const height = colliding.has(SpriteComponent)
-        ? colliding.get(SpriteComponent).height / 2
+        ? colliding.get(SpriteComponent).height
         : 0;
-      if (pos.y < 0 - height) {
-        pos.y = -height;
+      if (pos.y < 0 - height / 2) {
+        pos.y = -height / 2;
       } else if (pos.y > Settings.scene.height - height) {
         pos.y = Settings.scene.height - height;
       }

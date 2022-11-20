@@ -30,10 +30,8 @@ const deleteEntity = () => {
 
 const updateInteraction = () => {
   if (store.selectedInteraction) {
-    store.editor?.updateInteraction(
-      store.selectedInteraction,
-      store.selectedInteraction.index
-    );
+    const { index, ...interaction } = store.selectedInteraction;
+    store.editor?.updateInteraction(interaction, index);
     store.editor?.render();
   }
 };

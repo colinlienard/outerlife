@@ -10,7 +10,7 @@ import {
   Settings,
 } from '~~/game/utils';
 
-type EditorEntity = GameMapEntity & { type: GameMapItemType };
+type EditorEntity = { data: GameMapEntity; type: GameMapItemType };
 
 export class Editor {
   private readonly engine: Engine;
@@ -83,18 +83,16 @@ export class Editor {
     const index = type === 'environment' ? environmentsIndex : organismsIndex;
     const { width, height } = new index[constructorId]().get(SpriteComponent);
     this.entities.push({
-      x: x - width / 2,
-      y: y - height / 2,
-      constructorId,
+      data: [x - width / 2, y - height / 2, constructorId],
       type,
     });
     this.entities.sort((a, b) => {
       const indexA =
-        type === 'environment' ? environmentsIndex : organismsIndex;
+        a.type === 'environment' ? environmentsIndex : organismsIndex;
       const indexB =
-        type === 'environment' ? environmentsIndex : organismsIndex;
-      return a.y + new indexA[a.constructorId]().get(SpriteComponent).height >
-        b.y + new indexB[b.constructorId]().get(SpriteComponent).height
+        b.type === 'environment' ? environmentsIndex : organismsIndex;
+      return a.data[1] + new indexA[a.data[2]]().get(SpriteComponent).height >
+        b.data[1] + new indexB[b.data[2]]().get(SpriteComponent).height
         ? 1
         : -1;
     });
@@ -105,16 +103,16 @@ export class Editor {
       if (entity.type === type) {
         const index =
           type === 'environment' ? environmentsIndex : organismsIndex;
-        const sprite = new index[entity.constructorId]().get(SpriteComponent);
+        const sprite = new index[entity.data[2]]().get(SpriteComponent);
         if (
-          x > entity.x &&
-          x < entity.x + sprite.width &&
-          y > entity.y &&
-          y < entity.y + sprite.height
+          x > entity.data[0] &&
+          x < entity.data[0] + sprite.width &&
+          y > entity.data[1] &&
+          y < entity.data[1] + sprite.height
         ) {
           return {
-            x: entity.x,
-            y: entity.y,
+            x: entity.data[0],
+            y: entity.data[1],
             index: this.entities.indexOf(entity),
           };
         }
@@ -127,7 +125,7 @@ export class Editor {
   updateEntity(x: number, y: number, index: number) {
     for (let i = 0; i < this.entities.length; i += 1) {
       if (i === index) {
-        this.entities[index] = { ...this.entities[index], x, y };
+        this.entities[index].data = [x, y, this.entities[index].data[2]];
         return;
       }
     }
@@ -190,12 +188,12 @@ export class Editor {
   }
 
   getMap(): GameMap {
-    const environments = this.entities.filter(
-      (entity) => entity.type === 'environment'
-    );
-    const organisms = this.entities.filter(
-      (entity) => entity.type === 'organism'
-    );
+    const environments = this.entities
+      .filter((entity) => entity.type === 'environment')
+      .map((entity) => entity.data);
+    const organisms = this.entities
+      .filter((entity) => entity.type === 'organism')
+      .map((entity) => entity.data);
 
     return {
       rows: this.rows,
@@ -211,11 +209,11 @@ export class Editor {
     this.terrains = map.terrains;
 
     const environments = map.environments.map((environment) => ({
-      ...environment,
+      data: environment,
       type: 'environment',
     })) as EditorEntity[];
     const organisms = map.organisms.map((organism) => ({
-      ...organism,
+      data: organism,
       type: 'organism',
     })) as EditorEntity[];
     this.entities = [...environments, ...organisms];
@@ -250,7 +248,8 @@ export class Editor {
     });
 
     // Render entitiess
-    this.entities.forEach(({ x, y, constructorId, type }) => {
+    this.entities.forEach(({ data, type }) => {
+      const [x, y, constructorId] = data;
       const index = type === 'environment' ? environmentsIndex : organismsIndex;
       const entity = new index[constructorId]();
       const { source, sourceX, sourceY, width, height } =
@@ -346,7 +345,11 @@ export class Editor {
         if (!addSizeAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
-            y: entity.y + Settings.tileSize,
+            data: [
+              entity.data[0],
+              entity.data[1] + Settings.tileSize * difference,
+              entity.data[2],
+            ],
           }));
         }
       } else {
@@ -359,7 +362,11 @@ export class Editor {
         if (!addSizeAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
-            y: entity.y - Settings.tileSize,
+            data: [
+              entity.data[0],
+              entity.data[1] - Settings.tileSize * difference,
+              entity.data[2],
+            ],
           }));
         }
       }
@@ -383,7 +390,11 @@ export class Editor {
         if (!addSizeAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
-            x: entity.x + Settings.tileSize,
+            data: [
+              entity.data[0] + Settings.tileSize * difference,
+              entity.data[1],
+              entity.data[2],
+            ],
           }));
         }
       } else {
@@ -396,7 +407,11 @@ export class Editor {
         if (!addSizeAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
-            x: entity.x - Settings.tileSize,
+            data: [
+              entity.data[0] - Settings.tileSize * difference,
+              entity.data[1],
+              entity.data[2],
+            ],
           }));
         }
       }
