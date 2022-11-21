@@ -48,15 +48,20 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="drop-area" @drop.prevent="handleDrop">
-    <input type="file" @change="handleInput" />
-  </div>
+  <label class="label" for="upload" @drop.prevent="handleDrop">
+    <input id="upload" class="input" type="file" @change="handleInput" />
+    <slot />
+  </label>
 </template>
 
 <style scoped lang="scss">
-.drop-area {
-  width: 10rem;
-  height: 10rem;
-  border: 1px solid red;
+.label {
+  position: relative;
+}
+
+.input {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
 </style>

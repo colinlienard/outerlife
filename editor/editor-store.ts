@@ -7,7 +7,7 @@ export const useEditorStore = defineStore('editor', () => {
   const editor = ref<Editor>();
   const rows = ref(20);
   const columns = ref(20);
-  const addSizeAfter = ref(true);
+  const mapGrowsAfter = ref(true);
   const ratio = ref(5);
   const pan = ref({ x: 0, y: 0 });
   const showGrid = ref(true);
@@ -29,7 +29,7 @@ export const useEditorStore = defineStore('editor', () => {
     editor,
     rows,
     columns,
-    addSizeAfter,
+    mapGrowsAfter,
     ratio,
     pan,
     showGrid,

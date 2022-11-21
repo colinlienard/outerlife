@@ -1,0 +1,25 @@
+@mixin editor-button($button) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: rgba(white, 0.04);
+  position: relative;
+
+  @if $button {
+    justify-content: center;
+    cursor: pointer;
+  } @else {
+    padding-right: 0;
+  }
+
+  &:hover {
+    background-color: rgba(white, 0.08);
+  }
+
+  &:active {
+    background-color: rgba(white, 0.12);
+  }
+}

@@ -9,12 +9,14 @@ const props = defineProps<{
 }>();
 
 const canvas = ref<HTMLCanvasElement>();
-const tileSize = 48;
 
 onMounted(() => {
   if (canvas.value) {
-    canvas.value.width = tileSize;
-    canvas.value.height = tileSize;
+    const { width: canvasWidth } = canvas.value.getBoundingClientRect();
+    const canvasSize = Math.round(canvasWidth);
+
+    canvas.value.width = canvasSize;
+    canvas.value.height = canvasSize;
     const context = canvas.value.getContext('2d') as CanvasRenderingContext2D;
     context.imageSmoothingEnabled = false;
 
@@ -32,8 +34,8 @@ onMounted(() => {
           Settings.tileSize, // height of the sprite in the source image
           0, // position x in the canvas
           0, // position y in the canvas
-          tileSize, // width of the sprite in the canvas
-          tileSize // height of the sprite in the canvas
+          canvasSize, // width of the sprite in the canvas
+          canvasSize // height of the sprite in the canvas
         );
       };
       return;
@@ -58,8 +60,8 @@ onMounted(() => {
           size, // height of the sprite in the source image
           0, // position x in the canvas
           0, // position y in the canvas
-          tileSize, // width of the sprite in the canvas
-          tileSize // height of the sprite in the canvas
+          canvasSize, // width of the sprite in the canvas
+          canvasSize // height of the sprite in the canvas
         );
       };
     }
@@ -75,7 +77,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .tile {
-  width: calc(v-bind(tileSize) * 1px);
+  width: 100%;
   aspect-ratio: 1 / 1;
   position: relative;
 
@@ -84,13 +86,16 @@ onMounted(() => {
   }
 
   &.selected {
-    outline: 3px solid white;
+    border: 1px solid white;
+    outline: 1px solid white;
     z-index: 1;
   }
 
   .canvas {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
   }
 }
 </style>

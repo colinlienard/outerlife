@@ -9,7 +9,7 @@ const canvas = ref<HTMLCanvasElement>();
 let panningPosition = { x: 0, y: 0 };
 
 const store = useEditorStore();
-const { rows, columns, ratio, pan, showGrid, addSizeAfter } =
+const { rows, columns, ratio, pan, showGrid, mapGrowsAfter } =
   storeToRefs(store);
 
 const placeTerrain = (x: number, y: number) => {
@@ -144,7 +144,7 @@ onUnmounted(() => {
   store.editor = undefined;
 });
 
-watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
+watch([rows, columns, ratio, pan, showGrid, mapGrowsAfter], (values) => {
   if (store.editor) {
     store.editor.updateSettings(...values);
     store.editor.render();
@@ -171,10 +171,13 @@ watch([rows, columns, ratio, pan, showGrid, addSizeAfter], (values) => {
   width: 100vw;
   height: 100vh;
   position: relative;
+  overflow: hidden;
+  color-scheme: dark;
 }
 
 .canvas {
   width: 100vw;
-  height: 100%;
+  height: 100vh;
+  cursor: crosshair;
 }
 </style>

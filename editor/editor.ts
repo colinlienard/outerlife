@@ -329,7 +329,7 @@ export class Editor {
     ratio: number,
     pan: { x: number; y: number },
     showGrid: boolean,
-    addSizeAfter: boolean
+    mapGrowsAfter: boolean
   ) {
     // Handle row added or removed
     if (rows !== this.rows) {
@@ -338,11 +338,11 @@ export class Editor {
         const newRow = [...new Array(this.columns * difference)].map(
           () => null
         );
-        this.terrains = addSizeAfter
+        this.terrains = mapGrowsAfter
           ? [...this.terrains, ...newRow]
           : [...newRow, ...this.terrains];
 
-        if (!addSizeAfter) {
+        if (!mapGrowsAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
             data: [
@@ -355,11 +355,11 @@ export class Editor {
       } else {
         const difference = this.rows - rows;
         this.terrains.splice(
-          addSizeAfter ? this.terrains.length - this.columns * difference : 0,
+          mapGrowsAfter ? this.terrains.length - this.columns * difference : 0,
           columns * difference
         );
 
-        if (!addSizeAfter) {
+        if (!mapGrowsAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
             data: [
@@ -377,7 +377,7 @@ export class Editor {
       if (columns > this.columns) {
         const difference = columns - this.columns;
         for (let row = 1; row < rows + 1; row += 1) {
-          const start = addSizeAfter
+          const start = mapGrowsAfter
             ? this.columns * row + difference * (row - 1)
             : this.columns * (row - 1) + difference * (row - 1);
           this.terrains.splice(
@@ -387,7 +387,7 @@ export class Editor {
           );
         }
 
-        if (!addSizeAfter) {
+        if (!mapGrowsAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
             data: [
@@ -400,11 +400,11 @@ export class Editor {
       } else {
         const difference = this.columns - columns;
         for (let row = 1; row < rows + 1; row += 1) {
-          const start = addSizeAfter ? columns * row : columns * (row - 1);
+          const start = mapGrowsAfter ? columns * row : columns * (row - 1);
           this.terrains.splice(start, difference);
         }
 
-        if (!addSizeAfter) {
+        if (!mapGrowsAfter) {
           this.entities = this.entities.map((entity) => ({
             ...entity,
             data: [

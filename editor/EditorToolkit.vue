@@ -3,36 +3,19 @@ import { storeToRefs } from 'pinia';
 import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
 import { GameMap } from '~~/game/utils';
 import { useEditorStore } from './editor-store';
+import EditorTypeSelector from './EditorTypeSelector.vue';
+import EditorInput from './EditorInput.vue';
 import EditorTile from './EditorTile.vue';
 import FileUploader from './FileUploader.vue';
 
 const store = useEditorStore();
 const { selectedItem, selectedType } = storeToRefs(store);
 
-const updateEntity = () => {
-  if (store.selectedEntity) {
-    store.editor?.updateEntity(
-      store.selectedEntity.x,
-      store.selectedEntity.y,
-      store.selectedEntity.index
-    );
-    store.editor?.render();
-  }
-};
-
 const deleteEntity = () => {
   if (store.selectedEntity) {
     store.editor?.deleteEntity(store.selectedEntity.index);
     store.editor?.render();
     store.selectedEntity = null;
-  }
-};
-
-const updateInteraction = () => {
-  if (store.selectedInteraction) {
-    const { index, ...interaction } = store.selectedInteraction;
-    store.editor?.updateInteraction(interaction, index);
-    store.editor?.render();
   }
 };
 
@@ -74,211 +57,293 @@ watch([selectedItem, selectedType], () => {
 watch([selectedType], () => {
   store.selectedItem = null;
 });
+
+watch([() => store.selectedEntity?.x, () => store.selectedEntity?.y], () => {
+  if (store.selectedEntity) {
+    const { x, y, index } = store.selectedEntity;
+    store.editor?.updateEntity(x, y, index);
+    store.editor?.render();
+  }
+});
+
+watch(
+  () => store.selectedInteraction,
+  () => {
+    if (store.selectedInteraction) {
+      const { index, ...interaction } = store.selectedInteraction;
+      store.editor?.updateInteraction(interaction, index);
+      store.editor?.render();
+    }
+  },
+  { deep: true }
+);
 </script>
 
 <template>
-  <section class="toolkit">
-    <h1>Toolkit</h1>
-    <label for="ratio">
-      Ratio
-      <input id="ratio" v-model="store.ratio" type="number" />
-    </label>
-    <label for="show-grid">
-      Show grid
-      <input id="show-grid" v-model="store.showGrid" type="checkbox" />
-    </label>
-    <label for="rows">
-      Rows
-      <input id="rows" v-model="store.rows" type="number" />
-    </label>
-    <label for="columns">
-      Columns
-      <input id="columns" v-model="store.columns" type="number" />
-    </label>
-    <button @click="store.addSizeAfter = !store.addSizeAfter">
-      Add/remove {{ store.addSizeAfter ? 'after' : 'before' }}
-    </button>
-    <br />
-    <button @click="downloadMap">Download map as json</button>
-    <FileUploader @upload="handleMapUpload" />
-    <br />
-    <button @click="store.selectedType = 'terrain'">Terrains</button>
-    <button @click="store.selectedType = 'environment'">Environments</button>
-    <button @click="store.selectedType = 'organism'">Organisms</button>
-    <button @click="store.selectedType = 'interaction'">Interactions</button>
-    <div v-if="store.selectedEntity">
-      <label for="x">
-        x
-        <input
-          id="x"
-          v-model="store.selectedEntity.x"
-          type="number"
-          @change="updateEntity"
+  <div class="toolkit">
+    <section class="section">
+      <h2 class="title">Aspect</h2>
+      <div class="wrapper">
+        <EditorInput v-model="store.ratio" label="Ratio" type="number" />
+        <EditorInput
+          v-model="store.showGrid"
+          :label="store.showGrid ? 'Grid shown' : 'Grid hidden'"
+          type="checkbox"
         />
-      </label>
-      <label for="y">
-        y
-        <input
-          id="y"
-          v-model="store.selectedEntity.y"
-          type="number"
-          @change="updateEntity"
-        />
-      </label>
-      <button @click="deleteEntity">Delete</button>
-    </div>
-    <div v-if="store.selectedInteraction">
-      <label for="x">
-        x
-        <input
-          id="x"
-          v-model="store.selectedInteraction.x"
-          type="number"
-          @change="updateInteraction"
-        />
-      </label>
-      <label for="y">
-        y
-        <input
-          id="y"
-          v-model="store.selectedInteraction.y"
-          type="number"
-          @change="updateInteraction"
-        />
-      </label>
-      <label for="width">
-        width
-        <input
-          id="width"
-          v-model="store.selectedInteraction.width"
-          type="number"
-          @change="updateInteraction"
-        />
-      </label>
-      <label for="height">
-        height
-        <input
-          id="height"
-          v-model="store.selectedInteraction.height"
-          type="number"
-          @change="updateInteraction"
-        />
-      </label>
-      <label for="type">
-        height
-        <select
-          id="type"
-          v-model="store.selectedInteraction.data.type"
-          @change="updateInteraction"
-        >
-          <option value="switch-map">Map switcher</option>
-        </select>
-      </label>
-      <div v-if="store.selectedInteraction.data.type === 'switch-map'">
-        <label for="map">
-          map
-          <input
-            id="map"
-            v-model="store.selectedInteraction.data.map"
-            type="text"
-            @change="updateInteraction"
-          />
-        </label>
-        <label for="player-x">
-          player x
-          <input
-            id="player-x"
-            v-model="store.selectedInteraction.data.playerX"
-            type="number"
-            @change="updateInteraction"
-          />
-        </label>
-        <label for="player-y">
-          player y
-          <input
-            id="player-y"
-            v-model="store.selectedInteraction.data.playerY"
-            type="number"
-            @change="updateInteraction"
-          />
-        </label>
       </div>
-      <button @click="deleteInteraction">Delete</button>
-    </div>
-    <ul v-if="store.selectedType === 'terrain'">
-      <li>
-        <EditorTile
-          :terrain="['/sprites/editor-tools.png', 0, 0]"
-          :selected="store.selectedItem === null"
-          @click="store.selectedItem = null"
+    </section>
+    <section class="section">
+      <h2 class="title">Map size</h2>
+      <div class="wrapper">
+        <EditorInput v-model="store.rows" label="Rows" type="number" />
+        <EditorInput v-model="store.columns" label="Columns" type="number" />
+      </div>
+      <EditorInput
+        v-model="store.mapGrowsAfter"
+        :label="`Add/remove ${store.mapGrowsAfter ? 'after' : 'before'}`"
+        type="checkbox"
+      />
+    </section>
+    <section class="section">
+      <h2 class="title">File</h2>
+      <div class="wrapper">
+        <FileUploader class="upload" @upload="handleMapUpload">
+          Import
+        </FileUploader>
+        <button class="download" @click="downloadMap">Export</button>
+      </div>
+    </section>
+    <section class="section section-fill">
+      <h2 class="title">World</h2>
+      <div class="horizontal-scroller" title="Press shift to scroll">
+        <EditorTypeSelector type="terrain">Terrains</EditorTypeSelector>
+        <EditorTypeSelector type="environment">Environments</EditorTypeSelector>
+        <EditorTypeSelector type="organism">Organisms</EditorTypeSelector>
+        <EditorTypeSelector type="interaction">Interactions</EditorTypeSelector>
+      </div>
+      <ul v-if="store.selectedType === 'terrain'" class="tile-grid">
+        <li>
+          <EditorTile
+            :terrain="['/sprites/editor-tools.png', 0, 0]"
+            :selected="store.selectedItem === null"
+            @click="store.selectedItem = null"
+          />
+        </li>
+        <li v-for="(terrain, index) in terrainsIndex" :key="index">
+          <EditorTile
+            :terrain="terrain"
+            :selected="store.selectedItem === index"
+            @click="store.selectedItem = index"
+          />
+        </li>
+      </ul>
+      <ul v-if="store.selectedType === 'environment'" class="tile-grid">
+        <li>
+          <EditorTile
+            :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :selected="store.selectedItem === null"
+            @click="store.selectedItem = null"
+          />
+        </li>
+        <li v-for="(environment, index) in environmentsIndex" :key="index">
+          <EditorTile
+            :entity="environment"
+            :selected="store.selectedItem === index"
+            @click="store.selectedItem = index"
+          />
+        </li>
+      </ul>
+      <ul v-if="store.selectedType === 'organism'" class="tile-grid">
+        <li>
+          <EditorTile
+            :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :selected="store.selectedItem === null"
+            @click="store.selectedItem = null"
+          />
+        </li>
+        <li v-for="(organism, index) in organismsIndex" :key="index">
+          <EditorTile
+            :entity="organism"
+            :selected="store.selectedItem === index"
+            @click="store.selectedItem = index"
+          />
+        </li>
+      </ul>
+      <ul v-if="store.selectedType === 'interaction'" class="tile-grid">
+        <li>
+          <EditorTile
+            :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :selected="store.selectedItem === null"
+            @click="store.selectedItem = null"
+          />
+        </li>
+        <li>
+          <EditorTile
+            :terrain="['/sprites/editor-tools.png', 32, 0]"
+            :selected="store.selectedItem === 1"
+            @click="store.selectedItem = 1"
+          />
+        </li>
+      </ul>
+    </section>
+    <section v-if="store.selectedEntity" class="section">
+      <h2 class="title">Edit</h2>
+      <div class="wrapper">
+        <EditorInput v-model="store.selectedEntity.x" label="x" type="number" />
+        <EditorInput v-model="store.selectedEntity.y" label="y" type="number" />
+      </div>
+      <button class="button" @click="deleteEntity">Delete</button>
+    </section>
+    <section v-if="store.selectedInteraction" class="section">
+      <h2 class="title">Edit</h2>
+      <select
+        id="type"
+        v-model="store.selectedInteraction.data.type"
+        class="button"
+      >
+        <option value="switch-map">Map switcher</option>
+      </select>
+      <div class="wrapper">
+        <EditorInput
+          v-model="store.selectedInteraction.x"
+          label="x"
+          type="number"
         />
-      </li>
-      <li v-for="(terrain, index) in terrainsIndex" :key="index">
-        <EditorTile
-          :terrain="terrain"
-          :selected="store.selectedItem === index"
-          @click="store.selectedItem = index"
+        <EditorInput
+          v-model="store.selectedInteraction.y"
+          label="y"
+          type="number"
         />
-      </li>
-    </ul>
-    <ul v-if="store.selectedType === 'environment'">
-      <li>
-        <EditorTile
-          :terrain="['/sprites/editor-tools.png', 16, 0]"
-          :selected="store.selectedItem === null"
-          @click="store.selectedItem = null"
+      </div>
+      <div class="wrapper">
+        <EditorInput
+          v-model="store.selectedInteraction.width"
+          label="Width"
+          type="number"
         />
-      </li>
-      <li v-for="(environment, index) in environmentsIndex" :key="index">
-        <EditorTile
-          :entity="environment"
-          :selected="store.selectedItem === index"
-          @click="store.selectedItem = index"
+        <EditorInput
+          v-model="store.selectedInteraction.height"
+          label="Height"
+          type="number"
         />
-      </li>
-    </ul>
-    <ul v-if="store.selectedType === 'organism'">
-      <li>
-        <EditorTile
-          :terrain="['/sprites/editor-tools.png', 16, 0]"
-          :selected="store.selectedItem === null"
-          @click="store.selectedItem = null"
+      </div>
+      <EditorInput
+        v-model="store.selectedInteraction.data.map"
+        label="Map"
+        type="text"
+        placeholder="Map filename"
+      />
+      <div
+        v-if="store.selectedInteraction.data.type === 'switch-map'"
+        class="wrapper"
+      >
+        <EditorInput
+          v-model="store.selectedInteraction.data.playerX"
+          label="Player x"
+          type="number"
         />
-      </li>
-      <li v-for="(organism, index) in organismsIndex" :key="index">
-        <EditorTile
-          :entity="organism"
-          :selected="store.selectedItem === index"
-          @click="store.selectedItem = index"
+        <EditorInput
+          v-model="store.selectedInteraction.data.playerY"
+          label="Player y"
+          type="number"
         />
-      </li>
-    </ul>
-    <ul v-if="store.selectedType === 'interaction'">
-      <li>
-        <EditorTile
-          :terrain="['/sprites/editor-tools.png', 16, 0]"
-          :selected="store.selectedItem === null"
-          @click="store.selectedItem = null"
-        />
-      </li>
-      <li>
-        <EditorTile
-          :terrain="['/sprites/player.png', 16, 0]"
-          :selected="store.selectedItem === 1"
-          @click="store.selectedItem = 1"
-        />
-      </li>
-    </ul>
-  </section>
+      </div>
+      <button class="button" @click="deleteInteraction">Delete</button>
+    </section>
+  </div>
 </template>
 
 <style scoped lang="scss">
+@import './editor-mixins';
+
 .toolkit {
   position: absolute;
-  top: 0;
-  background-color: rgba(white, 0.5);
-  font-size: 1rem;
-  max-height: 100vh;
-  overflow: auto;
+  inset: 1.5rem auto 1.5rem 1.5rem;
+  width: 20rem;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(#0a0a0a, 0.8);
+  color: white;
+  border: 2px solid rgba(white, 0.1);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(0.5rem);
+}
+
+.section {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &:not(&:last-of-type) {
+    border-bottom: inherit;
+  }
+
+  &.section-fill {
+    height: 100%;
+  }
+
+  .title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.5;
+    text-transform: uppercase;
+  }
+
+  .button {
+    @include editor-button(true);
+  }
+
+  .wrapper {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .horizontal-scroller {
+    display: flex;
+    gap: 1rem;
+    overflow: auto;
+    width: calc(100% + 3rem);
+    translate: -1.5rem;
+    padding: 0 1.5rem;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.upload,
+.download {
+  @include editor-button(true);
+
+  aspect-ratio: 1 / 1;
+
+  &:is(.upload) {
+    background-color: transparent;
+    border: 2px dashed rgba(white, 0.1);
+  }
+
+  &:is(.download) {
+    background-color: rgba(white, 0.04);
+  }
+
+  &:hover {
+    background-color: rgba(white, 0.08);
+  }
+
+  &:active {
+    background-color: rgba(white, 0.12);
+  }
+}
+
+.tile-grid {
+  flex: 1 0 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: min-content;
+  gap: 1px;
+  padding: 1px;
+  overflow-y: auto;
 }
 </style>
