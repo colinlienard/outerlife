@@ -278,8 +278,8 @@ export class RenderSystem extends System {
   }
 
   private translate(offsetX: number, offsetY: number) {
-    this.offsetX = Math.abs(Math.round(offsetX));
-    this.offsetY = Math.abs(Math.round(offsetY));
+    this.offsetX = offsetX < 0 ? Math.abs(Math.round(offsetX)) : 0;
+    this.offsetY = offsetY < 0 ? Math.abs(Math.round(offsetY)) : 0;
 
     this.engine.translate(
       Math.floor(offsetX * Settings.ratio),

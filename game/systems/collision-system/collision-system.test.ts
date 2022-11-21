@@ -92,7 +92,7 @@ describe('collision system', () => {
     organismPosition.y = 500;
     collisionSystem.update();
 
-    expect(organismPosition.x).toBe(600 - 32 / 2);
-    expect(organismPosition.y).toBe(400 - 32 / 2);
+    expect(organismPosition.x).toBe(600 - 32);
+    expect(organismPosition.y).toBe(400 - 32);
   });
 });

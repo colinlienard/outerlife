@@ -73,10 +73,10 @@ export class PlayerSystem extends System {
 
     // Get angle of the click based on the player's position
     const cursorX = Math.round(
-      Math.abs(Settings.cameraOffset.x) + event.clientX / Settings.ratio
+      Settings.cameraOffset.x * -1 + event.clientX / Settings.ratio
     );
     const cursorY = Math.round(
-      Math.abs(Settings.cameraOffset.y) + event.clientY / Settings.ratio
+      Settings.cameraOffset.y * -1 + event.clientY / Settings.ratio
     );
     const [{ x, y }] = Emitter.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);

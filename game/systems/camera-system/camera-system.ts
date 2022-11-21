@@ -25,6 +25,8 @@ export class CameraSystem extends System {
 
   private shaking = false;
 
+  private overflows = false;
+
   private getCameraX(): number {
     // Easing
     this.x += (this.getTargetX() - this.x) * Settings.cameraEasing;
@@ -54,6 +56,10 @@ export class CameraSystem extends System {
       (this.viewport.width - this.player.get(SpriteComponent).width) / 2 -
       this.player.get(PositionComponent).x;
 
+    if (this.overflows) {
+      return target;
+    }
+
     // No overflow on the left
     if (target > 0) {
       return 0;
@@ -72,6 +78,10 @@ export class CameraSystem extends System {
       (this.viewport.height - this.player.get(SpriteComponent).height) / 2 -
       this.player.get(PositionComponent).y;
 
+    if (this.overflows) {
+      return target;
+    }
+
     // No overflow on the top
     if (target > 0) {
       return 0;
@@ -88,6 +98,10 @@ export class CameraSystem extends System {
   init() {
     this.map.width = Settings.scene.width;
     this.map.height = Settings.scene.height;
+
+    this.overflows =
+      this.map.width * Settings.ratio < window.innerWidth ||
+      this.map.height * Settings.ratio < window.innerHeight;
 
     this.resize();
 

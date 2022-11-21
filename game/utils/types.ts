@@ -8,11 +8,6 @@ export interface Box extends Point {
   height: number;
 }
 
-export interface Interaction extends Box {
-  entered?: boolean;
-  enter: () => void;
-}
-
 export type Terrain = {
   source: string;
   sourceX: number;
@@ -21,19 +16,45 @@ export type Terrain = {
   y: number;
 };
 
+export type InteractionData = {
+  type: 'switch-map';
+  map: string;
+  playerX: number;
+  playerY: number;
+};
+
+export interface GameMapInteraction extends Box {
+  data: InteractionData;
+}
+
 export type Tilemap = {
   rows: number;
   columns: number;
   terrains: string[];
   environments: string[];
-  interactions: Interaction[];
+  interactions: GameMapInteraction[];
 };
 
-export type Horizontal = 'left' | 'right';
+export type GameMapEntity = [number, number, number];
 
-export type Vertical = 'up' | 'down';
+export type GameMapTerrain = number | null;
 
-export type Direction = Horizontal | Vertical;
+export type GameMap = {
+  rows: number;
+  columns: number;
+  terrains: GameMapTerrain[];
+  environments: GameMapEntity[];
+  organisms: GameMapEntity[];
+  interactions: GameMapInteraction[];
+};
+
+export type GameMapItemType =
+  | 'terrain'
+  | 'environment'
+  | 'organism'
+  | 'interaction';
+
+export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export type EntityState =
   | 'idle'
