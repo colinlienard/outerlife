@@ -13,7 +13,7 @@ import {
 type EditorEntity = { data: GameMapEntity; type: GameMapItemType };
 
 export class Editor {
-  private readonly engine: Engine;
+  private readonly engine!: Engine;
 
   private terrains: GameMapTerrain[] = [];
 
@@ -33,26 +33,22 @@ export class Editor {
     canvas: HTMLCanvasElement,
     rows: number,
     columns: number,
-    ratio: number
+    ratio: number,
+    render = true
   ) {
-    // Setup rendering context
-    const options = {
-      alpha: false,
-      antialias: false,
-      premultipliedAlpha: false,
-    };
-    const context = canvas.getContext(
-      'webgl2',
-      options
-    ) as WebGL2RenderingContext;
-    this.engine = new Engine(context);
-    this.engine.resize();
-
     this.ratio = ratio;
     this.rows = rows;
     this.columns = columns;
 
     this.terrains = [...new Array(rows * columns)].map(() => null);
+
+    if (!render) {
+      return;
+    }
+
+    // Setup rendering context
+    this.engine = new Engine(canvas);
+    this.engine.resize();
 
     const spritesFolder = import.meta.glob('/public/sprites/*.png');
     const sources = Object.keys(spritesFolder).map((source) =>
@@ -234,7 +230,7 @@ export class Editor {
       const column = index % this.columns;
       const row = Math.floor(index / this.columns);
 
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         source,
         x,
         y,
@@ -256,7 +252,7 @@ export class Editor {
         entity.get(SpriteComponent);
       const animation = entity.get(AnimationComponent);
 
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         source,
         animation ? 0 : sourceX,
         animation ? height : sourceY,
@@ -271,7 +267,7 @@ export class Editor {
 
     // Render interactions
     this.interactions.forEach(({ x, y, width, height }) => {
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         '/sprites/guidelines.png',
         2,
         0,
@@ -289,12 +285,13 @@ export class Editor {
     }
 
     this.engine.render();
+    this.engine.flush();
   }
 
   renderGrid() {
     // Render rows
     for (let index = 0; index < this.rows + 1; index += 1) {
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         '/sprites/guidelines.png',
         2,
         0,
@@ -309,7 +306,7 @@ export class Editor {
 
     // Render columns
     for (let index = 0; index < this.columns + 1; index += 1) {
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         '/sprites/guidelines.png',
         2,
         0,
@@ -422,6 +419,6 @@ export class Editor {
     this.ratio = ratio;
     this.showGrid = showGrid;
 
-    this.engine.translate(pan.x, pan.y);
+    this.engine?.translate(pan.x, pan.y);
   }
 }

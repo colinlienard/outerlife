@@ -20,17 +20,8 @@ export class Game extends ECS {
 
   fps = 0;
 
-  constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
+  constructor(gameCanvas: HTMLCanvasElement) {
     super();
-
-    // Setup rendering context
-    const options = {
-      alpha: false,
-      antialias: false,
-      premultipliedAlpha: false,
-    };
-    const gameContext = gameCanvas.getContext('webgl2', options);
-    const debugContext = debugCanvas.getContext('2d');
 
     // Setup systems
     this.add(new PlayerSystem());
@@ -39,12 +30,7 @@ export class Game extends ECS {
     this.add(new CollisionSystem());
     this.add(new AnimationSystem());
     this.add(new CameraSystem());
-    this.add(
-      new RenderSystem(
-        gameContext as WebGL2RenderingContext,
-        debugContext as CanvasRenderingContext2D
-      )
-    );
+    this.add(new RenderSystem(gameCanvas));
 
     // Create the world and start the game
     (async () => {
