@@ -39,25 +39,27 @@ export class Engine {
     opacity: 7,
   };
 
-  private renderTextureData: number[] = [];
+  private textureRenderData: number[] = [];
 
-  private renderTextureQueueLength = 0;
+  private textureQueueLength = 0;
 
-  private renderGlowData: number[] = [];
+  private glowRenderData: number[] = [];
 
-  private renderGlowQueueLength = 0;
+  private glowQueueLenght = 0;
 
-  private textureSourcesIndex = <{ [key: string]: number }>{};
+  private textureSourcesIndex: Map<string, number> = new Map();
 
   private maxTextureSize = 0;
 
-  private translation = {
-    x: 0,
-    y: 0,
-  };
+  private translation = { x: 0, y: 0 };
 
-  constructor(context: WebGL2RenderingContext) {
-    this.gl = context;
+  constructor(canvas: HTMLCanvasElement) {
+    const options: WebGLContextAttributes = {
+      alpha: false,
+      antialias: false,
+      powerPreference: 'high-performance',
+    };
+    this.gl = canvas.getContext('webgl2', options) as WebGL2RenderingContext;
 
     // Context settings
     this.gl.clearColor(0, 0, 0, 1);
@@ -278,6 +280,10 @@ export class Engine {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
   }
 
+  flush() {
+    this.gl.flush();
+  }
+
   // eslint-disable-next-line class-methods-use-this
   loadImage(source: string) {
     return new Promise((resolve: (image: HTMLImageElement) => void) => {
@@ -342,7 +348,7 @@ export class Engine {
         );
 
         // Save the depth of each source in the array
-        this.textureSourcesIndex[sources[index]] = index;
+        this.textureSourcesIndex.set(sources[index], index);
       }
 
       // Texture settings
@@ -371,7 +377,7 @@ export class Engine {
     });
   }
 
-  renderTexture(
+  queueTextureRender(
     source: string,
     sourceX: number,
     sourceY: number,
@@ -385,7 +391,7 @@ export class Engine {
     white = false
   ) {
     // Texture source
-    const textureUnit = this.textureSourcesIndex[source];
+    const textureUnit = this.textureSourcesIndex.get(source);
     if (textureUnit === undefined) {
       throw new Error(`The source '${source}' is not loaded.`);
     }
@@ -435,17 +441,17 @@ export class Engine {
     );
 
     // Add all the data in the same array
-    this.renderTextureData.push(
+    this.textureRenderData.push(
       textureUnit,
       ...modelMatrix,
       ...textureMatrix,
       white ? 1 : 0
     );
 
-    this.renderTextureQueueLength += 1;
+    this.textureQueueLength += 1;
   }
 
-  renderGlow(
+  queueGlowRender(
     color: [number, number, number],
     opacity: number,
     x: number,
@@ -470,9 +476,9 @@ export class Engine {
     ];
 
     // Add all the data in the same array
-    this.renderGlowData.push(...matrix, ...sizes, ...color, opacity);
+    this.glowRenderData.push(...matrix, ...sizes, ...color, opacity);
 
-    this.renderGlowQueueLength += 1;
+    this.glowQueueLenght += 1;
   }
 
   render() {
@@ -485,7 +491,7 @@ export class Engine {
     // Use the new data
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
-      new Float32Array(this.renderTextureData),
+      new Float32Array(this.textureRenderData),
       this.gl.DYNAMIC_DRAW
     );
 
@@ -494,7 +500,7 @@ export class Engine {
       this.gl.TRIANGLES,
       0,
       6,
-      this.renderTextureQueueLength
+      this.textureQueueLength
     );
 
     // Use glow setup
@@ -506,23 +512,18 @@ export class Engine {
     // Use the new data
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
-      new Float32Array(this.renderGlowData),
+      new Float32Array(this.glowRenderData),
       this.gl.DYNAMIC_DRAW
     );
 
     // Render
-    this.gl.drawArraysInstanced(
-      this.gl.TRIANGLES,
-      0,
-      6,
-      this.renderGlowQueueLength
-    );
+    this.gl.drawArraysInstanced(this.gl.TRIANGLES, 0, 6, this.glowQueueLenght);
 
     // Reset the data for the next render
-    this.renderTextureData = [];
-    this.renderTextureQueueLength = 0;
-    this.renderGlowData = [];
-    this.renderGlowQueueLength = 0;
+    this.textureRenderData = [];
+    this.textureQueueLength = 0;
+    this.glowRenderData = [];
+    this.glowQueueLenght = 0;
   }
 
   resize() {

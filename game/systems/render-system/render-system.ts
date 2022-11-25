@@ -31,8 +31,6 @@ interface TerrainLeaf extends Box {
 export class RenderSystem extends System {
   protected readonly requiredComponents = [PositionComponent, SpriteComponent];
 
-  private readonly debugContext: CanvasRenderingContext2D;
-
   private readonly engine: Engine;
 
   private entityTree: QuadTree<EntityLeaf> = new QuadTree(
@@ -62,14 +60,10 @@ export class RenderSystem extends System {
 
   private movableEntityIds: number[] = [];
 
-  constructor(
-    gameContext: WebGL2RenderingContext,
-    debugContext: CanvasRenderingContext2D
-  ) {
+  constructor(canvas: HTMLCanvasElement) {
     super();
 
-    this.engine = new Engine(gameContext);
-    this.debugContext = debugContext;
+    this.engine = new Engine(canvas);
 
     this.resize();
   }
@@ -91,7 +85,7 @@ export class RenderSystem extends System {
     );
   }
 
-  private render() {
+  private queueTextureRenders() {
     // Render terrains
     this.terrainTree
       .get(
@@ -101,7 +95,7 @@ export class RenderSystem extends System {
         this.viewport.height
       )
       .forEach(({ terrain }) => {
-        this.engine.renderTexture(
+        this.engine.queueTextureRender(
           terrain.source,
           terrain.sourceX,
           terrain.sourceY,
@@ -128,7 +122,7 @@ export class RenderSystem extends System {
       // Render animated entity
       if (entity.has(AnimationComponent)) {
         const animation = entity.get(AnimationComponent);
-        this.engine.renderTexture(
+        this.engine.queueTextureRender(
           sprite.source,
           sprite.width * (animation.column + animation.current.frameStart - 1),
           sprite.height * animation.row,
@@ -144,7 +138,7 @@ export class RenderSystem extends System {
 
         // Render non animated entity
       } else {
-        this.engine.renderTexture(
+        this.engine.queueTextureRender(
           sprite.source,
           sprite.sourceX,
           sprite.sourceY,
@@ -162,33 +156,59 @@ export class RenderSystem extends System {
         this.renderSpriteLayers(layers.getFrontSprites(), position);
 
         // Render glow
-        this.renderGlowLayers(layers.getGlow(), position);
+        this.queueGlowRenderLayers(layers.getGlow(), position);
       }
     });
-
-    this.engine.render();
   }
 
-  private renderCollisionsByColor(boxes: Box[], color: string) {
-    this.debugContext.lineWidth = 2;
-    this.debugContext.strokeStyle = color;
-
-    boxes.forEach((box) => {
-      this.debugContext.strokeRect(
-        box.x * Settings.ratio,
-        box.y * Settings.ratio,
-        box.width * Settings.ratio,
-        box.height * Settings.ratio
-      );
-    });
+  private renderCollision({ x, y, width, height }: Box, color: number) {
+    this.engine.queueTextureRender(
+      '/sprites/guidelines.png',
+      color,
+      0,
+      1,
+      1,
+      x * Settings.ratio,
+      y * Settings.ratio,
+      width * Settings.ratio,
+      2
+    );
+    this.engine.queueTextureRender(
+      '/sprites/guidelines.png',
+      color,
+      0,
+      1,
+      1,
+      x * Settings.ratio,
+      (y + height) * Settings.ratio,
+      width * Settings.ratio,
+      2
+    );
+    this.engine.queueTextureRender(
+      '/sprites/guidelines.png',
+      color,
+      0,
+      1,
+      1,
+      x * Settings.ratio,
+      y * Settings.ratio,
+      2,
+      height * Settings.ratio
+    );
+    this.engine.queueTextureRender(
+      '/sprites/guidelines.png',
+      color,
+      0,
+      1,
+      1,
+      (x + width) * Settings.ratio,
+      y * Settings.ratio,
+      2,
+      height * Settings.ratio
+    );
   }
 
   private renderAllCollisions() {
-    const red: Box[] = [];
-    const blue: Box[] = [];
-    const green: Box[] = [];
-    const yellow: Box[] = [];
-
     this.getAsArray().forEach((entity) => {
       if (entity.has(CollisionComponent)) {
         const { x, y } = entity.get(PositionComponent);
@@ -198,18 +218,18 @@ export class RenderSystem extends System {
           switch (collision.type) {
             case 'hitbox':
             case 'environment':
-              blue.push(box);
+              this.renderCollision(box, 5);
               break;
             case 'interaction':
-              yellow.push(box);
+              this.renderCollision(box, 7);
               break;
             case 'damage-player':
             case 'damage-ai':
-              red.push(box);
+              this.renderCollision(box, 3);
               break;
             case 'player-hurtbox':
             case 'ai-hurtbox':
-              green.push(box);
+              this.renderCollision(box, 4);
               break;
             default:
               break;
@@ -217,31 +237,37 @@ export class RenderSystem extends System {
         });
       }
     });
-
-    this.renderCollisionsByColor(red, 'red');
-    this.renderCollisionsByColor(blue, 'blue');
-    this.renderCollisionsByColor(green, 'lime');
-    this.renderCollisionsByColor(yellow, 'yellow');
   }
 
   private renderGrid() {
-    this.debugContext.lineWidth = 1;
-    this.debugContext.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-
     for (let index = 0; index < Settings.scene.columns; index += 1) {
       const x = index * Settings.tileSize * Settings.ratio;
-      this.debugContext.beginPath();
-      this.debugContext.moveTo(x, 0);
-      this.debugContext.lineTo(x, Settings.scene.height * Settings.ratio);
-      this.debugContext.stroke();
+      this.engine.queueTextureRender(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
+        x,
+        0,
+        1,
+        Settings.scene.height * Settings.ratio
+      );
     }
 
     for (let index = 0; index < Settings.scene.rows; index += 1) {
       const y = index * Settings.tileSize * Settings.ratio;
-      this.debugContext.beginPath();
-      this.debugContext.moveTo(0, y);
-      this.debugContext.lineTo(Settings.scene.width * Settings.ratio, y);
-      this.debugContext.stroke();
+      this.engine.queueTextureRender(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
+        0,
+        y,
+        Settings.scene.width * Settings.ratio,
+        1
+      );
     }
   }
 
@@ -250,7 +276,7 @@ export class RenderSystem extends System {
     position: PositionComponent
   ) {
     layers.forEach((layer) => {
-      this.engine.renderTexture(
+      this.engine.queueTextureRender(
         layer.source,
         layer.sourceX,
         layer.sourceY,
@@ -265,9 +291,12 @@ export class RenderSystem extends System {
     });
   }
 
-  private renderGlowLayers(layers: GlowLayer[], position: PositionComponent) {
+  private queueGlowRenderLayers(
+    layers: GlowLayer[],
+    position: PositionComponent
+  ) {
     layers.forEach((layer) => {
-      this.engine.renderGlow(
+      this.engine.queueGlowRender(
         layer.color,
         layer.opacity,
         Math.floor((position.x + layer.data.x) * Settings.ratio),
@@ -285,15 +314,6 @@ export class RenderSystem extends System {
       Math.floor(offsetX * Settings.ratio),
       Math.floor(offsetY * Settings.ratio)
     );
-
-    this.debugContext.setTransform(
-      1,
-      0,
-      0,
-      1,
-      Math.floor(offsetX * Settings.ratio),
-      Math.floor(offsetY * Settings.ratio)
-    );
   }
 
   loadTextures(entities: Entity[]) {
@@ -303,6 +323,7 @@ export class RenderSystem extends System {
         '/sprites/dust.png',
         '/sprites/items.png',
         '/sprites/slash.png',
+        '/sprites/guidelines.png',
       ];
 
       const entitiesSources = entities.reduce((previous: string[], current) => {
@@ -334,9 +355,6 @@ export class RenderSystem extends System {
 
   resize() {
     this.engine.resize();
-
-    this.debugContext.canvas.width = window.innerWidth;
-    this.debugContext.canvas.height = window.innerHeight;
 
     Settings.ratio = Math.round(window.innerHeight / Settings.yPixelsNumber);
 
@@ -407,17 +425,13 @@ export class RenderSystem extends System {
     });
 
     this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
-    this.render();
+    this.queueTextureRenders();
 
     if (Settings.debug) {
-      this.debugContext.clearRect(
-        0,
-        0,
-        Settings.scene.width * Settings.ratio,
-        Settings.scene.height * Settings.ratio
-      );
       this.renderAllCollisions();
       this.renderGrid();
     }
+
+    this.engine.render();
   }
 }

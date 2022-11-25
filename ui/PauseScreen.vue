@@ -46,6 +46,7 @@ watch(paused, (newPaused) => {
         <MenuButtonsList>
           <MenuButton @click="paused = false">Resume</MenuButton>
           <MenuButton @click="showOptions = true">Options</MenuButton>
+          <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
           <MenuButton>Quit</MenuButton>
         </MenuButtonsList>
       </article>
@@ -67,7 +68,6 @@ watch(paused, (newPaused) => {
           >
             Debug mode
           </MenuCheck>
-          <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
         </MenuButtonsList>
       </article>
     </div>
