@@ -1,1 +1,1 @@
-export * from './planet-001';
+export * from './desert';

@@ -22,7 +22,7 @@ onMounted(() => {
   <section class="container">
     <canvas ref="gameCanvas" class="game-canvas" />
     <GameVignette />
-    <!-- <GameNoise /> -->
+    <GameNoise />
     <GameTransition />
     <FPSVisualizer v-if="debugMode" />
     <LoadingScreen />

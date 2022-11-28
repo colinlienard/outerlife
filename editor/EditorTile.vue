@@ -4,6 +4,7 @@ import { EntityConstructor, Settings } from '~~/game/utils';
 
 const props = defineProps<{
   terrain?: [string, number, number];
+  size?: number;
   entity?: EntityConstructor;
   selected: boolean;
 }>();
@@ -30,8 +31,8 @@ onMounted(() => {
           image,
           x, // position x in the source image
           y, // position y in the source image
-          Settings.tileSize, // width of the sprite in the source image
-          Settings.tileSize, // height of the sprite in the source image
+          props.size || Settings.tileSize, // width of the sprite in the source image
+          props.size || Settings.tileSize, // height of the sprite in the source image
           0, // position x in the canvas
           0, // position y in the canvas
           canvasSize, // width of the sprite in the canvas

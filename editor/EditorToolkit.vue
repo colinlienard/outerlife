@@ -125,6 +125,7 @@ watch(
         <li>
           <EditorTile
             :terrain="['/sprites/editor-tools.png', 0, 0]"
+            :size="16"
             :selected="store.selectedItem === null"
             @click="store.selectedItem = null"
           />
@@ -141,6 +142,7 @@ watch(
         <li>
           <EditorTile
             :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :size="16"
             :selected="store.selectedItem === null"
             @click="store.selectedItem = null"
           />
@@ -157,6 +159,7 @@ watch(
         <li>
           <EditorTile
             :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :size="16"
             :selected="store.selectedItem === null"
             @click="store.selectedItem = null"
           />
@@ -173,6 +176,7 @@ watch(
         <li>
           <EditorTile
             :terrain="['/sprites/editor-tools.png', 16, 0]"
+            :size="16"
             :selected="store.selectedItem === null"
             @click="store.selectedItem = null"
           />
@@ -180,6 +184,7 @@ watch(
         <li>
           <EditorTile
             :terrain="['/sprites/editor-tools.png', 32, 0]"
+            :size="16"
             :selected="store.selectedItem === 1"
             @click="store.selectedItem = 1"
           />
@@ -341,7 +346,7 @@ watch(
   flex: 1 0 0;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: min-content;
+  grid-auto-rows: min-content;
   gap: 1px;
   padding: 1px;
   overflow-y: auto;

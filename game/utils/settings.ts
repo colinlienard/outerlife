@@ -1,7 +1,7 @@
 export abstract class Settings {
   static readonly cameraEasing = 0.06;
 
-  static readonly tileSize = 16;
+  static readonly tileSize = 32;
 
   static readonly transitionDuration = 500;
 

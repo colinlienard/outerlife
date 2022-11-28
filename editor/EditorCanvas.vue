@@ -103,7 +103,7 @@ const mouseEventHandler = (event: MouseEvent) => {
       break;
 
     // Handle pan
-    case 4:
+    case 2:
       if (event.type === 'mousedown') {
         panningPosition = {
           x: event.clientX,
@@ -161,6 +161,7 @@ watch([rows, columns, ratio, pan, showGrid, mapGrowsAfter], (values) => {
       @mouseup="mouseEventHandler"
       @mousemove="mouseMoveHandler"
       @wheel="zoomEventHandler"
+      @contextmenu.prevent=""
     />
     <EditorToolkit />
   </main>

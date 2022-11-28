@@ -1,12 +1,12 @@
-import { Entity } from '~~/game/utils';
 import {
   CollisionComponent,
+  LayersComponent,
   PositionComponent,
   SpriteComponent,
-  LayersComponent,
 } from '~~/game/components';
+import { Entity } from '~~/game/utils';
 
-export class Crystal001 extends Entity {
+export class Rock3 extends Entity {
   constructor(x: number, y: number) {
     super();
     this.add(
@@ -20,23 +20,23 @@ export class Crystal001 extends Entity {
         },
       ])
     );
-    this.add(new PositionComponent(x, y, 48, 48));
+    this.add(new PositionComponent(x, y));
     this.add(
-      new SpriteComponent('/sprites/environments-001.png', 0, 96, 48, 48)
+      new SpriteComponent('/sprites/desert-environments.png', 53, 1, 22, 17)
     );
     this.add(
       new LayersComponent([
         {
           type: 'sprite',
-          source: '/sprites/environments-001.png',
-          sourceX: 0,
-          sourceY: 144,
-          width: 48,
-          height: 10,
+          source: '/sprites/desert-environments.png',
+          sourceX: 52,
+          sourceY: 20,
+          width: 25,
+          height: 11,
           render: true,
           data: {
-            x: 0,
-            y: 40,
+            x: 1,
+            y: 9,
             rotation: 0,
             depth: -1,
           },
