@@ -13,10 +13,10 @@ export class Rock3 extends Entity {
       new CollisionComponent([
         {
           type: 'environment',
-          x: 8,
-          y: 35,
-          width: 28,
-          height: 12,
+          x: 0,
+          y: 9,
+          width: 22,
+          height: 8,
         },
       ])
     );

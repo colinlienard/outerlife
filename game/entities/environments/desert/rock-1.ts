@@ -23,8 +23,8 @@ export class Rock1 extends Entity {
           height: 3,
           render: true,
           data: {
-            x: 1,
-            y: 3,
+            x: 0,
+            y: 2,
             rotation: 0,
             depth: -1,
           },

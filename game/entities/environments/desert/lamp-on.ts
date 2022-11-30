@@ -10,7 +10,7 @@ export class LampOn extends Entity {
     super();
     this.add(new PositionComponent(x, y));
     this.add(
-      new SpriteComponent('/sprites/desert-environments.png', 3, 97, 12, 18)
+      new SpriteComponent('/sprites/desert-environments.png', 35, 97, 12, 18)
     );
     this.add(
       new LayersComponent([

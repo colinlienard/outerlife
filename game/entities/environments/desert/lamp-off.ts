@@ -6,7 +6,7 @@ export class LampOff extends Entity {
     super();
     this.add(new PositionComponent(x, y));
     this.add(
-      new SpriteComponent('/sprites/desert-environments.png', 19, 97, 12, 18)
+      new SpriteComponent('/sprites/desert-environments.png', 51, 97, 12, 18)
     );
   }
 }

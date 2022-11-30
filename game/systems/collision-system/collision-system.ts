@@ -70,9 +70,10 @@ export class CollisionSystem extends System {
     const { x: positionX, y: positionY } = entity.get(PositionComponent);
     const { collisions } = entity.get(CollisionComponent);
 
-    collisions.forEach((collision) => {
+    collisions.forEach((collision, index) => {
       const { type, x, y } = collision;
-      const { id } = entity;
+      const { id: entityId } = entity;
+      const id = entityId + index * 1000;
 
       switch (type) {
         case 'environment':

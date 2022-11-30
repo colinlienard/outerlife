@@ -13,10 +13,10 @@ export class Rock4 extends Entity {
       new CollisionComponent([
         {
           type: 'environment',
-          x: 8,
-          y: 35,
-          width: 28,
-          height: 12,
+          x: 0,
+          y: 16,
+          width: 24,
+          height: 8,
         },
       ])
     );

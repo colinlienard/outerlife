@@ -13,15 +13,29 @@ export class CaveEntrance extends Entity {
         {
           type: 'environment',
           x: 0,
-          y: 24,
+          y: 0,
           width: 32,
-          height: 8,
+          height: 32,
+        },
+        {
+          type: 'environment',
+          x: 0,
+          y: 32,
+          width: 4,
+          height: 32,
+        },
+        {
+          type: 'environment',
+          x: 28,
+          y: 32,
+          width: 4,
+          height: 32,
         },
       ])
     );
     this.add(new PositionComponent(x, y));
     this.add(
-      new SpriteComponent('/sprites/desert-environments.png', 0, 0, 32, 32)
+      new SpriteComponent('/sprites/desert-environments.png', 0, 96, 32, 64)
     );
   }
 }

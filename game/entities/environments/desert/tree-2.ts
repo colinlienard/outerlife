@@ -13,10 +13,10 @@ export class Tree2 extends Entity {
       new CollisionComponent([
         {
           type: 'environment',
-          x: 8,
-          y: 35,
-          width: 28,
-          height: 12,
+          x: 14,
+          y: 31,
+          width: 10,
+          height: 6,
         },
       ])
     );

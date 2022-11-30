@@ -641,6 +641,6 @@ export class Player extends Entity {
 
   spawnDust() {
     const { x: xPos, y: yPos } = this.get(PositionComponent);
-    Emitter.emit('spawn', new Dust(xPos + 8, yPos + 24));
+    Emitter.emit('spawn', new Dust(xPos, yPos + 16));
   }
 }

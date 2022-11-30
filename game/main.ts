@@ -1,5 +1,5 @@
 import { environmentsIndex, organismsIndex, terrainsIndex } from './data';
-import { Interaction, Player } from './entities';
+import { Interaction, InvisibleWall, Player } from './entities';
 import {
   AISystem,
   AnimationSystem,
@@ -34,9 +34,9 @@ export class Game extends ECS {
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-002');
+      await this.setMap('map-1');
 
-      await this.buildMap(200, 200);
+      await this.buildMap(340, 230);
 
       this.setEvents();
 
@@ -74,14 +74,26 @@ export class Game extends ECS {
         for (let column = 0; column < this.map.columns; column += 1) {
           const tile = this.map.terrains[row * this.map.columns + column];
           if (tile !== null) {
-            const [source, sourceX, sourceY] = terrainsIndex[tile];
+            const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
+            const x = column * Settings.tileSize;
+            const y = row * Settings.tileSize;
+
             terrains.push({
               source,
               sourceX,
               sourceY,
-              x: column * Settings.tileSize,
-              y: row * Settings.tileSize,
+              x,
+              y,
             });
+
+            if (collisions) {
+              collisions.forEach((collision) => {
+                const { x: colX, y: colY, width, height } = collision;
+                this.addEntity(
+                  new InvisibleWall(x + colX, y + colY, width, height)
+                );
+              });
+            }
           }
         }
       }
