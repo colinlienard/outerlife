@@ -10,6 +10,7 @@ export const useEditorStore = defineStore('editor', () => {
   const mapGrowsAfter = ref(true);
   const ratio = ref(5);
   const pan = ref({ x: 0, y: 0 });
+  const mousePosition = ref({ x: 0, y: 0 });
   const showGrid = ref(true);
   const selectedItem = ref<number | null>(null);
   const selectedType = ref<GameMapItemType>('terrain');
@@ -32,6 +33,7 @@ export const useEditorStore = defineStore('editor', () => {
     mapGrowsAfter,
     ratio,
     pan,
+    mousePosition,
     showGrid,
     selectedItem,
     selectedType,

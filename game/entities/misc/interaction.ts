@@ -38,8 +38,8 @@ export class Interaction extends Entity {
   enter() {
     switch (this.data.type) {
       case 'switch-map': {
-        const { map, playerX, playerY } = this.data;
-        Emitter.emit('switch-map', { map, playerX, playerY });
+        const { map, playerX, playerY, playerDirection } = this.data;
+        Emitter.emit('switch-map', { map, playerX, playerY, playerDirection });
         break;
       }
 

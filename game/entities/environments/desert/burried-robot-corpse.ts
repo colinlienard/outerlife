@@ -12,10 +12,10 @@ export class BurriedRobotCorpse extends Entity {
       new CollisionComponent([
         {
           type: 'environment',
-          x: 8,
-          y: 35,
-          width: 28,
-          height: 12,
+          x: 6,
+          y: 5,
+          width: 48,
+          height: 22,
         },
       ])
     );

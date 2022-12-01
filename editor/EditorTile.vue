@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { AnimationComponent, SpriteComponent } from '~~/game/components';
-import { EntityConstructor, Settings } from '~~/game/utils';
+import { Box, EntityConstructor, Settings } from '~~/game/utils';
 
 const props = defineProps<{
-  terrain?: [string, number, number];
+  terrain?: [string, number, number, Box[]?];
   size?: number;
   entity?: EntityConstructor;
   selected: boolean;

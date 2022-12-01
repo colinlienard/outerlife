@@ -81,6 +81,11 @@ watch(
 
 <template>
   <div class="toolkit">
+    <header class="top-tag">
+      <p>{{ store.mousePosition.x }}</p>
+      <p>x</p>
+      <p>{{ store.mousePosition.y }}</p>
+    </header>
     <section class="section">
       <h2 class="title">Aspect</h2>
       <div class="wrapper">
@@ -204,7 +209,7 @@ watch(
       <select
         id="type"
         v-model="store.selectedInteraction.data.type"
-        class="button"
+        class="select"
       >
         <option value="switch-map">Map switcher</option>
       </select>
@@ -232,12 +237,27 @@ watch(
           type="number"
         />
       </div>
-      <EditorInput
-        v-model="store.selectedInteraction.data.map"
-        label="Map"
-        type="text"
-        placeholder="Map filename"
-      />
+      <div
+        v-if="store.selectedInteraction.data.type === 'switch-map'"
+        class="wrapper"
+      >
+        <EditorInput
+          v-model="store.selectedInteraction.data.map"
+          label="Map"
+          type="text"
+          placeholder="Map filename"
+        />
+        <select
+          id="type"
+          v-model="store.selectedInteraction.data.playerDirection"
+          class="select"
+        >
+          <option value="up">Up</option>
+          <option value="down">Down</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
       <div
         v-if="store.selectedInteraction.data.type === 'switch-map'"
         class="wrapper"
@@ -274,6 +294,20 @@ watch(
   backdrop-filter: blur(0.5rem);
 }
 
+.top-tag {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: white;
+  color: black;
+  font-size: 0.75rem;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% -50%;
+}
+
 .section {
   padding: 1.5rem;
   display: flex;
@@ -297,6 +331,14 @@ watch(
 
   .button {
     @include editor-button(true);
+  }
+
+  .select {
+    @include editor-button(true);
+
+    option {
+      background-color: black;
+    }
   }
 
   .wrapper {

@@ -9,7 +9,7 @@ import {
   PlayerSystem,
   RenderSystem,
 } from './systems';
-import { ECS, Emitter, GameMap, Settings, Terrain } from './utils';
+import { Direction, ECS, Emitter, GameMap, Settings, Terrain } from './utils';
 
 export class Game extends ECS {
   private map!: GameMap;
@@ -36,7 +36,7 @@ export class Game extends ECS {
     (async () => {
       await this.setMap('map-1');
 
-      await this.buildMap(340, 230);
+      await this.buildMap(340, 230, 'down');
 
       this.setEvents();
 
@@ -54,7 +54,11 @@ export class Game extends ECS {
     });
   }
 
-  private buildMap(playerX: number, playerY: number) {
+  private buildMap(
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
     return new Promise<void>((resolve) => {
       // Set scene settings
       Settings.scene.columns = this.map.columns;
@@ -126,7 +130,7 @@ export class Game extends ECS {
       });
 
       // Add a new player instance
-      const player = new Player(playerX, playerY);
+      const player = new Player(playerX, playerY, playerDirection);
       this.get(PlayerSystem).setPlayer(player);
       this.addEntity(player);
 
@@ -137,7 +141,7 @@ export class Game extends ECS {
 
       // Load textures
       this.get(RenderSystem)
-        .loadTextures(this.getEntities())
+        .loadTextures()
         .then(() => {
           Emitter.emit('scene-loaded');
           resolve();
@@ -173,20 +177,9 @@ export class Game extends ECS {
     });
 
     // Switch map
-    Emitter.on(
-      'switch-map',
-      ({
-        map,
-        playerX,
-        playerY,
-      }: {
-        map: string;
-        playerX: number;
-        playerY: number;
-      }) => {
-        this.switchMap(map, playerX, playerY);
-      }
-    );
+    Emitter.on('switch-map', ({ map, playerX, playerY, playerDirection }) => {
+      this.switchMap(map, playerX, playerY, playerDirection);
+    });
 
     Emitter.on('hit', () => {
       if (this.freeze) {
@@ -205,14 +198,21 @@ export class Game extends ECS {
     });
   }
 
-  private switchMap(map: string, playerX: number, playerY: number) {
+  private switchMap(
+    map: string,
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
     this.get(AISystem).clear();
 
     setTimeout(async () => {
+      this.pause();
       this.clearEntities();
 
       await this.setMap(map);
-      this.buildMap(playerX, playerY);
+      await this.buildMap(playerX, playerY, playerDirection);
+      this.resume();
     }, Settings.transitionDuration);
   }
 
