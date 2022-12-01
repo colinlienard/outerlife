@@ -7,13 +7,19 @@ export class MovementComponent implements Component {
 
   readonly deceleration: number;
 
-  angle = 90;
+  angle: number;
 
   speed = 0;
 
-  constructor(maxSpeed: number, acceleration: number, deceleration: number) {
+  constructor(
+    maxSpeed: number,
+    acceleration: number,
+    deceleration: number,
+    angle = 90
+  ) {
     this.maxSpeed = maxSpeed;
     this.acceleration = acceleration;
     this.deceleration = deceleration;
+    this.angle = angle;
   }
 }

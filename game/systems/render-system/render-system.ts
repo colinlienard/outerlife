@@ -316,7 +316,7 @@ export class RenderSystem extends System {
     );
   }
 
-  loadTextures(entities: Entity[]) {
+  loadTextures() {
     return new Promise((resolve) => {
       const requiredSources = [
         '/sprites/dash-dust.png',
@@ -326,12 +326,16 @@ export class RenderSystem extends System {
         '/sprites/guidelines.png',
       ];
 
-      const entitiesSources = entities.reduce((previous: string[], current) => {
-        if (current.has(SpriteComponent)) {
-          return [...previous, current.get(SpriteComponent).source];
-        }
-        return previous;
-      }, []);
+      const entitiesSources = Array.from(this.get().values()).reduce(
+        (previous: string[], current) => {
+          const sprite = current.get(SpriteComponent);
+          if (sprite && !previous.includes(sprite.source)) {
+            return [...previous, sprite.source];
+          }
+          return previous;
+        },
+        []
+      );
 
       const terrainsSources = this.terrains.reduce(
         (previous: string[], current) => {

@@ -8,6 +8,8 @@ export interface Box extends Point {
   height: number;
 }
 
+export type Direction = 'up' | 'down' | 'left' | 'right';
+
 export type Terrain = {
   source: string;
   sourceX: number;
@@ -21,6 +23,7 @@ export type InteractionData = {
   map: string;
   playerX: number;
   playerY: number;
+  playerDirection: Direction;
 };
 
 export interface GameMapInteraction extends Box {
@@ -53,8 +56,6 @@ export type GameMapItemType =
   | 'environment'
   | 'organism'
   | 'interaction';
-
-export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export type EntityState =
   | 'idle'

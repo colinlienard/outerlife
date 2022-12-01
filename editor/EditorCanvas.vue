@@ -12,14 +12,22 @@ const store = useEditorStore();
 const { rows, columns, ratio, pan, showGrid, mapGrowsAfter } =
   storeToRefs(store);
 
-const placeTerrain = (x: number, y: number) => {
+const clickTerrain = (x: number, y: number, action: 'place' | 'get') => {
   const column = Math.trunc(
     (x - pan.value.x) / Settings.tileSize / ratio.value
   );
   const row = Math.trunc((y - pan.value.y) / Settings.tileSize / ratio.value);
 
-  store.editor?.placeTerrain(column, row, store.selectedItem);
-  store.editor?.render();
+  if (action === 'place') {
+    store.editor?.placeTerrain(column, row, store.selectedItem);
+    store.editor?.render();
+    return;
+  }
+
+  const terrain = store.editor?.getTerrain(column, row);
+  if (terrain !== undefined) {
+    store.selectedItem = terrain;
+  }
 };
 
 const placeEntity = (x: number, y: number) => {
@@ -82,10 +90,10 @@ const zoomEventHandler = (event: WheelEvent) => {
 
 const mouseEventHandler = (event: MouseEvent) => {
   switch (event.buttons) {
-    // Handle click
+    // Handle left click
     case 1:
       if (store.selectedType === 'terrain') {
-        placeTerrain(event.clientX, event.clientY);
+        clickTerrain(event.clientX, event.clientY, 'place');
         return;
       }
 
@@ -99,6 +107,16 @@ const mouseEventHandler = (event: MouseEvent) => {
       }
 
       placeEntity(event.clientX, event.clientY);
+
+      break;
+
+    // Handle right click
+    case 2:
+      if (event.type !== 'mousedown') {
+        return;
+      }
+
+      clickTerrain(event.clientX, event.clientY, 'get');
 
       break;
 
@@ -126,6 +144,12 @@ const mouseEventHandler = (event: MouseEvent) => {
 
     default:
       break;
+  }
+
+  if (event.type === 'mousemove') {
+    const x = Math.round((event.clientX - store.pan.x) / store.ratio);
+    const y = Math.round((event.clientY - store.pan.y) / store.ratio);
+    store.mousePosition = { x, y };
   }
 };
 
@@ -161,6 +185,7 @@ watch([rows, columns, ratio, pan, showGrid, mapGrowsAfter], (values) => {
       @mouseup="mouseEventHandler"
       @mousemove="mouseMoveHandler"
       @wheel="zoomEventHandler"
+      @contextmenu.prevent=""
     />
     <EditorToolkit />
   </main>

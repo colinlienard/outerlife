@@ -1,5 +1,5 @@
 import { environmentsIndex, organismsIndex, terrainsIndex } from './data';
-import { Interaction, Player } from './entities';
+import { Interaction, InvisibleWall, Player } from './entities';
 import {
   AISystem,
   AnimationSystem,
@@ -9,7 +9,7 @@ import {
   PlayerSystem,
   RenderSystem,
 } from './systems';
-import { ECS, Emitter, GameMap, Settings, Terrain } from './utils';
+import { Direction, ECS, Emitter, GameMap, Settings, Terrain } from './utils';
 
 export class Game extends ECS {
   private map!: GameMap;
@@ -34,9 +34,9 @@ export class Game extends ECS {
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-002');
+      await this.setMap('map-1');
 
-      await this.buildMap(200, 200);
+      await this.buildMap(340, 230, 'down');
 
       this.setEvents();
 
@@ -54,7 +54,11 @@ export class Game extends ECS {
     });
   }
 
-  private buildMap(playerX: number, playerY: number) {
+  private buildMap(
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
     return new Promise<void>((resolve) => {
       // Set scene settings
       Settings.scene.columns = this.map.columns;
@@ -74,14 +78,26 @@ export class Game extends ECS {
         for (let column = 0; column < this.map.columns; column += 1) {
           const tile = this.map.terrains[row * this.map.columns + column];
           if (tile !== null) {
-            const [source, sourceX, sourceY] = terrainsIndex[tile];
+            const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
+            const x = column * Settings.tileSize;
+            const y = row * Settings.tileSize;
+
             terrains.push({
               source,
               sourceX,
               sourceY,
-              x: column * Settings.tileSize,
-              y: row * Settings.tileSize,
+              x,
+              y,
             });
+
+            if (collisions) {
+              collisions.forEach((collision) => {
+                const { x: colX, y: colY, width, height } = collision;
+                this.addEntity(
+                  new InvisibleWall(x + colX, y + colY, width, height)
+                );
+              });
+            }
           }
         }
       }
@@ -114,7 +130,7 @@ export class Game extends ECS {
       });
 
       // Add a new player instance
-      const player = new Player(playerX, playerY);
+      const player = new Player(playerX, playerY, playerDirection);
       this.get(PlayerSystem).setPlayer(player);
       this.addEntity(player);
 
@@ -125,7 +141,7 @@ export class Game extends ECS {
 
       // Load textures
       this.get(RenderSystem)
-        .loadTextures(this.getEntities())
+        .loadTextures()
         .then(() => {
           Emitter.emit('scene-loaded');
           resolve();
@@ -161,20 +177,9 @@ export class Game extends ECS {
     });
 
     // Switch map
-    Emitter.on(
-      'switch-map',
-      ({
-        map,
-        playerX,
-        playerY,
-      }: {
-        map: string;
-        playerX: number;
-        playerY: number;
-      }) => {
-        this.switchMap(map, playerX, playerY);
-      }
-    );
+    Emitter.on('switch-map', ({ map, playerX, playerY, playerDirection }) => {
+      this.switchMap(map, playerX, playerY, playerDirection);
+    });
 
     Emitter.on('hit', () => {
       if (this.freeze) {
@@ -193,14 +198,21 @@ export class Game extends ECS {
     });
   }
 
-  private switchMap(map: string, playerX: number, playerY: number) {
+  private switchMap(
+    map: string,
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
     this.get(AISystem).clear();
 
     setTimeout(async () => {
+      this.pause();
       this.clearEntities();
 
       await this.setMap(map);
-      this.buildMap(playerX, playerY);
+      await this.buildMap(playerX, playerY, playerDirection);
+      this.resume();
     }, Settings.transitionDuration);
   }
 

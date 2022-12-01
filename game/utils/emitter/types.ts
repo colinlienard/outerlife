@@ -1,13 +1,13 @@
 import { Entity } from '~~/game/utils/ecs/entity';
+import { Direction } from '../types';
 
 export interface EventMap {
   'scene-loaded': () => void;
   'switch-map': (options: {
     map: string;
-
     playerX: number;
-
     playerY: number;
+    playerDirection: Direction;
   }) => void;
   spawn: (entity: Entity) => void;
   despawn: (id: number) => void;

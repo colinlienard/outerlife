@@ -1,42 +1,42 @@
-import { Entity } from '~~/game/utils';
 import {
   CollisionComponent,
+  LayersComponent,
   PositionComponent,
   SpriteComponent,
-  LayersComponent,
 } from '~~/game/components';
+import { Entity } from '~~/game/utils';
 
-export class Tree002 extends Entity {
+export class Rock4 extends Entity {
   constructor(x: number, y: number) {
     super();
     this.add(
       new CollisionComponent([
         {
           type: 'environment',
-          x: 24,
-          y: 74,
-          width: 16,
-          height: 12,
+          x: 0,
+          y: 16,
+          width: 24,
+          height: 8,
         },
       ])
     );
-    this.add(new PositionComponent(x, y, 64, 86));
+    this.add(new PositionComponent(x, y));
     this.add(
-      new SpriteComponent('/sprites/environments-001.png', 64, 0, 64, 86)
+      new SpriteComponent('/sprites/desert-environments.png', 83, 2, 24, 24)
     );
     this.add(
       new LayersComponent([
         {
           type: 'sprite',
-          source: '/sprites/environments-001.png',
-          sourceX: 64,
-          sourceY: 96,
-          width: 64,
-          height: 16,
+          source: '/sprites/desert-environments.png',
+          sourceX: 81,
+          sourceY: 32,
+          width: 30,
+          height: 14,
           render: true,
           data: {
             x: 0,
-            y: 74,
+            y: 14,
             rotation: 0,
             depth: -1,
           },

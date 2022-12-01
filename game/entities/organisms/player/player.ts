@@ -10,11 +10,17 @@ import {
   LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
+import {
+  Direction,
+  Emitter,
+  Entity,
+  getAngleFromDirection,
+  getPointFromAngle,
+} from '~~/game/utils';
 import { Dust, Slash } from '../../effects';
 
 export class Player extends Entity {
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, direction: Direction) {
     super();
     this.add(
       new AnimationComponent(
@@ -58,7 +64,7 @@ export class Player extends Entity {
             then: 'die',
           },
         },
-        1,
+        0,
         [
           {
             action: () => this.spawnDust(),
@@ -95,9 +101,9 @@ export class Player extends Entity {
       new CollisionComponent([
         {
           type: 'hitbox',
-          x: 8,
+          x: 7,
           y: 26,
-          width: 16,
+          width: 18,
           height: 8,
         },
         {
@@ -618,7 +624,9 @@ export class Player extends Entity {
       ])
     );
     this.add(new MeleeAttackComponent(3, 0.3));
-    this.add(new MovementComponent(1.5, 0.1, 0.15));
+    this.add(
+      new MovementComponent(1.5, 0.1, 0.15, getAngleFromDirection(direction))
+    );
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/player.png', 0, 0, 32, 32));
     this.add(new StateMachineComponent());
@@ -641,6 +649,6 @@ export class Player extends Entity {
 
   spawnDust() {
     const { x: xPos, y: yPos } = this.get(PositionComponent);
-    Emitter.emit('spawn', new Dust(xPos + 8, yPos + 24));
+    Emitter.emit('spawn', new Dust(xPos, yPos + 16));
   }
 }

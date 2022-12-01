@@ -70,6 +70,16 @@ export class Editor {
     this.terrains = this.terrains.map((v, i) => (i === index ? value : v));
   }
 
+  getTerrain(column: number, row: number): number | null {
+    // Avoid placing terrain out of the map
+    if (column > this.columns - 1) {
+      return null;
+    }
+
+    const index = row * this.columns + column;
+    return this.terrains[index];
+  }
+
   placeEntity(
     x: number,
     y: number,
@@ -144,6 +154,7 @@ export class Editor {
         map: '',
         playerX: 0,
         playerY: 0,
+        playerDirection: 'down',
       },
     });
   }
