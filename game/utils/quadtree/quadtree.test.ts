@@ -3,6 +3,8 @@ import { Box } from '../types';
 import { QuadTree } from './quadtree';
 
 class Item implements Box {
+  id: number;
+
   x: number;
 
   y: number;
@@ -11,7 +13,8 @@ class Item implements Box {
 
   height: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(id: number, x: number, y: number, width: number, height: number) {
+    this.id = id;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -33,23 +36,23 @@ describe('quadtree', () => {
   });
 
   it('should add an item', () => {
-    tree.add(new Item(0, 0, 50, 50));
+    tree.add(new Item(1, 0, 0, 50, 50));
 
-    expect(tree.items.length).toBe(1);
+    expect(tree.items.size).toBe(1);
   });
 
   it('should add items out of the boundaries', () => {
-    tree.add(new Item(600, 0, 50, 50));
-    tree.add(new Item(0, 400, 50, 50));
+    tree.add(new Item(2, 600, 0, 50, 50));
+    tree.add(new Item(3, 0, 400, 50, 50));
 
-    expect(tree.items.length).toBe(1);
+    expect(tree.items.size).toBe(1);
   });
 
   it('should split the tree', () => {
-    tree.add(new Item(100, 0, 50, 50));
-    tree.add(new Item(100, 300, 50, 50));
-    tree.add(new Item(200, 150, 100, 100));
-    tree.add(new Item(550, 350, 50, 50));
+    tree.add(new Item(4, 100, 0, 50, 50));
+    tree.add(new Item(5, 100, 300, 50, 50));
+    tree.add(new Item(6, 200, 150, 100, 100));
+    tree.add(new Item(7, 550, 350, 50, 50));
 
     expect(tree.items).toBeNull();
     expect(tree.nodes.length).toBe(4);
@@ -65,10 +68,17 @@ describe('quadtree', () => {
     expect(tree.get(400, 100, 10, 200).length).toBe(1);
   });
 
-  it('should clear the tree', () => {
-    tree.clear();
+  it('should delete an item', () => {
+    tree.delete(4);
 
-    expect(tree.items.length).toBe(0);
+    expect(tree.get(0, 0, 100, 100).length).toBe(2);
+    expect(tree.delete(2)).toBeFalsy();
+  });
+
+  it('should clear the tree', () => {
+    tree.reset(0, 0, 500, 500);
+
+    expect(tree.items.size).toBe(0);
     expect(tree.nodes).toBeNull();
   });
 });

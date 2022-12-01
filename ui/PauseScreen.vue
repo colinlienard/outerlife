@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Ref } from 'vue';
-import { navigateTo } from '~~/.nuxt/imports';
 import { Game } from '~~/game';
+import { Settings } from '~~/game/utils';
 import MenuButton from './menus/MenuButton.vue';
 import MenuButtonsList from './menus/MenuButtonsList.vue';
 import MenuTitle from './menus/MenuTitle.vue';
 import MenuCheck from './menus/MenuCheck.vue';
-import { Settings } from '~~/game/utils';
 
 const paused = ref(false);
 const showOptions = ref(false);
@@ -47,6 +46,7 @@ watch(paused, (newPaused) => {
         <MenuButtonsList>
           <MenuButton @click="paused = false">Resume</MenuButton>
           <MenuButton @click="showOptions = true">Options</MenuButton>
+          <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
           <MenuButton>Quit</MenuButton>
         </MenuButtonsList>
       </article>
@@ -68,7 +68,6 @@ watch(paused, (newPaused) => {
           >
             Debug mode
           </MenuCheck>
-          <MenuButton @click="navigateTo('/editor')">Map editor</MenuButton>
         </MenuButtonsList>
       </article>
     </div>

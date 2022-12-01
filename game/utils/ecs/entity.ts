@@ -1,17 +1,38 @@
+/* eslint-disable max-classes-per-file */
 import { Component, ComponentConstructor } from './component';
 
-export abstract class Entity {
+class EntityId {
+  private static id = 0;
+
+  static get() {
+    this.id += 1;
+    return this.id;
+  }
+}
+
+export class Entity {
+  readonly id: number;
+
+  // eslint-disable-next-line class-methods-use-this
+  private check: () => void = () => null;
+
   private components: Map<ComponentConstructor, Component> = new Map();
 
-  add(component: Component, as?: ComponentConstructor) {
+  constructor() {
+    this.id = EntityId.get();
+  }
+
+  add(component: Component) {
     this.components.set(
-      as || (component.constructor as ComponentConstructor),
+      component.constructor as ComponentConstructor,
       component
     );
+    this.check();
   }
 
   delete(constructor: ComponentConstructor) {
     this.components.delete(constructor);
+    this.check();
   }
 
   get<T extends Component>(component: new (...args: any[]) => T) {
@@ -31,4 +52,10 @@ export abstract class Entity {
 
     return true;
   }
+
+  setCheck(check: (id: number) => void) {
+    this.check = () => check(this.id);
+  }
 }
+
+export type EntityConstructor = new (...args: any[]) => Entity;

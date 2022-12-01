@@ -1,14 +1,13 @@
-import { defineNuxtConfig } from 'nuxt';
+import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
   components: {
     dirs: ['~/ui'],
   },
   css: ['~/styles/reset.scss', '~/styles/global.scss'],
+  modules: ['@pinia/nuxt'],
   ssr: false,
-  target: 'static',
   typescript: {
     strict: true,
-    typeCheck: true,
   },
 });

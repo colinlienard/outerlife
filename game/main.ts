@@ -1,51 +1,42 @@
-import { environmentTiles, map002, terrainTiles, tilemapIndex } from './data';
+import { environmentsIndex, organismsIndex, terrainsIndex } from './data';
 import { Interaction, InvisibleWall, Player } from './entities';
 import {
-  Animator,
-  MeleeAttacker,
-  Camera,
-  Collider,
-  Mover,
-  Renderer,
+  AISystem,
+  AnimationSystem,
+  CameraSystem,
+  CollisionSystem,
+  MovementSystem,
+  PlayerSystem,
+  RenderSystem,
 } from './systems';
-import { ECS, Emitter, Entity, Settings, Terrain, Tilemap } from './utils';
+import { Direction, ECS, Emitter, GameMap, Settings, Terrain } from './utils';
 
 export class Game extends ECS {
-  protected entities: Entity[] = [];
+  private map!: GameMap;
 
-  private tilemap: Tilemap = map002;
-
-  fps = 0;
+  private freeze = false;
 
   paused = false;
 
-  constructor(gameCanvas: HTMLCanvasElement, debugCanvas: HTMLCanvasElement) {
+  fps = 0;
+
+  constructor(gameCanvas: HTMLCanvasElement) {
     super();
 
-    const options = {
-      alpha: false,
-      antialias: false,
-      premultipliedAlpha: false,
-    };
-    const gameContext = gameCanvas.getContext('webgl2', options);
-    const debugContext = debugCanvas.getContext('2d');
+    // Setup systems
+    this.add(new PlayerSystem());
+    this.add(new AISystem());
+    this.add(new MovementSystem());
+    this.add(new CollisionSystem());
+    this.add(new AnimationSystem());
+    this.add(new CameraSystem());
+    this.add(new RenderSystem(gameCanvas));
 
-    this.add(new MeleeAttacker());
-    this.add(new Mover());
-    this.add(new Collider());
-    this.add(new Animator());
-    this.add(new Camera());
-    this.add(
-      new Renderer(
-        gameContext as WebGL2RenderingContext,
-        debugContext as CanvasRenderingContext2D
-      )
-    );
-
+    // Create the world and start the game
     (async () => {
-      await this.buildMap(300, 300);
+      await this.setMap('map-1');
 
-      this.setSystemsEntities();
+      await this.buildMap(340, 230, 'down');
 
       this.setEvents();
 
@@ -53,88 +44,107 @@ export class Game extends ECS {
     })();
   }
 
-  private buildMap(playerX: number, playerY: number) {
-    return new Promise((resolve) => {
-      // Set scene settings
-      Settings.scene.columns = this.tilemap.columns;
-      Settings.scene.rows = this.tilemap.rows;
-      Settings.scene.width = this.tilemap.columns * Settings.tileSize;
-      Settings.scene.height = this.tilemap.rows * Settings.tileSize;
+  private setMap(source: string) {
+    return new Promise<void>(async (resolve) => {
+      const map = (await import(`~~/game/data/maps/${source}.json`)) as GameMap;
+      if (map) {
+        this.map = map;
+        resolve();
+      }
+    });
+  }
 
-      // Reset the scene
-      this.entities = [];
+  private buildMap(
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
+    return new Promise<void>((resolve) => {
+      // Set scene settings
+      Settings.scene.columns = this.map.columns;
+      Settings.scene.rows = this.map.rows;
+      Settings.scene.width = this.map.columns * Settings.tileSize;
+      Settings.scene.height = this.map.rows * Settings.tileSize;
+
+      // Reset world
+      this.get(CollisionSystem).reset();
+      this.get(RenderSystem).reset();
 
       // Prepare terrains for the renderer
       const terrains: Terrain[] = [];
 
-      // Build the scene
-      for (let row = 0; row < this.tilemap.rows; row += 1) {
-        for (let column = 0; column < this.tilemap.columns; column += 1) {
-          const tile = row * this.tilemap.columns + column;
+      // Build terrain
+      for (let row = 0; row < this.map.rows; row += 1) {
+        for (let column = 0; column < this.map.columns; column += 1) {
+          const tile = this.map.terrains[row * this.map.columns + column];
+          if (tile !== null) {
+            const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
+            const x = column * Settings.tileSize;
+            const y = row * Settings.tileSize;
 
-          // Build terrain
-          const terrain = terrainTiles[this.tilemap.terrains[tile]];
-          terrains.push({
-            source: terrain.source,
-            sourceX: terrain.x,
-            sourceY: terrain.y,
-            x: column * Settings.tileSize,
-            y: row * Settings.tileSize,
-          });
-          if (terrain.collision) {
-            const { x, y, width, height } = terrain.collision;
-            this.entities.push(
-              new InvisibleWall(
-                x + column * Settings.tileSize,
-                y + row * Settings.tileSize,
-                width,
-                height
-              )
-            );
-          }
+            terrains.push({
+              source,
+              sourceX,
+              sourceY,
+              x,
+              y,
+            });
 
-          // Build environments
-          const Environment = environmentTiles[this.tilemap.environments[tile]];
-          if (Environment) {
-            const environment = new Environment(
-              column * Settings.tileSize,
-              row * Settings.tileSize
-            );
-            this.entities.push(environment);
+            if (collisions) {
+              collisions.forEach((collision) => {
+                const { x: colX, y: colY, width, height } = collision;
+                this.addEntity(
+                  new InvisibleWall(x + colX, y + colY, width, height)
+                );
+              });
+            }
           }
         }
       }
 
-      this.get(Renderer).setTerrains(terrains);
+      this.get(RenderSystem).setTerrains(terrains);
+
+      // Build environments
+      this.map.environments.forEach(([x, y, constructorId]) => {
+        const Environment = environmentsIndex[constructorId];
+        this.addEntity(new Environment(x, y));
+      });
+
+      // Build organisms
+      this.map.organisms.forEach(([x, y, constructorId]) => {
+        const Organism = organismsIndex[constructorId];
+        this.addEntity(new Organism(x, y));
+      });
 
       // Build interactions
-      this.tilemap.interactions.forEach((interaction) => {
-        this.entities.push(
+      this.map.interactions.forEach((interaction) => {
+        this.addEntity(
           new Interaction(
             interaction.x,
             interaction.y,
             interaction.width,
             interaction.height,
-            interaction.enter
+            interaction.data
           )
         );
       });
 
       // Add a new player instance
-      const player = new Player(playerX, playerY);
-      this.entities.push(player);
+      const player = new Player(playerX, playerY, playerDirection);
+      this.get(PlayerSystem).setPlayer(player);
+      this.addEntity(player);
 
       // Setup camera
-      const camera = this.get(Camera);
+      const camera = this.get(CameraSystem);
       camera.setPlayer(player);
       camera.init();
 
       // Load textures
-      this.get(Renderer)
-        .loadTextures(this.entities)
+      this.get(RenderSystem)
+        .loadTextures()
         .then(() => {
           Emitter.emit('scene-loaded');
-          resolve(null);
+          resolve();
         });
     });
   }
@@ -148,8 +158,8 @@ export class Game extends ECS {
         ) / 10;
     }
 
-    if (!this.paused) {
-      this.updateSystems();
+    if (!this.paused && !this.freeze) {
+      this.update();
     }
 
     requestAnimationFrame((timeStamp) => this.loop(timeStamp, time));
@@ -158,47 +168,51 @@ export class Game extends ECS {
   private setEvents() {
     // Add entity to the scene
     Emitter.on('spawn', (entity) => {
-      this.entities.push(entity);
-      this.setSystemsEntities();
+      this.addEntity(entity);
     });
 
     // Remove entity from the scene
-    Emitter.on('despawn', (entity) => {
-      delete this.entities[this.entities.indexOf(entity)];
-      this.setSystemsEntities();
+    Emitter.on('despawn', (id) => {
+      this.deleteEntity(id);
     });
 
     // Switch map
-    Emitter.on(
-      'switch-map',
-      ({
-        map,
-        playerX,
-        playerY,
-      }: {
-        map: string;
-        playerX: number;
-        playerY: number;
-      }) => {
-        this.switchMap(map, playerX, playerY);
+    Emitter.on('switch-map', ({ map, playerX, playerY, playerDirection }) => {
+      this.switchMap(map, playerX, playerY, playerDirection);
+    });
+
+    Emitter.on('hit', () => {
+      if (this.freeze) {
+        return;
       }
-    );
+      this.freeze = true;
+      setTimeout(() => {
+        this.freeze = false;
+      }, 50);
+    });
 
     // Resize
     window.addEventListener('resize', () => {
-      this.get(Renderer).resize();
-      this.get(Camera).resize();
+      this.get(RenderSystem).resize();
+      this.get(CameraSystem).resize();
     });
   }
 
-  private switchMap(map: string, playerX: number, playerY: number) {
-    setTimeout(() => {
-      this.entities = [];
-      this.setSystemsEntities();
+  private switchMap(
+    map: string,
+    playerX: number,
+    playerY: number,
+    playerDirection: Direction
+  ) {
+    this.get(AISystem).clear();
 
-      this.tilemap = tilemapIndex[map];
-      this.buildMap(playerX, playerY);
-      this.setSystemsEntities();
+    setTimeout(async () => {
+      this.pause();
+      this.clearEntities();
+
+      await this.setMap(map);
+      await this.buildMap(playerX, playerY, playerDirection);
+      this.resume();
     }, Settings.transitionDuration);
   }
 

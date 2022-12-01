@@ -1,9 +1,12 @@
-import { Collision, Position, Sprite } from '~~/game/components';
-import { Entity } from '~~/game/utils';
+import {
+  CollisionComponent,
+  PositionComponent,
+  SpriteComponent,
+} from '~~/game/components';
+import { Emitter, Entity, InteractionData } from '~~/game/utils';
 
 export class Interaction extends Entity {
-  // eslint-disable-next-line class-methods-use-this
-  enter: () => void = () => null;
+  data: InteractionData;
 
   entered = false;
 
@@ -12,13 +15,36 @@ export class Interaction extends Entity {
     y: number,
     width: number,
     height: number,
-    enter: () => void
+    data: InteractionData
   ) {
     super();
-    this.add(new Collision('interaction', 0, 0, width, height));
-    this.add(new Position(x, y));
-    this.add(new Sprite('/sprites/player.png', 0, 0, 0, 0)); // Fake sprite so that its collision can be rendered
+    this.add(
+      new CollisionComponent([
+        {
+          type: 'interaction',
+          x: 0,
+          y: 0,
+          width,
+          height,
+        },
+      ])
+    );
+    this.add(new PositionComponent(x, y));
+    this.add(new SpriteComponent('/sprites/player.png', 0, 0, 0, 0)); // Fake sprite so that its collision can be rendered
 
-    this.enter = enter;
+    this.data = data;
+  }
+
+  enter() {
+    switch (this.data.type) {
+      case 'switch-map': {
+        const { map, playerX, playerY, playerDirection } = this.data;
+        Emitter.emit('switch-map', { map, playerX, playerY, playerDirection });
+        break;
+      }
+
+      default:
+        break;
+    }
   }
 }

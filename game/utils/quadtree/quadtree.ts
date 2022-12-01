@@ -1,25 +1,24 @@
-import { Box } from '../types';
-import { IQuadTree } from './types';
+import { IQuadTree, QuadTreeItem } from './types';
 
 const MAX_ITEMS = 4;
 const MAX_DEPTH = 4;
 
-export class QuadTree<T extends Box> implements IQuadTree<T> {
-  private items: T[] | null = [];
+export class QuadTree<T extends QuadTreeItem> implements IQuadTree<T> {
+  private items: Map<number, T> | null = new Map();
 
   private nodes:
     | [IQuadTree<T>, IQuadTree<T>, IQuadTree<T>, IQuadTree<T>]
     | null = null;
 
-  readonly x: number;
+  x: number;
 
-  readonly y: number;
+  y: number;
 
-  readonly width: number;
+  width: number;
 
-  readonly height: number;
+  height: number;
 
-  readonly depth: number;
+  depth: number;
 
   constructor(
     x: number,
@@ -53,7 +52,11 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
   }
 
   private split(item: T) {
-    const items = [...(this.items as T[]), item];
+    if (!this.items) {
+      return;
+    }
+
+    const items = [...this.items.values(), item];
     this.items = null;
 
     const splitWidth = this.width / 2;
@@ -102,8 +105,8 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     }
 
     if (this.items) {
-      if (this.items.length < MAX_ITEMS || this.depth === MAX_DEPTH) {
-        this.items.push(item);
+      if (this.items.size < MAX_ITEMS || this.depth === MAX_DEPTH) {
+        this.items.set(item.id, item);
         return;
       }
 
@@ -114,9 +117,17 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     this.addToNode(item);
   }
 
-  clear() {
-    this.items = [];
-    this.nodes = null;
+  delete(id: number) {
+    if (this.items) {
+      return this.items.delete(id);
+    }
+
+    return (
+      this.nodes?.reduce(
+        (previous, current) => current.delete(id) || previous,
+        false
+      ) || false
+    );
   }
 
   get(x: number, y: number, width: number, height: number) {
@@ -130,7 +141,7 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
     }
 
     if (this.items) {
-      return this.items;
+      return Array.from(this.items.values());
     }
 
     const result: T[] = [];
@@ -138,5 +149,15 @@ export class QuadTree<T extends Box> implements IQuadTree<T> {
       result.push(...node.get(x, y, width, height));
     });
     return result;
+  }
+
+  reset(x: number, y: number, width: number, height: number) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+
+    this.items = new Map();
+    this.nodes = null;
   }
 }

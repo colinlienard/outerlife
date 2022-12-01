@@ -1,187 +1,435 @@
-import { environmentTiles, terrainTiles } from '~~/game/data';
-import { Settings, Tilemap } from '~~/game/utils';
+import { AnimationComponent, SpriteComponent } from '~~/game/components';
+import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
+import { Engine } from '~~/game/engine';
+import {
+  GameMap,
+  GameMapEntity,
+  GameMapInteraction,
+  GameMapItemType,
+  GameMapTerrain,
+  Settings,
+} from '~~/game/utils';
 
-class Editor {
-  context: CanvasRenderingContext2D;
+type EditorEntity = { data: GameMapEntity; type: GameMapItemType };
 
-  images: { [key: string]: HTMLImageElement } = {};
+export class Editor {
+  private readonly engine!: Engine;
 
-  ratio = 0;
+  private terrains: GameMapTerrain[] = [];
 
-  tilemap: Tilemap = {
-    rows: 0,
-    columns: 0,
-    terrains: [],
-    environments: [],
-    interactions: [],
-  };
+  private entities: EditorEntity[] = [];
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
-  }
+  private interactions: GameMapInteraction[] = [];
 
-  bindImages() {
-    const images: { [key: string]: HTMLImageElement } = {};
+  private ratio: number;
 
-    Object.values(terrainTiles).reduce((previous: string[], { source }) => {
-      if (previous.includes(source)) {
-        return previous;
-      }
-      const image = new Image();
-      image.src = `/sprites/${source}.png`;
-      images[`${source}`] = image;
-      return [...previous, source];
-    }, []);
+  private showGrid: boolean = true;
 
-    this.images = images;
-  }
+  private rows: number;
 
-  changeMap(map: Tilemap) {
-    this.tilemap.terrains = map.terrains;
-    this.tilemap.environments = map.environments;
+  private columns: number;
 
-    this.clear();
-    this.drawMap();
-  }
+  constructor(
+    canvas: HTMLCanvasElement,
+    rows: number,
+    columns: number,
+    ratio: number,
+    render = true
+  ) {
+    this.ratio = ratio;
+    this.rows = rows;
+    this.columns = columns;
 
-  clear() {
-    this.context.clearRect(
-      0,
-      0,
-      this.tilemap.columns * Settings.tileSize * this.ratio,
-      this.tilemap.rows * Settings.tileSize * this.ratio
+    this.terrains = [...new Array(rows * columns)].map(() => null);
+
+    if (!render) {
+      return;
+    }
+
+    // Setup rendering context
+    this.engine = new Engine(canvas);
+    this.engine.resize();
+
+    const spritesFolder = import.meta.glob('/public/sprites/*.png');
+    const sources = Object.keys(spritesFolder).map((source) =>
+      source.replace('/public', '')
     );
+    this.engine.loadTextures(sources).then(() => {
+      this.render();
+    });
   }
 
-  drawEnvironment() {
-    for (let row = 0; row < this.tilemap.rows; row += 1) {
-      for (let column = 0; column < this.tilemap.columns; column += 1) {
-        const Tile =
-          environmentTiles[
-            this.tilemap.environments[row * this.tilemap.columns + column]
-          ];
-        if (Tile) {
-          const instance = new Tile(0, 0);
-          // @ts-ignore
-          const { sprite } = instance;
-          const x = column * Settings.tileSize - sprite.width / 2 + 8;
-          const y = row * Settings.tileSize - sprite.height + 8;
-          sprite.image.onload = () => {
-            if (sprite.shadow) {
-              const { shadow } = sprite;
-              this.context.drawImage(
-                sprite.image,
-                shadow.sourceX, // position x in the source image
-                shadow.sourceY, // position y in the source image
-                shadow.width, // width of the sprite in the source image
-                shadow.height, // height of the sprite in the source image
-                (x + shadow.x) * this.ratio, // position x in the canvas
-                (y + shadow.y) * this.ratio, // position y in the canvas
-                shadow.width * this.ratio, // width of the sprite in the canvas
-                shadow.height * this.ratio // height of the sprite in the canvas
-              );
-            }
-            this.context.drawImage(
-              sprite.image,
-              sprite.sourceX as number, // position x in the source image
-              sprite.sourceY as number, // position y in the source image
-              sprite.width, // width of the sprite in the source image
-              sprite.height, // height of the sprite in the source image
-              x * this.ratio, // position x in the canvas
-              y * this.ratio, // position y in the canvas
-              sprite.width * this.ratio, // width of the sprite in the canvas
-              sprite.height * this.ratio // height of the sprite in the canvas
-            );
+  placeTerrain(column: number, row: number, value: number | null) {
+    // Avoid placing terrain out of the map
+    if (column > this.columns - 1) {
+      return;
+    }
+
+    // Update map
+    const index = row * this.columns + column;
+    this.terrains = this.terrains.map((v, i) => (i === index ? value : v));
+  }
+
+  getTerrain(column: number, row: number): number | null {
+    // Avoid placing terrain out of the map
+    if (column > this.columns - 1) {
+      return null;
+    }
+
+    const index = row * this.columns + column;
+    return this.terrains[index];
+  }
+
+  placeEntity(
+    x: number,
+    y: number,
+    constructorId: number,
+    type: GameMapItemType
+  ) {
+    const index = type === 'environment' ? environmentsIndex : organismsIndex;
+    const { width, height } = new index[constructorId]().get(SpriteComponent);
+    this.entities.push({
+      data: [x - width / 2, y - height / 2, constructorId],
+      type,
+    });
+    this.entities.sort((a, b) => {
+      const indexA =
+        a.type === 'environment' ? environmentsIndex : organismsIndex;
+      const indexB =
+        b.type === 'environment' ? environmentsIndex : organismsIndex;
+      return a.data[1] + new indexA[a.data[2]]().get(SpriteComponent).height >
+        b.data[1] + new indexB[b.data[2]]().get(SpriteComponent).height
+        ? 1
+        : -1;
+    });
+  }
+
+  selectEntity(x: number, y: number, type: GameMapItemType) {
+    for (const entity of this.entities) {
+      if (entity.type === type) {
+        const index =
+          type === 'environment' ? environmentsIndex : organismsIndex;
+        const sprite = new index[entity.data[2]]().get(SpriteComponent);
+        if (
+          x > entity.data[0] &&
+          x < entity.data[0] + sprite.width &&
+          y > entity.data[1] &&
+          y < entity.data[1] + sprite.height
+        ) {
+          return {
+            x: entity.data[0],
+            y: entity.data[1],
+            index: this.entities.indexOf(entity),
           };
         }
       }
     }
+
+    return null;
   }
 
-  drawMap() {
-    this.clear();
-    this.drawTerrain();
-    this.drawEnvironment();
+  updateEntity(x: number, y: number, index: number) {
+    for (let i = 0; i < this.entities.length; i += 1) {
+      if (i === index) {
+        this.entities[index].data = [x, y, this.entities[index].data[2]];
+        return;
+      }
+    }
   }
 
-  drawTerrain() {
-    for (let row = 0; row < this.tilemap.rows; row += 1) {
-      for (let column = 0; column < this.tilemap.columns; column += 1) {
-        const tile =
-          terrainTiles[
-            this.tilemap.terrains[row * this.tilemap.columns + column]
-          ];
-        if (tile) {
-          this.context.drawImage(
-            this.images[tile.source],
-            tile.x, // position x in the source image
-            tile.y, // position y in the source image
-            Settings.tileSize, // width of the sprite in the source image
-            Settings.tileSize, // height of the sprite in the source image
-            column * Settings.tileSize * this.ratio, // position x in the canvas
-            row * Settings.tileSize * this.ratio, // position y in the canvas
-            Settings.tileSize * this.ratio, // width of the sprite in the canvas
-            Settings.tileSize * this.ratio // height of the sprite in the canvas
-          );
+  deleteEntity(index: number) {
+    this.entities = this.entities.filter((_, i) => i !== index);
+  }
+
+  placeInteraction(x: number, y: number) {
+    const width = 16;
+    const height = 16;
+    this.interactions.push({
+      x: x - width / 2,
+      y: y - height / 2,
+      width,
+      height,
+      data: {
+        type: 'switch-map',
+        map: '',
+        playerX: 0,
+        playerY: 0,
+        playerDirection: 'down',
+      },
+    });
+  }
+
+  selectInteraction(x: number, y: number) {
+    for (const interaction of this.interactions) {
+      if (
+        x > interaction.x &&
+        x < interaction.x + interaction.width &&
+        y > interaction.y &&
+        y < interaction.y + interaction.height
+      ) {
+        return {
+          ...interaction,
+          index: this.interactions.indexOf(interaction),
+        };
+      }
+    }
+
+    return null;
+  }
+
+  updateInteraction(data: GameMapInteraction, index: number) {
+    for (let i = 0; i < this.interactions.length; i += 1) {
+      if (i === index) {
+        this.interactions[index] = { ...this.interactions[index], ...data };
+        return;
+      }
+    }
+  }
+
+  deleteInteraction(index: number) {
+    this.interactions = this.interactions.filter((_, i) => i !== index);
+  }
+
+  getInteractions() {
+    return this.interactions;
+  }
+
+  getMap(): GameMap {
+    const environments = this.entities
+      .filter((entity) => entity.type === 'environment')
+      .map((entity) => entity.data);
+    const organisms = this.entities
+      .filter((entity) => entity.type === 'organism')
+      .map((entity) => entity.data);
+
+    return {
+      rows: this.rows,
+      columns: this.columns,
+      terrains: this.terrains,
+      environments,
+      organisms,
+      interactions: this.interactions,
+    };
+  }
+
+  setMapData(map: GameMap) {
+    this.terrains = map.terrains;
+
+    const environments = map.environments.map((environment) => ({
+      data: environment,
+      type: 'environment',
+    })) as EditorEntity[];
+    const organisms = map.organisms.map((organism) => ({
+      data: organism,
+      type: 'organism',
+    })) as EditorEntity[];
+    this.entities = [...environments, ...organisms];
+
+    this.interactions = map.interactions;
+  }
+
+  render() {
+    this.engine.clear();
+
+    // Render terrains
+    this.terrains.forEach((item, index) => {
+      if (item === null) {
+        return;
+      }
+
+      const [source, x, y] = terrainsIndex[item];
+      const column = index % this.columns;
+      const row = Math.floor(index / this.columns);
+
+      this.engine.queueTextureRender(
+        source,
+        x,
+        y,
+        Settings.tileSize,
+        Settings.tileSize,
+        column * Settings.tileSize * this.ratio,
+        row * Settings.tileSize * this.ratio,
+        Settings.tileSize * this.ratio,
+        Settings.tileSize * this.ratio
+      );
+    });
+
+    // Render entitiess
+    this.entities.forEach(({ data, type }) => {
+      const [x, y, constructorId] = data;
+      const index = type === 'environment' ? environmentsIndex : organismsIndex;
+      const entity = new index[constructorId]();
+      const { source, sourceX, sourceY, width, height } =
+        entity.get(SpriteComponent);
+      const animation = entity.get(AnimationComponent);
+
+      this.engine.queueTextureRender(
+        source,
+        animation ? 0 : sourceX,
+        animation ? height : sourceY,
+        width,
+        height,
+        x * this.ratio,
+        y * this.ratio,
+        width * this.ratio,
+        height * this.ratio
+      );
+    });
+
+    // Render interactions
+    this.interactions.forEach(({ x, y, width, height }) => {
+      this.engine.queueTextureRender(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
+        x * this.ratio,
+        y * this.ratio,
+        width * this.ratio,
+        height * this.ratio
+      );
+    });
+
+    if (this.showGrid) {
+      this.renderGrid();
+    }
+
+    this.engine.render();
+    this.engine.flush();
+  }
+
+  renderGrid() {
+    // Render rows
+    for (let index = 0; index < this.rows + 1; index += 1) {
+      this.engine.queueTextureRender(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
+        0,
+        index * Settings.tileSize * this.ratio,
+        this.columns * Settings.tileSize * this.ratio,
+        1
+      );
+    }
+
+    // Render columns
+    for (let index = 0; index < this.columns + 1; index += 1) {
+      this.engine.queueTextureRender(
+        '/sprites/guidelines.png',
+        2,
+        0,
+        1,
+        1,
+        index * Settings.tileSize * this.ratio,
+        0,
+        1,
+        this.rows * Settings.tileSize * this.ratio
+      );
+    }
+  }
+
+  updateSettings(
+    rows: number,
+    columns: number,
+    ratio: number,
+    pan: { x: number; y: number },
+    showGrid: boolean,
+    mapGrowsAfter: boolean
+  ) {
+    // Handle row added or removed
+    if (rows !== this.rows) {
+      if (rows > this.rows) {
+        const difference = rows - this.rows;
+        const newRow = [...new Array(this.columns * difference)].map(
+          () => null
+        );
+        this.terrains = mapGrowsAfter
+          ? [...this.terrains, ...newRow]
+          : [...newRow, ...this.terrains];
+
+        if (!mapGrowsAfter) {
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            data: [
+              entity.data[0],
+              entity.data[1] + Settings.tileSize * difference,
+              entity.data[2],
+            ],
+          }));
+        }
+      } else {
+        const difference = this.rows - rows;
+        this.terrains.splice(
+          mapGrowsAfter ? this.terrains.length - this.columns * difference : 0,
+          columns * difference
+        );
+
+        if (!mapGrowsAfter) {
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            data: [
+              entity.data[0],
+              entity.data[1] - Settings.tileSize * difference,
+              entity.data[2],
+            ],
+          }));
         }
       }
     }
-  }
 
-  fillWithVoid() {
-    for (let i = 0; i < this.tilemap.rows * this.tilemap.columns; i += 1) {
-      this.tilemap.terrains.push('000');
-      this.tilemap.environments.push('000');
-    }
-  }
+    // Handle column added or removed
+    if (columns !== this.columns) {
+      if (columns > this.columns) {
+        const difference = columns - this.columns;
+        for (let row = 1; row < rows + 1; row += 1) {
+          const start = mapGrowsAfter
+            ? this.columns * row + difference * (row - 1)
+            : this.columns * (row - 1) + difference * (row - 1);
+          this.terrains.splice(
+            start,
+            0,
+            ...[...new Array(difference)].map(() => null)
+          );
+        }
 
-  getTile(
-    row: number,
-    column: number,
-    type: 'terrains' | 'environments'
-  ): string {
-    return this.tilemap[type][row * this.tilemap.columns + column];
-  }
+        if (!mapGrowsAfter) {
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            data: [
+              entity.data[0] + Settings.tileSize * difference,
+              entity.data[1],
+              entity.data[2],
+            ],
+          }));
+        }
+      } else {
+        const difference = this.columns - columns;
+        for (let row = 1; row < rows + 1; row += 1) {
+          const start = mapGrowsAfter ? columns * row : columns * (row - 1);
+          this.terrains.splice(start, difference);
+        }
 
-  placeTile(
-    row: number,
-    column: number,
-    type: 'terrains' | 'environments',
-    tile: string
-  ) {
-    this.tilemap[type][row * this.tilemap.columns + column] = tile;
-
-    this.clear();
-    this.drawMap();
-  }
-
-  updateSize(rows: number, columns: number, ratio: number) {
-    // If no changes are made, do nothing
-    if (
-      this.tilemap.rows === rows &&
-      this.tilemap.columns === columns &&
-      this.ratio === ratio
-    ) {
-      return;
-    }
-    for (let row = 1; row < this.tilemap.rows + 1; row += 1) {
-      // Add a column
-      if (this.tilemap.columns < columns) {
-        this.tilemap.terrains.splice(row * columns - 1, 0, '000');
-        this.tilemap.environments.splice(row * columns - 1, 0, '000');
-      }
-
-      // Remove a column
-      else if (this.tilemap.columns > columns) {
-        this.tilemap.terrains.splice(row * columns, 1);
-        this.tilemap.environments.splice(row * columns, 1);
+        if (!mapGrowsAfter) {
+          this.entities = this.entities.map((entity) => ({
+            ...entity,
+            data: [
+              entity.data[0] - Settings.tileSize * difference,
+              entity.data[1],
+              entity.data[2],
+            ],
+          }));
+        }
       }
     }
-    this.tilemap.rows = rows;
-    this.tilemap.columns = columns;
+
+    this.rows = rows;
+    this.columns = columns;
     this.ratio = ratio;
-    this.context.imageSmoothingEnabled = false;
+    this.showGrid = showGrid;
+
+    this.engine?.translate(pan.x, pan.y);
   }
 }
-
-export default Editor;

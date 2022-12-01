@@ -1,13 +1,20 @@
-/* stylelint-disable-next-line selector-id-pattern */
-#__nuxt {
-  font-size: 0;
-}
-
 @font-face {
   font-family: VPPixel;
   src: url('/fonts/VPPixel-Simplified.otf');
 }
 
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/Inter-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Inter;
+  src: url('/fonts/Inter-Bold.ttf');
+  font-weight: 700;
+}
+
 body {
-  font-family: VPPixel, sans-serif;
+  font-family: Inter, sans-serif;
 }
