@@ -30,21 +30,18 @@ export interface GameMapInteraction extends Box {
   data: InteractionData;
 }
 
-export type Tilemap = {
-  rows: number;
-  columns: number;
-  terrains: string[];
-  environments: string[];
-  interactions: GameMapInteraction[];
-};
-
 export type GameMapEntity = [number, number, number];
 
 export type GameMapTerrain = number | null;
 
+type GameMapPostEffects = {
+  colorCorrection: [number, number, number, number];
+};
+
 export type GameMap = {
   rows: number;
   columns: number;
+  postProcessing: GameMapPostEffects;
   terrains: GameMapTerrain[];
   environments: GameMapEntity[];
   organisms: GameMapEntity[];

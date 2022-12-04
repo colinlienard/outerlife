@@ -5,7 +5,7 @@ import { PositionComponent, SpriteComponent } from '~~/game/components';
 export class CameraSystem extends System {
   protected readonly requiredComponents = [];
 
-  private readonly shakeAmount = 1;
+  private readonly shakeAmount = 1.5;
 
   private player!: Player;
 
@@ -116,7 +116,7 @@ export class CameraSystem extends System {
       this.shaking = true;
       setTimeout(() => {
         this.shaking = false;
-      }, 50);
+      }, 100);
     });
   }
 
