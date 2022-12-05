@@ -5,8 +5,8 @@
 <style scoped lang="scss">
 .vignette {
   position: absolute;
-  width: 121vmax;
-  aspect-ratio: 1 / 1;
+  width: 140vw;
+  height: 145vh;
   border-radius: 50%;
   top: 50%;
   left: 50%;
