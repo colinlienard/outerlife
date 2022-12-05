@@ -9,6 +9,7 @@ import {
   SpriteComponent,
   LayersComponent,
   StateMachineComponent,
+  ParticlesComponent,
 } from '~~/game/components';
 import {
   Direction,
@@ -22,6 +23,7 @@ import { Dust, Slash } from '../../effects';
 export class Player extends Entity {
   constructor(x: number, y: number, direction: Direction) {
     super();
+    this.add(new ParticlesComponent(3, 100, 10, 16, 24));
     this.add(
       new AnimationComponent(
         {

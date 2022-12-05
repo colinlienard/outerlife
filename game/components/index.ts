@@ -5,6 +5,7 @@ export * from './dash-component';
 export * from './health-component';
 export * from './melee-attack-component';
 export * from './movement-component';
+export * from './particles-component';
 export * from './position-component';
 export * from './sprite-component';
 export * from './layers-component';

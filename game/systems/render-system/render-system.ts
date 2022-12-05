@@ -7,7 +7,9 @@ import {
   LayersComponent,
   SpriteLayer,
   GlowLayer,
+  ParticlesComponent,
 } from '~~/game/components';
+import { Particle } from '~~/game/components/particles-component/types';
 import { Engine } from '~~/game/engine';
 import {
   Box,
@@ -87,7 +89,7 @@ export class RenderSystem extends System {
     );
   }
 
-  private queueTextureRenders() {
+  private queueRenders() {
     // Render terrains
     this.terrainTree
       .get(
@@ -159,6 +161,12 @@ export class RenderSystem extends System {
 
         // Render glow
         this.renderGlowLayers(layers.getGlow(), position);
+      }
+
+      // Render particles
+      if (entity.has(ParticlesComponent)) {
+        const { particles } = entity.get(ParticlesComponent);
+        this.renderParticles(particles);
       }
     });
   }
@@ -306,6 +314,22 @@ export class RenderSystem extends System {
     });
   }
 
+  private renderParticles(particles: Particle[]) {
+    particles.forEach((particle) => {
+      this.engine.queueTextureRender(
+        '/sprites/palette.png',
+        4,
+        0,
+        1,
+        1,
+        particle.x * Settings.ratio,
+        particle.y * Settings.ratio,
+        Settings.ratio,
+        Settings.ratio
+      );
+    });
+  }
+
   private renderColorCorrection() {
     this.engine.queueGlowRender(
       [
@@ -341,6 +365,7 @@ export class RenderSystem extends System {
         '/sprites/items.png',
         '/sprites/slash.png',
         '/sprites/guidelines.png',
+        '/sprites/palette.png',
       ];
 
       const entitiesSources = Array.from(this.get().values()).reduce(
@@ -450,7 +475,7 @@ export class RenderSystem extends System {
     });
 
     this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
-    this.queueTextureRenders();
+    this.queueRenders();
     this.renderColorCorrection();
 
     if (Settings.debug) {

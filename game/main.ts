@@ -6,6 +6,7 @@ import {
   CameraSystem,
   CollisionSystem,
   MovementSystem,
+  ParticlesSystem,
   PlayerSystem,
   RenderSystem,
 } from './systems';
@@ -29,6 +30,7 @@ export class Game extends ECS {
     this.add(new MovementSystem());
     this.add(new CollisionSystem());
     this.add(new AnimationSystem());
+    this.add(new ParticlesSystem());
     this.add(new CameraSystem());
     this.add(new RenderSystem(gameCanvas));
 
