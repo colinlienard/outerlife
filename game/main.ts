@@ -38,9 +38,9 @@ export class Game extends ECS {
     (async () => {
       await this.setMap('map-test');
 
-      await this.buildMap(340, 230, 'down');
-
       this.setEvents();
+
+      await this.buildMap(340, 230, 'down');
 
       this.loop();
     })();
@@ -141,9 +141,13 @@ export class Game extends ECS {
       camera.setPlayer(player);
       camera.init();
 
+      // Setup color correction
       this.get(RenderSystem).setColorCorrection(
         this.map.postProcessing.colorCorrection
       );
+
+      // Setup ambiant particles
+      this.get(ParticlesSystem).setupAmbiantParticles();
 
       // Load textures
       this.get(RenderSystem)
@@ -201,6 +205,7 @@ export class Game extends ECS {
     window.addEventListener('resize', () => {
       this.get(RenderSystem).resize();
       this.get(CameraSystem).resize();
+      this.get(ParticlesSystem).resize();
     });
   }
 

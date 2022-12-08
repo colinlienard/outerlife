@@ -8,34 +8,41 @@ export class ParticlesComponent implements Component {
 
   readonly duration: number;
 
+  readonly angle: number;
+
   readonly timeBetween: number;
 
-  readonly areaWidth: number;
+  areaX: number;
 
-  readonly areaHeight: number;
+  areaY: number;
 
-  readonly areaX: number;
+  areaWidth: number;
 
-  readonly areaY: number;
+  areaHeight: number;
 
-  particles: Particle[] = [{ x: 0, y: 0, time: 0 }];
+  list: Particle[] = [{ x: 0, y: 0, time: 0 }];
 
   time = 0;
 
   constructor(
     color: number,
+    speed: number,
     duration: number,
+    angle: number,
     timeBetween: number,
+    areaX: number,
+    areaY: number,
     areaWidth: number,
     areaHeight: number
   ) {
     this.color = color;
-    this.speed = 0.2;
+    this.speed = speed;
     this.duration = duration;
+    this.angle = angle;
     this.timeBetween = timeBetween;
+    this.areaX = areaX;
+    this.areaY = areaY;
     this.areaWidth = areaWidth;
     this.areaHeight = areaHeight;
-    this.areaX = 8;
-    this.areaY = 4;
   }
 }

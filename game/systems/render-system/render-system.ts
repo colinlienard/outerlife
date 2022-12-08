@@ -165,8 +165,8 @@ export class RenderSystem extends System {
 
       // Render particles
       if (entity.has(ParticlesComponent)) {
-        const { particles } = entity.get(ParticlesComponent);
-        this.renderParticles(particles);
+        const particles = entity.get(ParticlesComponent);
+        this.renderParticles(particles.list, particles.color);
       }
     });
   }
@@ -314,11 +314,11 @@ export class RenderSystem extends System {
     });
   }
 
-  private renderParticles(particles: Particle[]) {
+  private renderParticles(particles: Particle[], color: number) {
     particles.forEach((particle) => {
       this.engine.queueTextureRender(
         '/sprites/palette.png',
-        4,
+        color,
         0,
         1,
         1,

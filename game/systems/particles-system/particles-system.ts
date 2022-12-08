@@ -1,24 +1,46 @@
 import { ParticlesComponent, PositionComponent } from '~~/game/components';
 import { Particle } from '~~/game/components/particles-component/types';
-import { System } from '~~/game/utils';
+import { AmbiantParticlesEmitter } from '~~/game/entities';
+import { Emitter, Settings, System } from '~~/game/utils';
 
 export class ParticlesSystem extends System {
-  protected readonly requiredComponents = [ParticlesComponent];
+  protected readonly requiredComponents = [
+    ParticlesComponent,
+    PositionComponent,
+  ];
+
+  private ambiantParticles: AmbiantParticlesEmitter | null = null;
+
+  setupAmbiantParticles() {
+    this.ambiantParticles = new AmbiantParticlesEmitter();
+    this.resize();
+    Emitter.emit('spawn', this.ambiantParticles);
+  }
 
   update() {
+    // Handle ambient particles
+    if (this.ambiantParticles) {
+      const ambiantParticles = this.ambiantParticles.get(ParticlesComponent);
+      ambiantParticles.areaX = Math.round(Math.abs(Settings.cameraOffset.x));
+      ambiantParticles.areaY = Math.round(Math.abs(Settings.cameraOffset.y));
+    }
+
     this.get().forEach((entity) => {
       const particles = entity.get(ParticlesComponent);
       const position = entity.get(PositionComponent);
 
       // Update particles
-      particles.particles = particles.particles.reduce<Particle[]>(
+      particles.list = particles.list.reduce<Particle[]>(
         (previous, current) => {
           if (current.time >= particles.duration) {
             return previous;
           }
 
           const particle = current;
-          particle.y -= particles.speed;
+          particle.x +=
+            Math.cos((Math.PI / 180) * particles.angle) * particles.speed;
+          particle.y +=
+            Math.sin((Math.PI / 180) * particles.angle) * particles.speed;
           particle.time += 1;
           return [...previous, particle];
         },
@@ -41,7 +63,17 @@ export class ParticlesSystem extends System {
         Math.round(Math.random() * particles.areaHeight) +
         particles.areaY +
         position.y;
-      particles.particles.push({ x, y, time: 0 });
+      particles.list.push({ x, y, time: 0 });
     });
+  }
+
+  resize() {
+    if (!this.ambiantParticles) {
+      return;
+    }
+
+    const ambiantParticles = this.ambiantParticles.get(ParticlesComponent);
+    ambiantParticles.areaWidth = window.innerWidth / Settings.ratio;
+    ambiantParticles.areaHeight = window.innerHeight / Settings.ratio;
   }
 }
