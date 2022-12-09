@@ -1,6 +1,10 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { GameMapInteraction, GameMapItemType } from '~~/game/utils';
+import {
+  GameMapInteraction,
+  GameMapItemType,
+  GameMapPostProcessing,
+} from '~~/game/utils';
 import { Editor } from './editor';
 
 export const useEditorStore = defineStore('editor', () => {
@@ -25,6 +29,8 @@ export const useEditorStore = defineStore('editor', () => {
       })
     | null
   >(null);
+  const showPopup = ref(false);
+  const postProcessing = ref<GameMapPostProcessing>(null);
 
   return {
     editor,
@@ -39,5 +45,7 @@ export const useEditorStore = defineStore('editor', () => {
     selectedType,
     selectedEntity,
     selectedInteraction,
+    showPopup,
+    postProcessing,
   };
 });

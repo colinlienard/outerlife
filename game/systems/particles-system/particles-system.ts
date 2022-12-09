@@ -1,7 +1,7 @@
 import { ParticlesComponent, PositionComponent } from '~~/game/components';
 import { Particle } from '~~/game/components/particles-component/types';
 import { AmbiantParticlesEmitter } from '~~/game/entities';
-import { Emitter, Settings, System } from '~~/game/utils';
+import { Emitter, ParticlesProps, Settings, System } from '~~/game/utils';
 
 export class ParticlesSystem extends System {
   protected readonly requiredComponents = [
@@ -11,8 +11,8 @@ export class ParticlesSystem extends System {
 
   private ambiantParticles: AmbiantParticlesEmitter | null = null;
 
-  setupAmbiantParticles() {
-    this.ambiantParticles = new AmbiantParticlesEmitter();
+  setupAmbiantParticles(props: ParticlesProps) {
+    this.ambiantParticles = new AmbiantParticlesEmitter(props);
     this.resize();
     Emitter.emit('spawn', this.ambiantParticles);
   }

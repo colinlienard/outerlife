@@ -10,7 +10,16 @@ import {
   PlayerSystem,
   RenderSystem,
 } from './systems';
-import { Direction, ECS, Emitter, GameMap, Settings, Terrain } from './utils';
+import {
+  Direction,
+  ECS,
+  Emitter,
+  GameMap,
+  getAmbiantParticles,
+  getColorCorrection,
+  Settings,
+  Terrain,
+} from './utils';
 
 export class Game extends ECS {
   private map!: GameMap;
@@ -142,12 +151,16 @@ export class Game extends ECS {
       camera.init();
 
       // Setup color correction
-      this.get(RenderSystem).setColorCorrection(
-        this.map.postProcessing.colorCorrection
-      );
+      const colorCorrection = getColorCorrection(this.map.postProcessing);
+      if (colorCorrection) {
+        this.get(RenderSystem).setColorCorrection(colorCorrection);
+      }
 
       // Setup ambiant particles
-      this.get(ParticlesSystem).setupAmbiantParticles();
+      const ambiantParticles = getAmbiantParticles(this.map.postProcessing);
+      if (ambiantParticles) {
+        this.get(ParticlesSystem).setupAmbiantParticles(ambiantParticles);
+      }
 
       // Load textures
       this.get(RenderSystem)

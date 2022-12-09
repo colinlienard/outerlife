@@ -27,17 +27,13 @@ const deleteInteraction = () => {
   }
 };
 
-const downloadMap = () => {
-  const map = store.editor?.getMap();
-  useDownload(map, 'map.json');
-};
-
 const handleMapUpload = (data: string) => {
   try {
     const map = JSON.parse(data) as GameMap;
 
     store.rows = map.rows;
     store.columns = map.columns;
+    store.postProcessing = map.postProcessing;
 
     setTimeout(() => {
       store.editor?.setMapData(map);
@@ -115,7 +111,7 @@ watch(
         <FileUploader class="upload" @upload="handleMapUpload">
           Import
         </FileUploader>
-        <button class="download" @click="downloadMap">Export</button>
+        <button class="download" @click="store.showPopup = true">Export</button>
       </div>
     </section>
     <section class="section section-fill">
@@ -282,16 +278,11 @@ watch(
 @import './editor-mixins';
 
 .toolkit {
+  @include editor-box;
+
   position: absolute;
   inset: 1.5rem auto 1.5rem 1.5rem;
   width: 20rem;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(#0a0a0a, 0.8);
-  color: white;
-  border: 2px solid rgba(white, 0.1);
-  border-radius: 0.5rem;
-  backdrop-filter: blur(0.5rem);
 }
 
 .top-tag {
@@ -309,24 +300,14 @@ watch(
 }
 
 .section {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  &:not(&:last-of-type) {
-    border-bottom: inherit;
-  }
+  @include editor-section;
 
   &.section-fill {
     height: 100%;
   }
 
   .title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    opacity: 0.5;
-    text-transform: uppercase;
+    @include editor-title;
   }
 
   .button {

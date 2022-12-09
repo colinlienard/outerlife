@@ -23,3 +23,31 @@
     background-color: rgba(white, 0.12);
   }
 }
+
+@mixin editor-box {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(#0a0a0a, 0.8);
+  color: white;
+  border: 2px solid rgba(white, 0.1);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(0.5rem);
+}
+
+@mixin editor-section {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &:not(&:last-of-type) {
+    border-bottom: inherit;
+  }
+}
+
+@mixin editor-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.5;
+  text-transform: uppercase;
+}

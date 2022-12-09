@@ -18,11 +18,12 @@
     "import/prefer-default-export": "off",
     "linebreak-style": ["error", "unix"],
     "node/no-callback-literal": "off",
-    "no-undef": "off",
     "no-async-promise-executor": "off",
+    "no-undef": "off",
     "no-param-reassign": ["error", { "props": false }],
     "no-restricted-exports": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "vue/no-multiple-template-root": "off"
   },
   // Nuxt auto imports (https://v3.nuxtjs.org/guide/concepts/auto-imports)
   "overrides": [

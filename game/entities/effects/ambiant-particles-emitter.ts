@@ -3,12 +3,24 @@ import {
   PositionComponent,
   SpriteComponent,
 } from '~~/game/components';
-import { Entity, Settings } from '~~/game/utils';
+import { Entity, ParticlesProps, Settings } from '~~/game/utils';
 
 export class AmbiantParticlesEmitter extends Entity {
-  constructor() {
+  constructor({ color, speed, duration, angle, timeBetween }: ParticlesProps) {
     super();
-    this.add(new ParticlesComponent(2, 0.5, 400, 20, 30, 0, 0, 100, 100));
+    this.add(
+      new ParticlesComponent(
+        color,
+        speed,
+        duration,
+        angle,
+        timeBetween,
+        0,
+        0,
+        100,
+        100
+      )
+    );
     this.add(new PositionComponent(0, 0));
     this.add(
       new SpriteComponent(
