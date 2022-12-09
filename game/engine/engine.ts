@@ -548,7 +548,9 @@ export class Engine {
 
   resize() {
     const { canvas } = this.gl;
-    const { width, height } = canvas.getBoundingClientRect();
+    const { width, height } = (
+      canvas as HTMLCanvasElement
+    ).getBoundingClientRect();
     const dpr = window.devicePixelRatio;
 
     canvas.width = Math.round(width * dpr);

@@ -198,7 +198,7 @@ export class Game extends ECS {
       this.freeze = true;
       setTimeout(() => {
         this.freeze = false;
-      }, 50);
+      }, 80);
     });
 
     // Resize

@@ -366,6 +366,7 @@ export class RenderSystem extends System {
         '/sprites/slash.png',
         '/sprites/guidelines.png',
         '/sprites/palette.png',
+        '/sprites/impact.png',
       ];
 
       const entitiesSources = Array.from(this.get().values()).reduce(
