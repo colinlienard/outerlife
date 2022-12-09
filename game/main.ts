@@ -6,10 +6,20 @@ import {
   CameraSystem,
   CollisionSystem,
   MovementSystem,
+  ParticlesSystem,
   PlayerSystem,
   RenderSystem,
 } from './systems';
-import { Direction, ECS, Emitter, GameMap, Settings, Terrain } from './utils';
+import {
+  Direction,
+  ECS,
+  Emitter,
+  GameMap,
+  getAmbiantParticles,
+  getColorCorrection,
+  Settings,
+  Terrain,
+} from './utils';
 
 export class Game extends ECS {
   private map!: GameMap;
@@ -29,16 +39,17 @@ export class Game extends ECS {
     this.add(new MovementSystem());
     this.add(new CollisionSystem());
     this.add(new AnimationSystem());
+    this.add(new ParticlesSystem());
     this.add(new CameraSystem());
     this.add(new RenderSystem(gameCanvas));
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-1');
-
-      await this.buildMap(340, 230, 'down');
+      await this.setMap('map-test');
 
       this.setEvents();
+
+      await this.buildMap(340, 230, 'down');
 
       this.loop();
     })();
@@ -139,6 +150,18 @@ export class Game extends ECS {
       camera.setPlayer(player);
       camera.init();
 
+      // Setup color correction
+      const colorCorrection = getColorCorrection(this.map.postProcessing);
+      if (colorCorrection) {
+        this.get(RenderSystem).setColorCorrection(colorCorrection);
+      }
+
+      // Setup ambiant particles
+      const ambiantParticles = getAmbiantParticles(this.map.postProcessing);
+      if (ambiantParticles) {
+        this.get(ParticlesSystem).setupAmbiantParticles(ambiantParticles);
+      }
+
       // Load textures
       this.get(RenderSystem)
         .loadTextures()
@@ -188,13 +211,14 @@ export class Game extends ECS {
       this.freeze = true;
       setTimeout(() => {
         this.freeze = false;
-      }, 50);
+      }, 80);
     });
 
     // Resize
     window.addEventListener('resize', () => {
       this.get(RenderSystem).resize();
       this.get(CameraSystem).resize();
+      this.get(ParticlesSystem).resize();
     });
   }
 

@@ -37,6 +37,7 @@ export class Engine {
     size: 5,
     color: 6,
     opacity: 7,
+    radialGradient: 8,
   };
 
   private textureRenderData: number[] = [];
@@ -220,7 +221,7 @@ export class Engine {
 
     // Bind the buffer that will be used by the following attributes
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glowBuffer);
-    const stride = (16 + 3 + 3 + 1) * 4;
+    const stride = (16 + 3 + 3 + 1 + 1) * 4;
 
     // Bind the matrix attribute
     for (let index = 0; index < 4; index += 1) {
@@ -272,6 +273,18 @@ export class Engine {
     );
     this.gl.vertexAttribDivisor(this.glowLocations.opacity, 1);
     this.gl.enableVertexAttribArray(this.glowLocations.opacity);
+
+    // Bind the radial-gradient attribute
+    this.gl.vertexAttribPointer(
+      this.glowLocations.radialGradient,
+      1,
+      this.gl.FLOAT,
+      false,
+      stride,
+      (16 + 3 + 3 + 1) * 4
+    );
+    this.gl.vertexAttribDivisor(this.glowLocations.radialGradient, 1);
+    this.gl.enableVertexAttribArray(this.glowLocations.radialGradient);
 
     this.gl.bindVertexArray(null);
   }
@@ -456,7 +469,8 @@ export class Engine {
     opacity: number,
     x: number,
     y: number,
-    size: number
+    size: number,
+    radialGradient: boolean
   ) {
     // Matrix
     const matrix = mat4.create();
@@ -476,7 +490,13 @@ export class Engine {
     ];
 
     // Add all the data in the same array
-    this.glowRenderData.push(...matrix, ...sizes, ...color, opacity);
+    this.glowRenderData.push(
+      ...matrix,
+      ...sizes,
+      ...color,
+      opacity,
+      radialGradient ? 1 : 0
+    );
 
     this.glowQueueLenght += 1;
   }
@@ -528,7 +548,9 @@ export class Engine {
 
   resize() {
     const { canvas } = this.gl;
-    const { width, height } = canvas.getBoundingClientRect();
+    const { width, height } = (
+      canvas as HTMLCanvasElement
+    ).getBoundingClientRect();
     const dpr = window.devicePixelRatio;
 
     canvas.width = Math.round(width * dpr);

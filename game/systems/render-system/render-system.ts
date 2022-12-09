@@ -7,7 +7,9 @@ import {
   LayersComponent,
   SpriteLayer,
   GlowLayer,
+  ParticlesComponent,
 } from '~~/game/components';
+import { Particle } from '~~/game/components/particles-component/types';
 import { Engine } from '~~/game/engine';
 import {
   Box,
@@ -53,6 +55,8 @@ export class RenderSystem extends System {
     Settings.scene.height
   );
 
+  private colorCorrection: [number, number, number, number] = [0, 0, 0, 0];
+
   private viewport = {
     width: 0,
     height: 0,
@@ -85,7 +89,7 @@ export class RenderSystem extends System {
     );
   }
 
-  private queueTextureRenders() {
+  private queueRenders() {
     // Render terrains
     this.terrainTree
       .get(
@@ -156,7 +160,13 @@ export class RenderSystem extends System {
         this.renderSpriteLayers(layers.getFrontSprites(), position);
 
         // Render glow
-        this.queueGlowRenderLayers(layers.getGlow(), position);
+        this.renderGlowLayers(layers.getGlow(), position);
+      }
+
+      // Render particles
+      if (entity.has(ParticlesComponent)) {
+        const particles = entity.get(ParticlesComponent);
+        this.renderParticles(particles.list, particles.color);
       }
     });
   }
@@ -291,19 +301,50 @@ export class RenderSystem extends System {
     });
   }
 
-  private queueGlowRenderLayers(
-    layers: GlowLayer[],
-    position: PositionComponent
-  ) {
+  private renderGlowLayers(layers: GlowLayer[], position: PositionComponent) {
     layers.forEach((layer) => {
       this.engine.queueGlowRender(
         layer.color,
         layer.opacity,
         Math.floor((position.x + layer.data.x) * Settings.ratio),
         Math.floor((position.y + layer.data.y) * Settings.ratio),
-        layer.size * Settings.ratio
+        layer.size * Settings.ratio,
+        true
       );
     });
+  }
+
+  private renderParticles(particles: Particle[], color: number) {
+    particles.forEach((particle) => {
+      this.engine.queueTextureRender(
+        '/sprites/palette.png',
+        color,
+        0,
+        1,
+        1,
+        particle.x * Settings.ratio,
+        particle.y * Settings.ratio,
+        Settings.ratio,
+        Settings.ratio
+      );
+    });
+  }
+
+  private renderColorCorrection() {
+    this.engine.queueGlowRender(
+      [
+        this.colorCorrection[0],
+        this.colorCorrection[1],
+        this.colorCorrection[2],
+      ],
+      this.colorCorrection[3],
+      0,
+      0,
+      (Settings.scene.width > Settings.scene.height
+        ? Settings.scene.width
+        : Settings.scene.height) * Settings.ratio,
+      false
+    );
   }
 
   private translate(offsetX: number, offsetY: number) {
@@ -324,6 +365,8 @@ export class RenderSystem extends System {
         '/sprites/items.png',
         '/sprites/slash.png',
         '/sprites/guidelines.png',
+        '/sprites/palette.png',
+        '/sprites/impact.png',
       ];
 
       const entitiesSources = Array.from(this.get().values()).reduce(
@@ -403,6 +446,10 @@ export class RenderSystem extends System {
     this.entityTree.reset(0, 0, Settings.scene.width, Settings.scene.height);
   }
 
+  setColorCorrection(colorCorrection: [number, number, number, number]) {
+    this.colorCorrection = colorCorrection;
+  }
+
   setTerrains(terrains: Terrain[]) {
     this.terrains = terrains;
     this.terrainTree.reset(0, 0, Settings.scene.width, Settings.scene.height);
@@ -429,7 +476,8 @@ export class RenderSystem extends System {
     });
 
     this.translate(Settings.cameraOffset.x, Settings.cameraOffset.y);
-    this.queueTextureRenders();
+    this.queueRenders();
+    this.renderColorCorrection();
 
     if (Settings.debug) {
       this.renderAllCollisions();

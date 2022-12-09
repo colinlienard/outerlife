@@ -5,7 +5,7 @@ export abstract class Settings {
 
   static readonly transitionDuration = 500;
 
-  static readonly yPixelsNumber = 200;
+  static readonly yPixelsNumber = 250;
 
   static cameraOffset = {
     x: 0,

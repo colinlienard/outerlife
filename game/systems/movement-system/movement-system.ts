@@ -6,7 +6,7 @@ import {
   MeleeAttackComponent,
   AIComponent,
 } from '~~/game/components';
-import { DashDust } from '~~/game/entities';
+import { DashDust, Dust } from '~~/game/entities';
 import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
 
 export class MovementSystem extends System {
@@ -95,19 +95,12 @@ export class MovementSystem extends System {
             const meleeAttack = entity.get(MeleeAttackComponent);
             movement.speed = meleeAttack.speed;
 
-            // Handle dash dust
+            // Handle dust effect
             if (!meleeAttack.spawnDustEffect) {
               return;
             }
 
-            Emitter.emit(
-              'spawn',
-              new DashDust(
-                position.x + 8,
-                position.y + 24,
-                getDirectionFromAngle(movement.angle).animationRow
-              )
-            );
+            Emitter.emit('spawn', new Dust(position.x, position.y + 16));
 
             return;
           }

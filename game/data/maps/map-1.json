@@ -81,5 +81,6 @@
         "playerDirection": "right"
       }
     }
-  ]
+  ],
+  "postProcessing": "desert"
 }

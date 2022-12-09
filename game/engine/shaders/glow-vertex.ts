@@ -4,15 +4,18 @@ layout(location=1) in mat4 aMatrix;
 layout(location=5) in vec3 aSize;
 layout(location=6) in vec3 aColor;
 layout(location=7) in float aOpacity;
+layout(location=8) in float aRadialGradient;
 
 out vec3 vSize;
 out vec3 vColor;
 out float vOpacity;
+out float vRadialGradient;
 
 void main() {
   vSize = aSize;
   vColor = aColor;
   vOpacity = aOpacity;
+  vRadialGradient = aRadialGradient;
 
   gl_Position = aMatrix * aPosition;
 }

@@ -439,5 +439,6 @@
         "playerDirection": "right"
       }
     }
-  ]
+  ],
+  "postProcessing": "desert"
 }

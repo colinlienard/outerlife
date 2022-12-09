@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { Settings } from '~~/game/utils';
 import { Editor } from './editor';
 import { useEditorStore } from './editor-store';
+import EditorExportPopup from './EditorExportPopup.vue';
 import EditorToolkit from './EditorToolkit.vue';
 
 const canvas = ref<HTMLCanvasElement>();
@@ -188,6 +189,7 @@ watch([rows, columns, ratio, pan, showGrid, mapGrowsAfter], (values) => {
       @contextmenu.prevent=""
     />
     <EditorToolkit />
+    <EditorExportPopup v-if="store.showPopup" />
   </main>
 </template>
 

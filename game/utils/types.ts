@@ -10,6 +10,16 @@ export interface Box extends Point {
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
+export type ParticlesProps = {
+  color: number;
+  speed: number;
+  duration: number;
+  angle: number;
+  timeBetween: number;
+};
+
+export type ColorCorrection = [number, number, number, number];
+
 export type Terrain = {
   source: string;
   sourceX: number;
@@ -30,21 +40,21 @@ export interface GameMapInteraction extends Box {
   data: InteractionData;
 }
 
-export type Tilemap = {
-  rows: number;
-  columns: number;
-  terrains: string[];
-  environments: string[];
-  interactions: GameMapInteraction[];
-};
-
 export type GameMapEntity = [number, number, number];
 
 export type GameMapTerrain = number | null;
 
+export type GameMapPostProcessing = null | 'desert';
+
+// export type GameMapPostProcessing = {
+//   colorCorrection: [number, number, number, number] | null;
+//   ambiantParticles: ParticlesProps | null;
+// };
+
 export type GameMap = {
   rows: number;
   columns: number;
+  postProcessing: GameMapPostProcessing;
   terrains: GameMapTerrain[];
   environments: GameMapEntity[];
   organisms: GameMapEntity[];

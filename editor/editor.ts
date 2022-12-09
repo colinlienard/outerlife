@@ -6,6 +6,7 @@ import {
   GameMapEntity,
   GameMapInteraction,
   GameMapItemType,
+  GameMapPostProcessing,
   GameMapTerrain,
   Settings,
 } from '~~/game/utils';
@@ -20,6 +21,8 @@ export class Editor {
   private entities: EditorEntity[] = [];
 
   private interactions: GameMapInteraction[] = [];
+
+  private postProcessing: GameMapPostProcessing = null;
 
   private ratio: number;
 
@@ -194,6 +197,10 @@ export class Editor {
     return this.interactions;
   }
 
+  updatePostProcessing(data: GameMapPostProcessing) {
+    this.postProcessing = data;
+  }
+
   getMap(): GameMap {
     const environments = this.entities
       .filter((entity) => entity.type === 'environment')
@@ -209,6 +216,7 @@ export class Editor {
       environments,
       organisms,
       interactions: this.interactions,
+      postProcessing: this.postProcessing,
     };
   }
 
@@ -226,6 +234,8 @@ export class Editor {
     this.entities = [...environments, ...organisms];
 
     this.interactions = map.interactions;
+
+    this.postProcessing = map.postProcessing;
   }
 
   render() {

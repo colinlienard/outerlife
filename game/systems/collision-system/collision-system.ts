@@ -8,7 +8,7 @@ import {
   SpriteComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Interaction, Player } from '~~/game/entities';
+import { Impact, Interaction, Player } from '~~/game/entities';
 import {
   Emitter,
   Entity,
@@ -224,6 +224,11 @@ export class CollisionSystem extends System {
 
               Emitter.emit('hit');
 
+              Emitter.emit(
+                'spawn',
+                new Impact(pos.x + col.x, pos.y + col.y + col.height / 2)
+              );
+
               // Set angle for repulsing the hit entity
               colliding.get(MovementComponent).angle = getAngleFromPoints(
                 pos.x + col.x + col.width / 2,
@@ -247,10 +252,10 @@ export class CollisionSystem extends System {
       const width = colliding.has(SpriteComponent)
         ? colliding.get(SpriteComponent).width
         : 0;
-      if (pos.x < 0) {
-        pos.x = 0;
-      } else if (pos.x > Settings.scene.width - width) {
-        pos.x = Settings.scene.width - width;
+      if (pos.x < -width / 2) {
+        pos.x = -width / 2;
+      } else if (pos.x > Settings.scene.width - width / 2) {
+        pos.x = Settings.scene.width - width / 2;
       }
 
       // Scene limits on the y axis
