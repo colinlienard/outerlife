@@ -10,6 +10,7 @@ import {
 } from '~~/game/components';
 import { Impact, Interaction, Player } from '~~/game/entities';
 import {
+  AudioManager,
   Emitter,
   Entity,
   getAngleFromPoints,
@@ -227,6 +228,13 @@ export class CollisionSystem extends System {
               Emitter.emit(
                 'spawn',
                 new Impact(pos.x + col.x, pos.y + col.y + col.height / 2)
+              );
+
+              AudioManager.playEffect(
+                `/sounds/${
+                  col.type === 'player-hurtbox' ? 'player' : 'robot'
+                }-hit.wav`,
+                200
               );
 
               // Set angle for repulsing the hit entity

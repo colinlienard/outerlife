@@ -11,6 +11,7 @@ import {
   RenderSystem,
 } from './systems';
 import {
+  AudioManager,
   Direction,
   ECS,
   Emitter,
@@ -53,6 +54,22 @@ export class Game extends ECS {
 
       this.loop();
     })();
+
+    setTimeout(async () => {
+      const sources = [
+        '/sounds/desert-footsteps.wav',
+        '/sounds/desert-ambiant.wav',
+        '/sounds/sword-slash.wav',
+        '/sounds/dash.wav',
+        '/sounds/player-hit.wav',
+        '/sounds/robot-hit.wav',
+        '/sounds/robot-attack.wav',
+        '/sounds/robot-die.wav',
+      ];
+      const promises = sources.map((source) => AudioManager.load(source));
+      await Promise.all(promises);
+      AudioManager.playAmbiant('/sounds/desert-ambiant.wav');
+    }, 1000);
   }
 
   private setMap(source: string) {

@@ -7,7 +7,12 @@ import {
   AIComponent,
 } from '~~/game/components';
 import { DashDust, Dust } from '~~/game/entities';
-import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
+import {
+  AudioManager,
+  Emitter,
+  getDirectionFromAngle,
+  System,
+} from '~~/game/utils';
 
 export class MovementSystem extends System {
   protected readonly requiredComponents = [
@@ -82,11 +87,14 @@ export class MovementSystem extends System {
               )
             );
 
+            AudioManager.playEffect('/sounds/dash.wav', 200);
+
             return;
           }
 
           if (stateMachine.timer()) {
             stateMachine.set('dash-recovery');
+            AudioManager.playEffect('/sounds/desert-footsteps.wav', 200);
           }
         },
 

@@ -10,7 +10,12 @@ import {
   LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
+import {
+  AudioManager,
+  Emitter,
+  Entity,
+  getPointFromAngle,
+} from '~~/game/utils';
 import { Damage } from '../../misc/damage';
 
 export class Patroller extends Entity {
@@ -62,9 +67,20 @@ export class Patroller extends Entity {
         1,
         [
           {
+            action: () =>
+              AudioManager.playEffect('/sounds/robot-attack.wav', 200),
+            frame: 1,
+            on: 'melee-attack',
+          },
+          {
             action: () => this.spawnDamage(),
             frame: 2,
             on: 'melee-attack',
+          },
+          {
+            action: () => AudioManager.playEffect('/sounds/robot-die.wav'),
+            frame: 1,
+            on: 'dead',
           },
         ]
       )

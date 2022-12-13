@@ -11,6 +11,7 @@ import {
   StateMachineComponent,
 } from '~~/game/components';
 import {
+  AudioManager,
   Direction,
   Emitter,
   Entity,
@@ -67,12 +68,12 @@ export class Player extends Entity {
         0,
         [
           {
-            action: () => this.spawnDust(),
+            action: () => this.footstep(),
             frame: 2,
             on: 'run',
           },
           {
-            action: () => this.spawnDust(),
+            action: () => this.footstep(),
             frame: 6,
             on: 'run',
           },
@@ -647,8 +648,12 @@ export class Player extends Entity {
     });
   }
 
-  spawnDust() {
+  footstep() {
+    // Spawn dust effect
     const { x: xPos, y: yPos } = this.get(PositionComponent);
     Emitter.emit('spawn', new Dust(xPos, yPos + 16));
+
+    // Play footstep
+    AudioManager.playEffect('/sounds/desert-footsteps.wav', 200);
   }
 }
