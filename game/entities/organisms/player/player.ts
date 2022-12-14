@@ -9,6 +9,7 @@ import {
   SpriteComponent,
   LayersComponent,
   StateMachineComponent,
+  AudioComponent,
 } from '~~/game/components';
 import {
   AudioManager,
@@ -78,6 +79,23 @@ export class Player extends Entity {
             on: 'run',
           },
           {
+            action: () => AudioManager.playEffect('/sounds/dash.wav', 200),
+            frame: 1,
+            on: 'dash',
+          },
+          {
+            action: () =>
+              AudioManager.playEffect('/sounds/desert-footsteps.wav', 200),
+            frame: 1,
+            on: 'dash-recovery',
+          },
+          {
+            action: () =>
+              AudioManager.playEffect('/sounds/player-hit.wav', 200),
+            frame: 1,
+            on: 'hit',
+          },
+          {
             action: () => {
               const position = this.get(PositionComponent).getCenter();
               const { row } = this.get(AnimationComponent);
@@ -91,12 +109,22 @@ export class Player extends Entity {
               );
 
               Emitter.emit('spawn', new Slash(point.x, point.y, row, 30));
+              AudioManager.playEffect('/sounds/sword-slash.wav', 200);
             },
             frame: 2,
             on: 'melee-attack',
           },
         ]
       )
+    );
+    this.add(
+      new AudioComponent([
+        '/sounds/desert-footsteps.wav',
+        '/sounds/player-hit.wav',
+        '/sounds/sword-slash.wav',
+        '/sounds/dash.wav',
+        '/sounds/player-hit.wav',
+      ])
     );
     this.add(
       new CollisionComponent([

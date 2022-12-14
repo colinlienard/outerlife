@@ -5,7 +5,7 @@ import {
   PositionComponent,
   SpriteComponent,
 } from '~~/game/components';
-import { AudioManager, Entity } from '~~/game/utils';
+import { Entity } from '~~/game/utils';
 
 export class Slash extends Entity {
   private readonly row: number;
@@ -38,8 +38,6 @@ export class Slash extends Entity {
     this.add(new SpriteComponent('/sprites/slash.png', 0, 0, 40, 40));
 
     this.row = row;
-
-    AudioManager.playEffect('/sounds/sword-slash.wav', 200);
   }
 
   getCollision(damages: number): Collision {

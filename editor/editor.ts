@@ -3,6 +3,7 @@ import { environmentsIndex, organismsIndex, terrainsIndex } from '~~/game/data';
 import { Engine } from '~~/game/engine';
 import {
   GameMap,
+  GameMapAmbiantAudio,
   GameMapEntity,
   GameMapInteraction,
   GameMapItemType,
@@ -23,6 +24,8 @@ export class Editor {
   private interactions: GameMapInteraction[] = [];
 
   private postProcessing: GameMapPostProcessing = null;
+
+  private ambiantAudio: GameMapAmbiantAudio = [];
 
   private ratio: number;
 
@@ -201,6 +204,10 @@ export class Editor {
     this.postProcessing = data;
   }
 
+  updateAmbiantAudio(data: GameMapAmbiantAudio) {
+    this.ambiantAudio = data;
+  }
+
   getMap(): GameMap {
     const environments = this.entities
       .filter((entity) => entity.type === 'environment')
@@ -217,6 +224,7 @@ export class Editor {
       organisms,
       interactions: this.interactions,
       postProcessing: this.postProcessing,
+      ambiantAudio: this.ambiantAudio,
     };
   }
 
@@ -236,6 +244,8 @@ export class Editor {
     this.interactions = map.interactions;
 
     this.postProcessing = map.postProcessing;
+
+    this.ambiantAudio = map.ambiantAudio;
   }
 
   render() {

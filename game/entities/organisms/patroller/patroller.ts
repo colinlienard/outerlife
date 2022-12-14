@@ -9,6 +9,7 @@ import {
   SpriteComponent,
   LayersComponent,
   StateMachineComponent,
+  AudioComponent,
 } from '~~/game/components';
 import {
   AudioManager,
@@ -16,7 +17,7 @@ import {
   Entity,
   getPointFromAngle,
 } from '~~/game/utils';
-import { Damage } from '../../misc/damage';
+import { Damage } from '~~/game/entities';
 
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
@@ -78,12 +79,27 @@ export class Patroller extends Entity {
             on: 'melee-attack',
           },
           {
-            action: () => AudioManager.playEffect('/sounds/robot-die.wav'),
+            action: () => AudioManager.playEffect('/sounds/robot-hit.wav', 200),
+            frame: 1,
+            on: 'hit',
+          },
+          {
+            action: () => {
+              AudioManager.playEffect('/sounds/robot-hit.wav');
+              AudioManager.playEffect('/sounds/robot-die.wav');
+            },
             frame: 1,
             on: 'dead',
           },
         ]
       )
+    );
+    this.add(
+      new AudioComponent([
+        '/sounds/robot-hit.wav',
+        '/sounds/robot-attack.wav',
+        '/sounds/robot-die.wav',
+      ])
     );
     this.add(
       new CollisionComponent([

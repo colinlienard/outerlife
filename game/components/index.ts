@@ -1,5 +1,6 @@
 export * from './ai-component';
 export * from './animation-component';
+export * from './audio-component';
 export * from './collision-component';
 export * from './dash-component';
 export * from './health-component';

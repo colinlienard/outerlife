@@ -1,11 +1,19 @@
 import { getRandomNumber } from '../helpers';
 
 export abstract class AudioManager {
-  private static context = new AudioContext();
+  private static context: AudioContext;
 
   private static buffers = new Map<string, AudioBuffer>();
 
+  static init() {
+    this.context = new AudioContext();
+  }
+
   static async load(source: string) {
+    if (this.buffers.has(source)) {
+      return;
+    }
+
     const response = await fetch(source);
     const arrayBuffer = await response.arrayBuffer();
     const audioBuffer = await this.context.decodeAudioData(arrayBuffer);

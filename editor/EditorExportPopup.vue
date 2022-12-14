@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { useEditorStore } from './editor-store';
+import EditorInput from './EditorInput.vue';
 
 const store = useEditorStore();
 
 const downloadMap = () => {
+  store.editor?.updatePostProcessing(store.postProcessing);
+  store.editor?.updateAmbiantAudio(store.ambiantAudio);
   const map = store.editor?.getMap();
   useDownload(map, 'map.json');
 };
-
-watch(
-  () => store.postProcessing,
-  () => {
-    store.editor?.updatePostProcessing(store.postProcessing);
-  }
-);
 </script>
 
 <template>
@@ -29,6 +25,27 @@ watch(
         <option :value="null">None</option>
         <option value="desert">Desert</option>
       </select>
+    </section>
+    <section class="section">
+      <h2 class="title">Ambiant audio</h2>
+      <div
+        v-for="(audio, index) of store.ambiantAudio"
+        :key="index"
+        class="wrapper-2-1"
+      >
+        <EditorInput
+          v-model="store.ambiantAudio[index]"
+          label="Path"
+          placeholder="Audio source"
+          type="text"
+        />
+        <button class="button" @click="store.ambiantAudio.splice(index, 1)">
+          Delete
+        </button>
+      </div>
+      <button class="button" @click="store.ambiantAudio.push('/sounds/*.wav')">
+        Add
+      </button>
     </section>
     <section class="section">
       <button class="button" @click="downloadMap">Export</button>
@@ -52,7 +69,7 @@ watch(
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  width: 20rem;
+  width: 30rem;
 }
 
 .section {
@@ -63,19 +80,16 @@ watch(
   }
 
   .button {
-    @include editor-button(true);
+    @include editor-button;
   }
 
   .select {
-    @include editor-button(true);
-
-    option {
-      background-color: black;
-    }
+    @include editor-select;
   }
 
-  .wrapper {
-    display: flex;
+  .wrapper-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
     gap: 1rem;
   }
 }

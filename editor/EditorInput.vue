@@ -67,10 +67,10 @@ watch(
 @import './editor-mixins';
 
 .label {
-  @include editor-button(false);
+  @include editor-input;
 
   &.check {
-    @include editor-button(true);
+    @include editor-button;
   }
 
   .text:not(.text.opaque) {

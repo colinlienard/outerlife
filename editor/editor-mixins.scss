@@ -1,19 +1,13 @@
-@mixin editor-button($button) {
+@mixin editor-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background-color: rgba(white, 0.04);
   position: relative;
-
-  @if $button {
-    justify-content: center;
-    cursor: pointer;
-  } @else {
-    padding-right: 0;
-  }
+  background-color: rgba(white, 0.04);
+  padding-right: 0;
 
   &:hover {
     background-color: rgba(white, 0.08);
@@ -21,6 +15,31 @@
 
   &:active {
     background-color: rgba(white, 0.12);
+  }
+}
+
+@mixin editor-button {
+  @include editor-input;
+
+  background-color: rgba(white, 0.06);
+  justify-content: center;
+  padding-right: 0.75rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(white, 0.1);
+  }
+
+  &:active {
+    background-color: rgba(white, 0.14);
+  }
+}
+
+@mixin editor-select {
+  @include editor-input;
+
+  option {
+    background-color: black;
   }
 }
 

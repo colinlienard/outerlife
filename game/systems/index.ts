@@ -1,5 +1,6 @@
 export * from './ai-system';
 export * from './animation-system';
+export * from './audio-system';
 export * from './camera-system';
 export * from './collision-system';
 export * from './movement-system';

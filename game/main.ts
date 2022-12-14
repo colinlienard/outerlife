@@ -1,8 +1,9 @@
 import { environmentsIndex, organismsIndex, terrainsIndex } from './data';
-import { Interaction, InvisibleWall, Player } from './entities';
+import { AmbiantAudio, Interaction, InvisibleWall, Player } from './entities';
 import {
   AISystem,
   AnimationSystem,
+  AudioSystem,
   CameraSystem,
   CollisionSystem,
   MovementSystem,
@@ -43,33 +44,18 @@ export class Game extends ECS {
     this.add(new ParticlesSystem());
     this.add(new CameraSystem());
     this.add(new RenderSystem(gameCanvas));
+    this.add(new AudioSystem());
+
+    // Setup custom events
+    this.setEvents();
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-test');
-
-      this.setEvents();
-
+      await this.setMap('map-1');
       await this.buildMap(340, 230, 'down');
 
       this.loop();
     })();
-
-    setTimeout(async () => {
-      const sources = [
-        '/sounds/desert-footsteps.wav',
-        '/sounds/desert-ambiant.wav',
-        '/sounds/sword-slash.wav',
-        '/sounds/dash.wav',
-        '/sounds/player-hit.wav',
-        '/sounds/robot-hit.wav',
-        '/sounds/robot-attack.wav',
-        '/sounds/robot-die.wav',
-      ];
-      const promises = sources.map((source) => AudioManager.load(source));
-      await Promise.all(promises);
-      AudioManager.playAmbiant('/sounds/desert-ambiant.wav');
-    }, 1000);
   }
 
   private setMap(source: string) {
@@ -82,111 +68,117 @@ export class Game extends ECS {
     });
   }
 
-  private buildMap(
+  private async buildMap(
     playerX: number,
     playerY: number,
     playerDirection: Direction
   ) {
-    return new Promise<void>((resolve) => {
-      // Set scene settings
-      Settings.scene.columns = this.map.columns;
-      Settings.scene.rows = this.map.rows;
-      Settings.scene.width = this.map.columns * Settings.tileSize;
-      Settings.scene.height = this.map.rows * Settings.tileSize;
+    // Set scene settings
+    Settings.scene.columns = this.map.columns;
+    Settings.scene.rows = this.map.rows;
+    Settings.scene.width = this.map.columns * Settings.tileSize;
+    Settings.scene.height = this.map.rows * Settings.tileSize;
 
-      // Reset world
-      this.get(CollisionSystem).reset();
-      this.get(RenderSystem).reset();
+    // Reset world
+    this.get(CollisionSystem).reset();
+    this.get(RenderSystem).reset();
 
-      // Prepare terrains for the renderer
-      const terrains: Terrain[] = [];
+    // Prepare terrains for the renderer
+    const terrains: Terrain[] = [];
 
-      // Build terrain
-      for (let row = 0; row < this.map.rows; row += 1) {
-        for (let column = 0; column < this.map.columns; column += 1) {
-          const tile = this.map.terrains[row * this.map.columns + column];
-          if (tile !== null) {
-            const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
-            const x = column * Settings.tileSize;
-            const y = row * Settings.tileSize;
+    // Build terrain
+    for (let row = 0; row < this.map.rows; row += 1) {
+      for (let column = 0; column < this.map.columns; column += 1) {
+        const tile = this.map.terrains[row * this.map.columns + column];
+        if (tile !== null) {
+          const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
+          const x = column * Settings.tileSize;
+          const y = row * Settings.tileSize;
 
-            terrains.push({
-              source,
-              sourceX,
-              sourceY,
-              x,
-              y,
+          terrains.push({
+            source,
+            sourceX,
+            sourceY,
+            x,
+            y,
+          });
+
+          if (collisions) {
+            collisions.forEach((collision) => {
+              const { x: colX, y: colY, width, height } = collision;
+              this.addEntity(
+                new InvisibleWall(x + colX, y + colY, width, height)
+              );
             });
-
-            if (collisions) {
-              collisions.forEach((collision) => {
-                const { x: colX, y: colY, width, height } = collision;
-                this.addEntity(
-                  new InvisibleWall(x + colX, y + colY, width, height)
-                );
-              });
-            }
           }
         }
       }
+    }
 
-      this.get(RenderSystem).setTerrains(terrains);
+    this.get(RenderSystem).setTerrains(terrains);
 
-      // Build environments
-      this.map.environments.forEach(([x, y, constructorId]) => {
-        const Environment = environmentsIndex[constructorId];
-        this.addEntity(new Environment(x, y));
-      });
-
-      // Build organisms
-      this.map.organisms.forEach(([x, y, constructorId]) => {
-        const Organism = organismsIndex[constructorId];
-        this.addEntity(new Organism(x, y));
-      });
-
-      // Build interactions
-      this.map.interactions.forEach((interaction) => {
-        this.addEntity(
-          new Interaction(
-            interaction.x,
-            interaction.y,
-            interaction.width,
-            interaction.height,
-            interaction.data
-          )
-        );
-      });
-
-      // Add a new player instance
-      const player = new Player(playerX, playerY, playerDirection);
-      this.get(PlayerSystem).setPlayer(player);
-      this.addEntity(player);
-
-      // Setup camera
-      const camera = this.get(CameraSystem);
-      camera.setPlayer(player);
-      camera.init();
-
-      // Setup color correction
-      const colorCorrection = getColorCorrection(this.map.postProcessing);
-      if (colorCorrection) {
-        this.get(RenderSystem).setColorCorrection(colorCorrection);
-      }
-
-      // Setup ambiant particles
-      const ambiantParticles = getAmbiantParticles(this.map.postProcessing);
-      if (ambiantParticles) {
-        this.get(ParticlesSystem).setupAmbiantParticles(ambiantParticles);
-      }
-
-      // Load textures
-      this.get(RenderSystem)
-        .loadTextures()
-        .then(() => {
-          Emitter.emit('scene-loaded');
-          resolve();
-        });
+    // Build environments
+    this.map.environments.forEach(([x, y, constructorId]) => {
+      const Environment = environmentsIndex[constructorId];
+      this.addEntity(new Environment(x, y));
     });
+
+    // Build organisms
+    this.map.organisms.forEach(([x, y, constructorId]) => {
+      const Organism = organismsIndex[constructorId];
+      this.addEntity(new Organism(x, y));
+    });
+
+    // Build interactions
+    this.map.interactions.forEach((interaction) => {
+      this.addEntity(
+        new Interaction(
+          interaction.x,
+          interaction.y,
+          interaction.width,
+          interaction.height,
+          interaction.data
+        )
+      );
+    });
+
+    // Add a new player instance
+    const player = new Player(playerX, playerY, playerDirection);
+    this.get(PlayerSystem).setPlayer(player);
+    this.addEntity(player);
+
+    // Setup camera
+    const camera = this.get(CameraSystem);
+    camera.setPlayer(player);
+    camera.init();
+
+    // Setup color correction
+    const colorCorrection = getColorCorrection(this.map.postProcessing);
+    if (colorCorrection) {
+      this.get(RenderSystem).setColorCorrection(colorCorrection);
+    }
+
+    // Setup ambiant particles
+    const ambiantParticles = getAmbiantParticles(this.map.postProcessing);
+    if (ambiantParticles) {
+      this.get(ParticlesSystem).setupAmbiantParticles(ambiantParticles);
+    }
+
+    // Setup ambiant sounds
+    this.map.ambiantAudio.forEach((audio) =>
+      this.addEntity(new AmbiantAudio(audio))
+    );
+
+    // Load textures
+    await this.get(RenderSystem).loadTextures();
+
+    // Load audio
+    await this.get(AudioSystem).loadAudioSources();
+
+    // Play ambiant sounds
+    this.map.ambiantAudio.forEach((audio) => AudioManager.playAmbiant(audio));
+
+    Emitter.emit('scene-loaded');
   }
 
   private loop(time = 0, oldTime = 0) {
