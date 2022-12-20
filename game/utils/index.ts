@@ -1,6 +1,4 @@
-export * from './audio-manager';
 export * from './ecs';
-export * from './emitter';
 export * from './helpers';
 export * from './post-processing';
 export * from './quadtree';

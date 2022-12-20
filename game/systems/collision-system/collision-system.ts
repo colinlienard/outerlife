@@ -9,8 +9,8 @@ import {
   StateMachineComponent,
 } from '~~/game/components';
 import { Impact, Interaction, Player } from '~~/game/entities';
+import { EventManager } from '~~/game/managers';
 import {
-  Emitter,
   Entity,
   getAngleFromPoints,
   QuadTree,
@@ -222,9 +222,9 @@ export class CollisionSystem extends System {
               // Make the sprite flash white
               colliding.get(SpriteComponent).setHit();
 
-              Emitter.emit('hit');
+              EventManager.emit('hit');
 
-              Emitter.emit(
+              EventManager.emit(
                 'spawn',
                 new Impact(pos.x + col.x, pos.y + col.y + col.height / 2)
               );

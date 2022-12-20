@@ -33,8 +33,12 @@ const handleMapUpload = (data: string) => {
 
     store.rows = map.rows;
     store.columns = map.columns;
-    store.postProcessing = map.postProcessing;
-    store.ambiantAudio = map.ambiantAudio;
+    const { postProcessing, ambiantSound, music } = map;
+    store.exportSettings = {
+      postProcessing,
+      ambiantSound,
+      music,
+    };
 
     setTimeout(() => {
       store.editor?.setMapData(map);

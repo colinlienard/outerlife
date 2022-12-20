@@ -1,5 +1,6 @@
 import { environmentsIndex, organismsIndex, terrainsIndex } from './data';
 import { AmbiantAudio, Interaction, InvisibleWall, Player } from './entities';
+import { AudioManager, EventManager } from './managers';
 import {
   AISystem,
   AnimationSystem,
@@ -12,10 +13,8 @@ import {
   RenderSystem,
 } from './systems';
 import {
-  AudioManager,
   Direction,
   ECS,
-  Emitter,
   GameMap,
   getAmbiantParticles,
   getColorCorrection,
@@ -58,14 +57,12 @@ export class Game extends ECS {
     })();
   }
 
-  private setMap(source: string) {
-    return new Promise<void>(async (resolve) => {
-      const map = (await import(`~~/game/data/maps/${source}.json`)) as GameMap;
-      if (map) {
-        this.map = map;
-        resolve();
-      }
-    });
+  private async setMap(source: string) {
+    const map = (await import(`~~/game/data/maps/${source}.json`)) as GameMap;
+    if (!map) {
+      throw new Error(`Invalid map source: '${source}'.`);
+    }
+    this.map = map;
   }
 
   private async buildMap(
@@ -164,10 +161,13 @@ export class Game extends ECS {
       this.get(ParticlesSystem).setupAmbiantParticles(ambiantParticles);
     }
 
-    // Setup ambiant sounds
-    this.map.ambiantAudio.forEach((audio) =>
-      this.addEntity(new AmbiantAudio(audio))
-    );
+    // Setup ambiant sound and music
+    if (this.map.ambiantSound) {
+      this.addEntity(new AmbiantAudio(this.map.ambiantSound));
+    }
+    if (this.map.music) {
+      this.addEntity(new AmbiantAudio(this.map.music));
+    }
 
     // Load textures
     await this.get(RenderSystem).loadTextures();
@@ -175,10 +175,18 @@ export class Game extends ECS {
     // Load audio
     await this.get(AudioSystem).loadAudioSources();
 
-    // Play ambiant sounds
-    this.map.ambiantAudio.forEach((audio) => AudioManager.playAmbiant(audio));
+    // Play ambiant sound and music
+    if (this.map.ambiantSound) {
+      AudioManager.playSoundEffect(this.map.ambiantSound, { loop: true });
+      AudioManager.fade('in', 'effect', Settings.transitionDuration);
+    }
+    if (this.map.music) {
+      AudioManager.playMusic(this.map.music);
+    } else {
+      AudioManager.clearMusic();
+    }
 
-    Emitter.emit('scene-loaded');
+    EventManager.emit('scene-loaded');
   }
 
   private loop(time = 0, oldTime = 0) {
@@ -199,21 +207,24 @@ export class Game extends ECS {
 
   private setEvents() {
     // Add entity to the scene
-    Emitter.on('spawn', (entity) => {
+    EventManager.on('spawn', (entity) => {
       this.addEntity(entity);
     });
 
     // Remove entity from the scene
-    Emitter.on('despawn', (id) => {
+    EventManager.on('despawn', (id) => {
       this.deleteEntity(id);
     });
 
     // Switch map
-    Emitter.on('switch-map', ({ map, playerX, playerY, playerDirection }) => {
-      this.switchMap(map, playerX, playerY, playerDirection);
-    });
+    EventManager.on(
+      'switch-map',
+      ({ map, playerX, playerY, playerDirection }) => {
+        this.switchMap(map, playerX, playerY, playerDirection);
+      }
+    );
 
-    Emitter.on('hit', () => {
+    EventManager.on('hit', () => {
       if (this.freeze) {
         return;
       }
@@ -239,21 +250,26 @@ export class Game extends ECS {
   ) {
     this.get(AISystem).clear();
 
+    AudioManager.fade('out', 'effect', Settings.transitionDuration);
+
     setTimeout(async () => {
-      this.pause();
+      this.paused = true;
       this.clearEntities();
+      AudioManager.clearSoundEffects();
 
       await this.setMap(map);
       await this.buildMap(playerX, playerY, playerDirection);
-      this.resume();
+      this.paused = false;
     }, Settings.transitionDuration);
   }
 
   pause() {
     this.paused = true;
+    AudioManager.pauseAll();
   }
 
   resume() {
     this.paused = false;
+    AudioManager.resumeAll();
   }
 }

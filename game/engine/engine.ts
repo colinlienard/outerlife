@@ -311,83 +311,79 @@ export class Engine {
     });
   }
 
-  loadTextures(sources: string[]) {
-    return new Promise<void>(async (resolve) => {
-      // Create and bind texture
-      const texture = this.gl.createTexture() as WebGLTexture;
-      this.gl.activeTexture(this.gl.TEXTURE0);
-      this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, texture);
+  async loadTextures(sources: string[]) {
+    // Create and bind texture
+    const texture = this.gl.createTexture() as WebGLTexture;
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D_ARRAY, texture);
 
-      // Load images
-      const promises = sources.map((source) => this.loadImage(source));
-      const images = await Promise.all(promises);
+    // Load images
+    const promises = sources.map((source) => this.loadImage(source));
+    const images = await Promise.all(promises);
 
-      // Get the max size of all the images
-      const textureMaxWidth = images.reduce(
-        (previous, current) => Math.max(previous, current.width),
-        0
-      );
-      const textureMaxHeight = images.reduce(
-        (previous, current) => Math.max(previous, current.height),
-        0
-      );
-      this.maxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
+    // Get the max size of all the images
+    const textureMaxWidth = images.reduce(
+      (previous, current) => Math.max(previous, current.width),
+      0
+    );
+    const textureMaxHeight = images.reduce(
+      (previous, current) => Math.max(previous, current.height),
+      0
+    );
+    this.maxTextureSize = Math.max(textureMaxWidth, textureMaxHeight);
 
-      // Create a texture array with the max size
-      this.gl.texStorage3D(
+    // Create a texture array with the max size
+    this.gl.texStorage3D(
+      this.gl.TEXTURE_2D_ARRAY,
+      1,
+      this.gl.RGBA8,
+      this.maxTextureSize,
+      this.maxTextureSize,
+      sources.length
+    );
+
+    // Add each image in the texture array
+    for (let index = 0; index < sources.length; index += 1) {
+      const image = images[index];
+      this.gl.texSubImage3D(
         this.gl.TEXTURE_2D_ARRAY,
+        0,
+        0,
+        0,
+        index,
+        image.width,
+        image.height,
         1,
-        this.gl.RGBA8,
-        this.maxTextureSize,
-        this.maxTextureSize,
-        sources.length
+        this.gl.RGBA,
+        this.gl.UNSIGNED_BYTE,
+        image
       );
 
-      // Add each image in the texture array
-      for (let index = 0; index < sources.length; index += 1) {
-        const image = images[index];
-        this.gl.texSubImage3D(
-          this.gl.TEXTURE_2D_ARRAY,
-          0,
-          0,
-          0,
-          index,
-          image.width,
-          image.height,
-          1,
-          this.gl.RGBA,
-          this.gl.UNSIGNED_BYTE,
-          image
-        );
+      // Save the depth of each source in the array
+      this.textureSourcesIndex.set(sources[index], index);
+    }
 
-        // Save the depth of each source in the array
-        this.textureSourcesIndex.set(sources[index], index);
-      }
-
-      // Texture settings
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D_ARRAY,
-        this.gl.TEXTURE_WRAP_S,
-        this.gl.CLAMP_TO_EDGE
-      );
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D_ARRAY,
-        this.gl.TEXTURE_WRAP_T,
-        this.gl.CLAMP_TO_EDGE
-      );
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D_ARRAY,
-        this.gl.TEXTURE_MAG_FILTER,
-        this.gl.NEAREST
-      );
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D_ARRAY,
-        this.gl.TEXTURE_MIN_FILTER,
-        this.gl.NEAREST
-      );
-
-      resolve();
-    });
+    // Texture settings
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D_ARRAY,
+      this.gl.TEXTURE_WRAP_S,
+      this.gl.CLAMP_TO_EDGE
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D_ARRAY,
+      this.gl.TEXTURE_WRAP_T,
+      this.gl.CLAMP_TO_EDGE
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D_ARRAY,
+      this.gl.TEXTURE_MAG_FILTER,
+      this.gl.NEAREST
+    );
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D_ARRAY,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.NEAREST
+    );
   }
 
   queueTextureRender(

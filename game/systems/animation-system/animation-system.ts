@@ -5,8 +5,8 @@ import {
   LayersComponent,
   StateMachineComponent,
 } from '~~/game/components';
+import { EventManager } from '~~/game/managers';
 import {
-  Emitter,
   entityDies,
   getDirectionFromAngle,
   getDirectionFromRow,
@@ -44,7 +44,7 @@ export class AnimationSystem extends System {
         } else if (animation.current.then) {
           switch (animation.current.then) {
             case 'despawn':
-              Emitter.emit('despawn', entity.id);
+              EventManager.emit('despawn', entity.id);
               break;
             case 'die':
               entityDies(entity);

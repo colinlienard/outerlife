@@ -1,12 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import {
-  GameMapAmbiantAudio,
-  GameMapInteraction,
-  GameMapItemType,
-  GameMapPostProcessing,
-} from '~~/game/utils';
-import { Editor } from './editor';
+import { GameMapInteraction, GameMapItemType } from '~~/game/utils';
+import { Editor, ExportSettings } from './editor';
 
 export const useEditorStore = defineStore('editor', () => {
   const editor = ref<Editor>();
@@ -31,8 +26,7 @@ export const useEditorStore = defineStore('editor', () => {
     | null
   >(null);
   const showPopup = ref(false);
-  const postProcessing = ref<GameMapPostProcessing>(null);
-  const ambiantAudio = ref<GameMapAmbiantAudio>([]);
+  const exportSettings = ref<ExportSettings>({ postProcessing: null });
 
   return {
     editor,
@@ -48,7 +42,6 @@ export const useEditorStore = defineStore('editor', () => {
     selectedEntity,
     selectedInteraction,
     showPopup,
-    postProcessing,
-    ambiantAudio,
+    exportSettings,
   };
 });

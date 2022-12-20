@@ -5,7 +5,8 @@ import {
   PositionComponent,
   StateMachineComponent,
 } from '~~/game/components';
-import { Emitter, Entity } from '~~/game/utils';
+import { EventManager } from '~~/game/managers';
+import { Entity } from '~~/game/utils';
 import { AISystem } from './ai-system';
 
 class AI extends Entity {
@@ -31,7 +32,7 @@ describe('ai system', () => {
     [...new Array(times)].forEach(() => aiSystem.update());
   };
 
-  Emitter.on('get-player-position', () => ({
+  EventManager.on('get-player-position', () => ({
     x: 200,
     y: 200,
   }));

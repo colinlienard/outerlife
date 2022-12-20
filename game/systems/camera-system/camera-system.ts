@@ -1,6 +1,7 @@
-import { Emitter, Settings, System } from '~~/game/utils';
+import { Settings, System } from '~~/game/utils';
 import { Player } from '~~/game/entities';
 import { PositionComponent, SpriteComponent } from '~~/game/components';
+import { EventManager } from '~~/game/managers';
 
 export class CameraSystem extends System {
   protected readonly requiredComponents = [];
@@ -109,7 +110,7 @@ export class CameraSystem extends System {
     this.y = this.getTargetY();
 
     // Shake camera on hit
-    Emitter.on('hit', () => {
+    EventManager.on('hit', () => {
       if (this.shaking) {
         return;
       }

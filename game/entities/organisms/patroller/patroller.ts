@@ -11,13 +11,9 @@ import {
   StateMachineComponent,
   AudioComponent,
 } from '~~/game/components';
-import {
-  AudioManager,
-  Emitter,
-  Entity,
-  getPointFromAngle,
-} from '~~/game/utils';
+import { Entity, getPointFromAngle } from '~~/game/utils';
 import { Damage } from '~~/game/entities';
+import { AudioManager, EventManager } from '~~/game/managers';
 
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
@@ -69,7 +65,9 @@ export class Patroller extends Entity {
         [
           {
             action: () =>
-              AudioManager.playEffect('/sounds/robot-attack.wav', 200),
+              AudioManager.playSoundEffect('/sounds/robot-attack.wav', {
+                pitchVariance: 200,
+              }),
             frame: 1,
             on: 'melee-attack',
           },
@@ -79,14 +77,17 @@ export class Patroller extends Entity {
             on: 'melee-attack',
           },
           {
-            action: () => AudioManager.playEffect('/sounds/robot-hit.wav', 200),
+            action: () =>
+              AudioManager.playSoundEffect('/sounds/robot-hit.wav', {
+                pitchVariance: 200,
+              }),
             frame: 1,
             on: 'hit',
           },
           {
             action: () => {
-              AudioManager.playEffect('/sounds/robot-hit.wav');
-              AudioManager.playEffect('/sounds/robot-die.wav');
+              AudioManager.playSoundEffect('/sounds/robot-hit.wav');
+              AudioManager.playSoundEffect('/sounds/robot-die.wav');
             },
             frame: 1,
             on: 'dead',
@@ -194,10 +195,10 @@ export class Patroller extends Entity {
 
   spawnDamage() {
     const damage = this.getDamage();
-    Emitter.emit('spawn', damage);
+    EventManager.emit('spawn', damage);
 
     setTimeout(() => {
-      Emitter.emit('despawn', damage.id);
+      EventManager.emit('despawn', damage.id);
     }, 166);
   }
 

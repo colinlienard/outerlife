@@ -46,8 +46,6 @@ export type GameMapTerrain = number | null;
 
 export type GameMapPostProcessing = null | 'desert';
 
-export type GameMapAmbiantAudio = string[];
-
 export type GameMap = {
   rows: number;
   columns: number;
@@ -56,7 +54,8 @@ export type GameMap = {
   environments: GameMapEntity[];
   organisms: GameMapEntity[];
   interactions: GameMapInteraction[];
-  ambiantAudio: GameMapAmbiantAudio;
+  ambiantSound?: string;
+  music?: string;
 };
 
 export type GameMapItemType =

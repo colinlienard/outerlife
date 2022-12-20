@@ -1,5 +1,6 @@
 import { AudioComponent } from '~~/game/components';
-import { AudioManager, Entity, System } from '~~/game/utils';
+import { AudioManager } from '~~/game/managers';
+import { Entity, System } from '~~/game/utils';
 
 export class AudioSystem extends System {
   protected readonly requiredComponents = [AudioComponent];

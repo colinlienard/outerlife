@@ -3,8 +3,8 @@ import {
   PositionComponent,
   SpriteComponent,
 } from '~~/game/components';
+import { EventManager } from '~~/game/managers';
 import { Entity } from '../ecs';
-import { Emitter } from '../emitter';
 
 export const entityDies = (entity: Entity) => {
   const { column, current } = entity.get(AnimationComponent);
@@ -23,6 +23,6 @@ export const entityDies = (entity: Entity) => {
     )
   );
 
-  Emitter.emit('despawn', entity.id);
-  Emitter.emit('spawn', newEntity);
+  EventManager.emit('despawn', entity.id);
+  EventManager.emit('spawn', newEntity);
 };

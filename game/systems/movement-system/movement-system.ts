@@ -7,7 +7,8 @@ import {
   AIComponent,
 } from '~~/game/components';
 import { DashDust, Dust } from '~~/game/entities';
-import { Emitter, getDirectionFromAngle, System } from '~~/game/utils';
+import { EventManager } from '~~/game/managers';
+import { getDirectionFromAngle, System } from '~~/game/utils';
 
 export class MovementSystem extends System {
   protected readonly requiredComponents = [
@@ -73,7 +74,7 @@ export class MovementSystem extends System {
               return;
             }
 
-            Emitter.emit(
+            EventManager.emit(
               'spawn',
               new DashDust(
                 position.x + 8,
@@ -100,7 +101,7 @@ export class MovementSystem extends System {
               return;
             }
 
-            Emitter.emit('spawn', new Dust(position.x, position.y + 16));
+            EventManager.emit('spawn', new Dust(position.x, position.y + 16));
 
             return;
           }

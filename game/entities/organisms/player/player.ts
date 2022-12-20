@@ -11,10 +11,9 @@ import {
   StateMachineComponent,
   AudioComponent,
 } from '~~/game/components';
+import { AudioManager, EventManager } from '~~/game/managers';
 import {
-  AudioManager,
   Direction,
-  Emitter,
   Entity,
   getAngleFromDirection,
   getPointFromAngle,
@@ -79,19 +78,26 @@ export class Player extends Entity {
             on: 'run',
           },
           {
-            action: () => AudioManager.playEffect('/sounds/dash.wav', 200),
+            action: () =>
+              AudioManager.playSoundEffect('/sounds/dash.wav', {
+                pitchVariance: 200,
+              }),
             frame: 1,
             on: 'dash',
           },
           {
             action: () =>
-              AudioManager.playEffect('/sounds/desert-footsteps.wav', 200),
+              AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+                pitchVariance: 200,
+              }),
             frame: 1,
             on: 'dash-recovery',
           },
           {
             action: () =>
-              AudioManager.playEffect('/sounds/player-hit.wav', 200),
+              AudioManager.playSoundEffect('/sounds/player-hit.wav', {
+                pitchVariance: 200,
+              }),
             frame: 1,
             on: 'hit',
           },
@@ -108,8 +114,10 @@ export class Player extends Entity {
                 16
               );
 
-              Emitter.emit('spawn', new Slash(point.x, point.y, row, 30));
-              AudioManager.playEffect('/sounds/sword-slash.wav', 200);
+              EventManager.emit('spawn', new Slash(point.x, point.y, row, 30));
+              AudioManager.playSoundEffect('/sounds/sword-slash.wav', {
+                pitchVariance: 200,
+              });
             },
             frame: 2,
             on: 'melee-attack',
@@ -650,6 +658,17 @@ export class Player extends Entity {
             depth: 1,
           },
         },
+        {
+          type: 'glow',
+          color: [1, 1, 1],
+          opacity: 0.1,
+          data: {
+            x: -48,
+            y: -48,
+          },
+          render: true,
+          size: 128,
+        },
       ])
     );
     this.add(new MeleeAttackComponent(3, 0.3));
@@ -661,7 +680,7 @@ export class Player extends Entity {
     this.add(new StateMachineComponent());
 
     // Add an event to get the center position
-    Emitter.on('get-player-position', () =>
+    EventManager.on('get-player-position', () =>
       this.get(StateMachineComponent).get() === 'dead'
         ? {
             x: 9999,
@@ -671,17 +690,19 @@ export class Player extends Entity {
     );
 
     // Remove the event when changing scene
-    Emitter.on('switch-map', () => {
-      Emitter.unbind('get-player-position');
+    EventManager.on('switch-map', () => {
+      EventManager.unbind('get-player-position');
     });
   }
 
   footstep() {
     // Spawn dust effect
     const { x: xPos, y: yPos } = this.get(PositionComponent);
-    Emitter.emit('spawn', new Dust(xPos, yPos + 16));
+    EventManager.emit('spawn', new Dust(xPos, yPos + 16));
 
     // Play footstep
-    AudioManager.playEffect('/sounds/desert-footsteps.wav', 200);
+    AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+      pitchVariance: 200,
+    });
   }
 }

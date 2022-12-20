@@ -5,8 +5,7 @@ import EditorInput from './EditorInput.vue';
 const store = useEditorStore();
 
 const downloadMap = () => {
-  store.editor?.updatePostProcessing(store.postProcessing);
-  store.editor?.updateAmbiantAudio(store.ambiantAudio);
+  store.editor?.updateExportSettings(store.exportSettings);
   const map = store.editor?.getMap();
   useDownload(map, 'map.json');
 };
@@ -19,7 +18,7 @@ const downloadMap = () => {
       <h2 class="title">Post processing effects</h2>
       <select
         id="post-processing"
-        v-model="store.postProcessing"
+        v-model="store.exportSettings.postProcessing"
         class="select"
       >
         <option :value="null">None</option>
@@ -27,23 +26,47 @@ const downloadMap = () => {
       </select>
     </section>
     <section class="section">
-      <h2 class="title">Ambiant audio</h2>
-      <div
-        v-for="(audio, index) of store.ambiantAudio"
-        :key="index"
-        class="wrapper-2-1"
-      >
+      <h2 class="title">Ambiant sound</h2>
+      <div v-if="store.exportSettings.ambiantSound" class="wrapper-2-1">
         <EditorInput
-          v-model="store.ambiantAudio[index]"
+          v-model="store.exportSettings.ambiantSound"
           label="Path"
           placeholder="Audio source"
           type="text"
         />
-        <button class="button" @click="store.ambiantAudio.splice(index, 1)">
+        <button
+          class="button"
+          @click="store.exportSettings.ambiantSound = undefined"
+        >
           Delete
         </button>
       </div>
-      <button class="button" @click="store.ambiantAudio.push('/sounds/*.wav')">
+      <button
+        v-else
+        class="button"
+        @click="store.exportSettings.ambiantSound = '/sounds/*.wav'"
+      >
+        Add
+      </button>
+    </section>
+    <section class="section">
+      <h2 class="title">Music</h2>
+      <div v-if="store.exportSettings.music" class="wrapper-2-1">
+        <EditorInput
+          v-model="store.exportSettings.music"
+          label="Path"
+          placeholder="Audio source"
+          type="text"
+        />
+        <button class="button" @click="store.exportSettings.music = undefined">
+          Delete
+        </button>
+      </div>
+      <button
+        v-else
+        class="button"
+        @click="store.exportSettings.music = '/music/*.mp3'"
+      >
         Add
       </button>
     </section>

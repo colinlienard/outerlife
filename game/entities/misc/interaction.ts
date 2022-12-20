@@ -3,7 +3,8 @@ import {
   PositionComponent,
   SpriteComponent,
 } from '~~/game/components';
-import { Emitter, Entity, InteractionData } from '~~/game/utils';
+import { EventManager } from '~~/game/managers';
+import { Entity, InteractionData } from '~~/game/utils';
 
 export class Interaction extends Entity {
   data: InteractionData;
@@ -39,7 +40,12 @@ export class Interaction extends Entity {
     switch (this.data.type) {
       case 'switch-map': {
         const { map, playerX, playerY, playerDirection } = this.data;
-        Emitter.emit('switch-map', { map, playerX, playerY, playerDirection });
+        EventManager.emit('switch-map', {
+          map,
+          playerX,
+          playerY,
+          playerDirection,
+        });
         break;
       }
 

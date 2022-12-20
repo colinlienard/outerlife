@@ -5,7 +5,7 @@ import {
 } from '~~/game/components';
 import { Entity, ParticlesProps, Settings } from '~~/game/utils';
 
-export class AmbiantParticlesEmitter extends Entity {
+export class AmbiantParticlesEventManager extends Entity {
   constructor({ color, speed, duration, angle, timeBetween }: ParticlesProps) {
     super();
     this.add(
