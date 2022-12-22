@@ -64,10 +64,27 @@ export class Patroller extends Entity {
         1,
         [
           {
-            action: () =>
-              AudioManager.playSoundEffect('/sounds/robot-attack.wav', {
-                pitchVariance: 200,
-              }),
+            action: () => this.emitFootstepsSound(),
+            frame: 1,
+            on: 'run',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 3,
+            on: 'run',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 1,
+            on: 'chase',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 3,
+            on: 'chase',
+          },
+          {
+            action: () => this.emitAttackSound(),
             frame: 1,
             on: 'melee-attack',
           },
@@ -77,17 +94,14 @@ export class Patroller extends Entity {
             on: 'melee-attack',
           },
           {
-            action: () =>
-              AudioManager.playSoundEffect('/sounds/robot-hit.wav', {
-                pitchVariance: 200,
-              }),
+            action: () => this.emitHitSound(),
             frame: 1,
             on: 'hit',
           },
           {
             action: () => {
-              AudioManager.playSoundEffect('/sounds/robot-hit.wav');
-              AudioManager.playSoundEffect('/sounds/robot-die.wav');
+              this.emitHitSound();
+              this.emitDieSound();
             },
             frame: 1,
             on: 'dead',
@@ -193,7 +207,11 @@ export class Patroller extends Entity {
     this.add(new StateMachineComponent());
   }
 
-  spawnDamage() {
+  private getPosition() {
+    return this.get(PositionComponent).getCenter();
+  }
+
+  private spawnDamage() {
     const damage = this.getDamage();
     EventManager.emit('spawn', damage);
 
@@ -202,12 +220,39 @@ export class Patroller extends Entity {
     }, 166);
   }
 
-  getDamage() {
-    const position = this.get(PositionComponent).getCenter();
+  private getDamage() {
+    const position = this.getPosition();
     const { angle } = this.get(MovementComponent);
 
     const { x, y } = getPointFromAngle(angle, position.x, position.y, 10);
 
     return new Damage(x, y, 24, 24, 30);
+  }
+
+  private emitFootstepsSound() {
+    AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitAttackSound() {
+    AudioManager.playSoundEffect('/sounds/robot-attack.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitHitSound() {
+    AudioManager.playSoundEffect('/sounds/robot-hit.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitDieSound() {
+    AudioManager.playSoundEffect('/sounds/robot-die.wav', {
+      spatialization: this.getPosition(),
+    });
   }
 }

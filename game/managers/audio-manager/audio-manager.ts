@@ -25,15 +25,15 @@ export abstract class AudioManager {
     };
   }
 
-  static async load(source: string) {
-    if (this.buffers.has(source)) {
-      return;
-    }
-
-    const response = await fetch(source);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await this.context.decodeAudioData(arrayBuffer);
-    this.buffers.set(source, audioBuffer);
+  private static getPanner(x: number, y: number) {
+    return new PannerNode(this.context, {
+      distanceModel: 'exponential',
+      panningModel: 'HRTF',
+      positionX: x,
+      positionY: y,
+      refDistance: 50,
+      rolloffFactor: 1.25,
+    });
   }
 
   private static play(
@@ -63,9 +63,17 @@ export abstract class AudioManager {
       }
     }
 
-    // Connect to the correct gain
-    track.connect(this.gains[type]);
-    this.gains[type].connect(this.context.destination);
+    // Connect audio nodes
+    if (options && options.spatialization) {
+      const { x, y } = options.spatialization;
+      const panner = this.getPanner(x, y);
+      track
+        .connect(panner)
+        .connect(this.gains[type])
+        .connect(this.context.destination);
+    } else {
+      track.connect(this.gains[type]).connect(this.context.destination);
+    }
 
     // Play the sound
     track.start();
@@ -73,11 +81,18 @@ export abstract class AudioManager {
     return track;
   }
 
-  static playSoundEffect(source: string, options?: SoundEffectOptions) {
-    if (this.soundEffects.has(source)) {
+  static async load(source: string) {
+    if (this.buffers.has(source)) {
       return;
     }
 
+    const response = await fetch(source);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await this.context.decodeAudioData(arrayBuffer);
+    this.buffers.set(source, audioBuffer);
+  }
+
+  static playSoundEffect(source: string, options?: SoundEffectOptions) {
     const track = this.play(source, 'effect', options);
 
     // Keep track of soundEffects sounds
@@ -101,24 +116,22 @@ export abstract class AudioManager {
       return;
     }
 
-    // Fade out and stop old music
-    if (this.music) {
-      await this.clearMusic();
-      // Play and store new music
+    const startMusic = () => {
       this.gains.music.gain.value = 1;
       const track = this.play(source, 'music', {
         loop: true,
       });
       this.music = { source, track };
+    };
+
+    if (!this.music) {
+      startMusic();
       return;
     }
 
-    // Play and store new music
-    this.gains.music.gain.value = 1;
-    const track = this.play(source, 'music', {
-      loop: true,
-    });
-    this.music = { source, track };
+    // Fade out and stop old music
+    await this.clearMusic();
+    startMusic();
   }
 
   static async clearMusic() {
@@ -142,6 +155,12 @@ export abstract class AudioManager {
 
       setTimeout(resolve, duration);
     });
+  }
+
+  static updateListenerPosition(x: number, y: number) {
+    const { listener } = this.context;
+    listener.positionX.value = x;
+    listener.positionY.value = y;
   }
 
   static pauseAll() {

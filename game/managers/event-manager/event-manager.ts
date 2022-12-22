@@ -8,7 +8,7 @@ export abstract class EventManager {
     ...args: Parameters<EventMap[E]>
   ): ReturnType<EventMap[E]>[] {
     if (!this.events.has(event)) {
-      throw new Error(`EventManager '${event}' has not been created.`);
+      throw new Error(`Event '${event}' has not been created.`);
     }
 
     return this.events.get(event)?.map((callback) => callback(...args)) || [];
@@ -16,6 +16,10 @@ export abstract class EventManager {
 
   static on<E extends Events>(event: E, callback: EventMap[E]) {
     this.events.set(event, [...(this.events.get(event) || []), callback]);
+  }
+
+  static exist(event: Events) {
+    return this.events.has(event);
   }
 
   static unbind(event: Events) {

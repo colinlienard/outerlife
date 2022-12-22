@@ -1,5 +1,5 @@
 import { AudioComponent } from '~~/game/components';
-import { AudioManager } from '~~/game/managers';
+import { AudioManager, EventManager } from '~~/game/managers';
 import { Entity, System } from '~~/game/utils';
 
 export class AudioSystem extends System {
@@ -25,5 +25,10 @@ export class AudioSystem extends System {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  update() {}
+  update() {
+    if (EventManager.exist('get-player-position')) {
+      const [{ x, y }] = EventManager.emit('get-player-position');
+      AudioManager.updateListenerPosition(x, y);
+    }
+  }
 }
