@@ -1,5 +1,11 @@
 import { getRandomNumber } from '~~/game/utils';
-import { SoundEffectOptions, SoundType } from './types';
+import { SoundEffectOptions, SoundType, Volumes } from './types';
+
+const defaultVolumes: Volumes = {
+  general: 1,
+  soundEffects: 1,
+  music: 1,
+};
 
 export abstract class AudioManager {
   private static context: AudioContext;
@@ -16,6 +22,8 @@ export abstract class AudioManager {
         track: AudioBufferSourceNode;
       }
     | undefined;
+
+  private static volumes: Volumes = defaultVolumes;
 
   static init() {
     this.context = new AudioContext();
@@ -79,6 +87,10 @@ export abstract class AudioManager {
     track.start();
 
     return track;
+  }
+
+  private static updateGain(type: SoundType, value: number) {
+    this.gains[type].gain.value = value;
   }
 
   static async load(source: string) {
@@ -171,7 +183,15 @@ export abstract class AudioManager {
     this.context.resume();
   }
 
-  static updateGain(type: SoundType, value: number) {
-    this.gains[type].gain.value = value;
+  static updateVolumes(volumes: Volumes) {
+    this.volumes = volumes;
+
+    const { general, soundEffects, music } = this.volumes;
+    this.updateGain('effect', soundEffects * general);
+    this.updateGain('music', music * general);
+  }
+
+  static getVolumes() {
+    return this.volumes;
   }
 }

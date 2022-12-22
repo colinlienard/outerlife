@@ -265,11 +265,9 @@ export class Game extends ECS {
 
   pause() {
     this.paused = true;
-    AudioManager.pauseAll();
   }
 
   resume() {
     this.paused = false;
-    AudioManager.resumeAll();
   }
 }

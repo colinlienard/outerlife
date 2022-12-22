@@ -7,3 +7,9 @@ export type SoundEffectOptions = {
 };
 
 export type SoundType = 'music' | 'effect';
+
+export type Volumes = {
+  general: number;
+  soundEffects: number;
+  music: number;
+};
