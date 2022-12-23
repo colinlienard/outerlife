@@ -86,7 +86,7 @@ watch(
         </MenuCheck>
         <MenuSubTitle>Audio</MenuSubTitle>
         <MenuSlider v-model="volumes.master" :min="0" :max="10" :step="1">
-          General
+          Master
         </MenuSlider>
         <MenuSlider v-model="volumes.effects" :min="0" :max="10" :step="1">
           Effects

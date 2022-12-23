@@ -1,6 +1,6 @@
-import { AudioComponent } from '~~/game/components';
+import { AudioComponent, PositionComponent } from '~~/game/components';
 import { AudioManager, EventManager } from '~~/game/managers';
-import { Entity, System } from '~~/game/utils';
+import { Entity, getRandomNumber, System } from '~~/game/utils';
 
 export class AudioSystem extends System {
   protected readonly requiredComponents = [AudioComponent];
@@ -10,6 +10,8 @@ export class AudioSystem extends System {
   constructor() {
     super();
     AudioManager.init();
+
+    // Load UI sounds
     AudioManager.load('/sounds/ui/click.wav');
     AudioManager.load('/sounds/ui/hover.wav');
   }
@@ -26,8 +28,34 @@ export class AudioSystem extends System {
     await Promise.all(promises);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   update() {
+    this.get().forEach((entity) => {
+      const { recurringSounds } = entity.get(AudioComponent);
+
+      if (!recurringSounds) {
+        return;
+      }
+
+      recurringSounds.forEach((sound) => {
+        if (sound.frameWaiter === sound.framesBetween) {
+          sound.framesBetween = getRandomNumber(...sound.randomFramesBetween);
+          sound.frameWaiter = 0;
+
+          AudioManager.playEffect(sound.source, {
+            ...sound,
+            spatialization: sound.spatialization
+              ? entity.get(PositionComponent).getCenter()
+              : undefined,
+          });
+
+          return;
+        }
+
+        sound.frameWaiter += 1;
+      });
+    });
+
+    // Update listener position for spatialization
     if (EventManager.exist('get-player-position')) {
       const [{ x, y }] = EventManager.emit('get-player-position');
       AudioManager.updateListenerPosition(x, y);

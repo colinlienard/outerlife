@@ -110,13 +110,22 @@ export class Patroller extends Entity {
       )
     );
     this.add(
-      new AudioComponent([
-        '/sounds/effects/robot-noise-1.wav',
-        '/sounds/effects/robot-noise-2.wav',
-        '/sounds/effects/robot-attack.wav',
-        '/sounds/effects/robot-hit.wav',
-        '/sounds/effects/robot-die.wav',
-      ])
+      new AudioComponent(
+        [
+          '/sounds/effects/robot-noise-1.wav',
+          '/sounds/effects/robot-noise-2.wav',
+          '/sounds/effects/robot-attack.wav',
+          '/sounds/effects/robot-hit.wav',
+          '/sounds/effects/robot-die.wav',
+        ],
+        [
+          {
+            source: `/sounds/effects/robot-noise-${getRandomNumber(1, 2)}.wav`,
+            randomFramesBetween: [200, 1000],
+            spatialization: true,
+          },
+        ]
+      )
     );
     this.add(
       new CollisionComponent([
@@ -207,8 +216,6 @@ export class Patroller extends Entity {
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/patroller.png', 0, 0, 32, 32));
     this.add(new StateMachineComponent());
-
-    this.emitNoise();
   }
 
   private getPosition() {
@@ -231,21 +238,6 @@ export class Patroller extends Entity {
     const { x, y } = getPointFromAngle(angle, position.x, position.y, 10);
 
     return new Damage(x, y, 24, 24, 30);
-  }
-
-  private emitNoise() {
-    setTimeout(() => {
-      if (this.get(StateMachineComponent).is(['dead'])) {
-        return;
-      }
-
-      AudioManager.playEffect(
-        `/sounds/effects/robot-noise-${getRandomNumber(1, 2)}.wav`,
-        { spatialization: this.getPosition() }
-      );
-
-      this.emitNoise();
-    }, getRandomNumber(5, 30) * 1000);
   }
 
   private emitFootstepsSound() {
