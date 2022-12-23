@@ -1,6 +1,6 @@
 import { Point } from '~~/game/utils';
 
-export type SoundEffectOptions = {
+export type EffectOptions = {
   pitchVariance?: number;
   loop?: boolean;
   spatialization?: Point;
@@ -9,7 +9,7 @@ export type SoundEffectOptions = {
 export type SoundType = 'music' | 'effect';
 
 export type Volumes = {
-  general: number;
-  soundEffects: number;
+  master: number;
+  effects: number;
   music: number;
 };

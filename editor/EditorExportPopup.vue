@@ -44,7 +44,7 @@ const downloadMap = () => {
       <button
         v-else
         class="button"
-        @click="store.exportSettings.ambiantSound = '/sounds/*.wav'"
+        @click="store.exportSettings.ambiantSound = '/sounds/effects/*.wav'"
       >
         Add
       </button>
@@ -65,7 +65,7 @@ const downloadMap = () => {
       <button
         v-else
         class="button"
-        @click="store.exportSettings.music = '/music/*.mp3'"
+        @click="store.exportSettings.music = '/sounds/musics/*.mp3'"
       >
         Add
       </button>

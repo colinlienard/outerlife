@@ -9,6 +9,7 @@ import MenuTitle from './menus/MenuTitle.vue';
 import MenuCheck from './menus/MenuCheck.vue';
 import MenuContainer from './menus/MenuContainer.vue';
 import MenuSlider from './menus/MenuSlider.vue';
+import MenuSubTitle from './menus/MenuSubTitle.vue';
 
 const paused = ref(false);
 const showOptions = ref(false);
@@ -16,8 +17,8 @@ const game = inject<Ref<Game>>('game');
 const debugMode = inject<Ref<boolean>>('debugMode');
 
 const volumes = ref<Volumes>({
-  general: 5,
-  soundEffects: 5,
+  master: 5,
+  effects: 5,
   music: 5,
 });
 
@@ -47,10 +48,10 @@ watch(paused, (newPaused) => {
 
 watch(
   volumes,
-  ({ general, soundEffects, music }) => {
+  ({ master, effects, music }) => {
     AudioManager.updateVolumes({
-      general: general / 5,
-      soundEffects: soundEffects / 2,
+      master: master / 5,
+      effects: effects / 2,
       music: music / 5,
     });
   },
@@ -75,15 +76,7 @@ watch(
       <MenuTitle>Options</MenuTitle>
       <MenuList>
         <MenuButton @click="showOptions = false">⬅️ Back</MenuButton>
-        <MenuSlider v-model="volumes.general" :min="0" :max="10" :step="1">
-          General sound
-        </MenuSlider>
-        <MenuSlider v-model="volumes.soundEffects" :min="0" :max="10" :step="1">
-          Sound effects
-        </MenuSlider>
-        <MenuSlider v-model="volumes.music" :min="0" :max="10" :step="1">
-          Music
-        </MenuSlider>
+        <MenuSubTitle>Video</MenuSubTitle>
         <MenuCheck
           :default="isFullScreen()"
           @check="enterFullScreen"
@@ -91,6 +84,17 @@ watch(
         >
           Full screen
         </MenuCheck>
+        <MenuSubTitle>Audio</MenuSubTitle>
+        <MenuSlider v-model="volumes.master" :min="0" :max="10" :step="1">
+          General
+        </MenuSlider>
+        <MenuSlider v-model="volumes.effects" :min="0" :max="10" :step="1">
+          Effects
+        </MenuSlider>
+        <MenuSlider v-model="volumes.music" :min="0" :max="10" :step="1">
+          Music
+        </MenuSlider>
+        <MenuSubTitle>Development</MenuSubTitle>
         <MenuCheck
           :default="debugMode || false"
           @check="setDebugMode(true)"

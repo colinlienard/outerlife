@@ -79,7 +79,7 @@ export class Player extends Entity {
           },
           {
             action: () =>
-              AudioManager.playSoundEffect('/sounds/dash.wav', {
+              AudioManager.playEffect('/sounds/effects/dash.wav', {
                 pitchVariance: 200,
               }),
             frame: 1,
@@ -87,7 +87,7 @@ export class Player extends Entity {
           },
           {
             action: () =>
-              AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+              AudioManager.playEffect('/sounds/effects/desert-footsteps.wav', {
                 pitchVariance: 200,
               }),
             frame: 1,
@@ -95,7 +95,7 @@ export class Player extends Entity {
           },
           {
             action: () =>
-              AudioManager.playSoundEffect('/sounds/player-hit.wav', {
+              AudioManager.playEffect('/sounds/effects/player-hit.wav', {
                 pitchVariance: 200,
               }),
             frame: 1,
@@ -115,7 +115,7 @@ export class Player extends Entity {
               );
 
               EventManager.emit('spawn', new Slash(point.x, point.y, row, 30));
-              AudioManager.playSoundEffect('/sounds/sword-slash.wav', {
+              AudioManager.playEffect('/sounds/effects/sword-slash.wav', {
                 pitchVariance: 200,
               });
             },
@@ -127,11 +127,11 @@ export class Player extends Entity {
     );
     this.add(
       new AudioComponent([
-        '/sounds/desert-footsteps.wav',
-        '/sounds/player-hit.wav',
-        '/sounds/sword-slash.wav',
-        '/sounds/dash.wav',
-        '/sounds/player-hit.wav',
+        '/sounds/effects/desert-footsteps.wav',
+        '/sounds/effects/player-hit.wav',
+        '/sounds/effects/sword-slash.wav',
+        '/sounds/effects/dash.wav',
+        '/sounds/effects/player-hit.wav',
       ])
     );
     this.add(
@@ -701,7 +701,7 @@ export class Player extends Entity {
     EventManager.emit('spawn', new Dust(xPos, yPos + 16));
 
     // Play footstep
-    AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+    AudioManager.playEffect('/sounds/effects/desert-footsteps.wav', {
       pitchVariance: 200,
     });
   }

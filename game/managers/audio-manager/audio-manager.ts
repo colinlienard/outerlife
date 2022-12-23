@@ -1,9 +1,9 @@
 import { getRandomNumber } from '~~/game/utils';
-import { SoundEffectOptions, SoundType, Volumes } from './types';
+import { EffectOptions, SoundType, Volumes } from './types';
 
 const defaultVolumes: Volumes = {
-  general: 1,
-  soundEffects: 1,
+  master: 1,
+  effects: 1,
   music: 1,
 };
 
@@ -14,7 +14,7 @@ export abstract class AudioManager {
 
   private static gains: Record<SoundType, GainNode>;
 
-  private static soundEffects = new Map<string, AudioBufferSourceNode>();
+  private static effects = new Map<string, AudioBufferSourceNode>();
 
   private static music:
     | {
@@ -47,7 +47,7 @@ export abstract class AudioManager {
   private static play(
     source: string,
     type: SoundType,
-    options?: SoundEffectOptions
+    options?: EffectOptions
   ) {
     const buffer = this.buffers.get(source);
     if (!buffer) {
@@ -104,22 +104,22 @@ export abstract class AudioManager {
     this.buffers.set(source, audioBuffer);
   }
 
-  static playSoundEffect(source: string, options?: SoundEffectOptions) {
+  static playEffect(source: string, options?: EffectOptions) {
     const track = this.play(source, 'effect', options);
 
-    // Keep track of soundEffects sounds
-    this.soundEffects.set(source, track);
+    // Keep track of effects sounds
+    this.effects.set(source, track);
     track.onended = () => {
       track.stop();
-      this.soundEffects.delete(source);
+      this.effects.delete(source);
     };
   }
 
-  static clearSoundEffects() {
-    this.soundEffects.forEach((soundEffect) => {
-      soundEffect.stop();
+  static clearEffects() {
+    this.effects.forEach((effect) => {
+      effect.stop();
     });
-    this.soundEffects.clear();
+    this.effects.clear();
   }
 
   static async playMusic(source: string) {
@@ -186,9 +186,9 @@ export abstract class AudioManager {
   static updateVolumes(volumes: Volumes) {
     this.volumes = volumes;
 
-    const { general, soundEffects, music } = this.volumes;
-    this.updateGain('effect', soundEffects * general);
-    this.updateGain('music', music * general);
+    const { master, effects, music } = this.volumes;
+    this.updateGain('effect', effects * master);
+    this.updateGain('music', music * master);
   }
 
   static getVolumes() {

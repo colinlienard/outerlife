@@ -1,6 +1,18 @@
+<script setup lang="ts">
+import { AudioManager } from '~~/game/managers';
+</script>
+
 <template>
   <li>
-    <button class="button">
+    <button
+      class="button"
+      @click="
+        AudioManager.playEffect('/sounds/ui/click.wav', { pitchVariance: 200 })
+      "
+      @mouseenter="
+        AudioManager.playEffect('/sounds/ui/hover.wav', { pitchVariance: 200 })
+      "
+    >
       <slot />
     </button>
   </li>

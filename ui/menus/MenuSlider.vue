@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import MenuButton from './MenuButton.vue';
+
 const props = defineProps<{
   modelValue: number;
   min: number;
@@ -24,35 +26,24 @@ const increase = () => {
 </script>
 
 <template>
-  <div class="container">
-    <slot />
-    <span class="buttons">
-      <button @click="decrease">{{ modelValue > min ? '⬅️' : '⬛' }}</button>
-      <p>{{ modelValue }}</p>
-      <button @click="increase">{{ modelValue < max ? '➡️' : '⬛' }}️</button>
-    </span>
-  </div>
+  <MenuButton>
+    <div class="container">
+      <slot />
+      <span class="buttons">
+        <button @click="decrease">{{ modelValue > min ? '⬅️' : '⬛' }}</button>
+        <p>{{ modelValue }}</p>
+        <button @click="increase">{{ modelValue < max ? '➡️' : '⬛' }}️</button>
+      </span>
+    </div>
+  </MenuButton>
 </template>
 
 <style scoped lang="scss">
 .container {
-  width: 24rem;
-  padding: 1em;
-  font-size: 1.2rem;
-  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #4e6679;
-  border: 5px solid #5c8ba8;
-
-  &:hover {
-    background-color: #5c8ba8;
-  }
-
-  &:active {
-    background-color: #72b6cf;
-  }
 }
 
 .buttons {

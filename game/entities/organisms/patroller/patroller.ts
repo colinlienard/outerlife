@@ -11,7 +11,7 @@ import {
   StateMachineComponent,
   AudioComponent,
 } from '~~/game/components';
-import { Entity, getPointFromAngle } from '~~/game/utils';
+import { Entity, getPointFromAngle, getRandomNumber } from '~~/game/utils';
 import { Damage } from '~~/game/entities';
 import { AudioManager, EventManager } from '~~/game/managers';
 
@@ -111,9 +111,11 @@ export class Patroller extends Entity {
     );
     this.add(
       new AudioComponent([
-        '/sounds/robot-hit.wav',
-        '/sounds/robot-attack.wav',
-        '/sounds/robot-die.wav',
+        '/sounds/effects/robot-noise-1.wav',
+        '/sounds/effects/robot-noise-2.wav',
+        '/sounds/effects/robot-attack.wav',
+        '/sounds/effects/robot-hit.wav',
+        '/sounds/effects/robot-die.wav',
       ])
     );
     this.add(
@@ -205,6 +207,8 @@ export class Patroller extends Entity {
     this.add(new PositionComponent(x, y, 32, 32));
     this.add(new SpriteComponent('/sprites/patroller.png', 0, 0, 32, 32));
     this.add(new StateMachineComponent());
+
+    this.emitNoise();
   }
 
   private getPosition() {
@@ -229,29 +233,44 @@ export class Patroller extends Entity {
     return new Damage(x, y, 24, 24, 30);
   }
 
+  private emitNoise() {
+    setTimeout(() => {
+      if (this.get(StateMachineComponent).is(['dead'])) {
+        return;
+      }
+
+      AudioManager.playEffect(
+        `/sounds/effects/robot-noise-${getRandomNumber(1, 2)}.wav`,
+        { spatialization: this.getPosition() }
+      );
+
+      this.emitNoise();
+    }, getRandomNumber(5, 30) * 1000);
+  }
+
   private emitFootstepsSound() {
-    AudioManager.playSoundEffect('/sounds/desert-footsteps.wav', {
+    AudioManager.playEffect('/sounds/effects/desert-footsteps.wav', {
       pitchVariance: 200,
       spatialization: this.getPosition(),
     });
   }
 
   private emitAttackSound() {
-    AudioManager.playSoundEffect('/sounds/robot-attack.wav', {
+    AudioManager.playEffect('/sounds/effects/robot-attack.wav', {
       pitchVariance: 200,
       spatialization: this.getPosition(),
     });
   }
 
   private emitHitSound() {
-    AudioManager.playSoundEffect('/sounds/robot-hit.wav', {
+    AudioManager.playEffect('/sounds/effects/robot-hit.wav', {
       pitchVariance: 200,
       spatialization: this.getPosition(),
     });
   }
 
   private emitDieSound() {
-    AudioManager.playSoundEffect('/sounds/robot-die.wav', {
+    AudioManager.playEffect('/sounds/effects/robot-die.wav', {
       spatialization: this.getPosition(),
     });
   }

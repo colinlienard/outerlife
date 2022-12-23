@@ -10,6 +10,8 @@ export class AudioSystem extends System {
   constructor() {
     super();
     AudioManager.init();
+    AudioManager.load('/sounds/ui/click.wav');
+    AudioManager.load('/sounds/ui/hover.wav');
   }
 
   add(entity: Entity) {

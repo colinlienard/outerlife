@@ -89,6 +89,6 @@
     }
   ],
   "postProcessing": "desert",
-  "ambiantSound": "/sounds/desert-ambiant.wav",
-  "music": "/musics/desert-music-1.mp3"
+  "ambiantSound": "/sounds/effects/desert-ambiant.wav",
+  "music": "/sounds/musics/desert-music-1.mp3"
 }

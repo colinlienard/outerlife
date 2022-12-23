@@ -50,7 +50,7 @@ export class Game extends ECS {
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-test');
+      await this.setMap('map-1');
       await this.buildMap(340, 230, 'down');
 
       this.loop();
@@ -177,7 +177,7 @@ export class Game extends ECS {
 
     // Play ambiant sound and music
     if (this.map.ambiantSound) {
-      AudioManager.playSoundEffect(this.map.ambiantSound, { loop: true });
+      AudioManager.playEffect(this.map.ambiantSound, { loop: true });
       AudioManager.fade('in', 'effect', Settings.transitionDuration);
     }
     if (this.map.music) {
@@ -255,7 +255,7 @@ export class Game extends ECS {
     setTimeout(async () => {
       this.paused = true;
       this.clearEntities();
-      AudioManager.clearSoundEffects();
+      AudioManager.clearEffects();
 
       await this.setMap(map);
       await this.buildMap(playerX, playerY, playerDirection);
