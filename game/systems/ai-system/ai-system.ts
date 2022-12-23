@@ -4,8 +4,8 @@ import {
   PositionComponent,
   StateMachineComponent,
 } from '~~/game/components';
+import { EventManager } from '~~/game/managers';
 import {
-  Emitter,
   getAngleFromPoints,
   getDirectionFromAngle,
   getDistance,
@@ -27,7 +27,7 @@ export class AISystem extends System {
       return;
     }
 
-    const [playerPosition] = Emitter.emit('get-player-position');
+    const [playerPosition] = EventManager.emit('get-player-position');
 
     entities.forEach((entity) => {
       const ai = entity.get(AIComponent);

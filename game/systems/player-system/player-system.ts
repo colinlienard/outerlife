@@ -1,6 +1,7 @@
 import { MovementComponent, StateMachineComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
-import { Emitter, getAngleFromPoints, Settings, System } from '~~/game/utils';
+import { EventManager } from '~~/game/managers';
+import { getAngleFromPoints, Settings, System } from '~~/game/utils';
 
 const defaultInput = {
   up: false,
@@ -78,7 +79,7 @@ export class PlayerSystem extends System {
     const cursorY = Math.round(
       Settings.cameraOffset.y * -1 + event.clientY / Settings.ratio
     );
-    const [{ x, y }] = Emitter.emit('get-player-position');
+    const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
     this.player.movement.angle = angle;

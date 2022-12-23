@@ -9,9 +9,11 @@ import {
   SpriteComponent,
   LayersComponent,
   StateMachineComponent,
+  AudioComponent,
 } from '~~/game/components';
-import { Emitter, Entity, getPointFromAngle } from '~~/game/utils';
-import { Damage } from '../../misc/damage';
+import { Entity, getPointFromAngle, getRandomNumber } from '~~/game/utils';
+import { Damage } from '~~/game/entities';
+import { AudioManager, EventManager } from '~~/game/managers';
 
 export class Patroller extends Entity {
   constructor(x: number, y: number) {
@@ -62,9 +64,65 @@ export class Patroller extends Entity {
         1,
         [
           {
+            action: () => this.emitFootstepsSound(),
+            frame: 1,
+            on: 'run',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 3,
+            on: 'run',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 1,
+            on: 'chase',
+          },
+          {
+            action: () => this.emitFootstepsSound(),
+            frame: 3,
+            on: 'chase',
+          },
+          {
+            action: () => this.emitAttackSound(),
+            frame: 1,
+            on: 'melee-attack',
+          },
+          {
             action: () => this.spawnDamage(),
             frame: 2,
             on: 'melee-attack',
+          },
+          {
+            action: () => this.emitHitSound(),
+            frame: 1,
+            on: 'hit',
+          },
+          {
+            action: () => {
+              this.emitHitSound();
+              this.emitDieSound();
+            },
+            frame: 1,
+            on: 'dead',
+          },
+        ]
+      )
+    );
+    this.add(
+      new AudioComponent(
+        [
+          '/sounds/effects/robot-noise-1.wav',
+          '/sounds/effects/robot-noise-2.wav',
+          '/sounds/effects/robot-attack.wav',
+          '/sounds/effects/robot-hit.wav',
+          '/sounds/effects/robot-die.wav',
+        ],
+        [
+          {
+            source: `/sounds/effects/robot-noise-${getRandomNumber(1, 2)}.wav`,
+            randomFramesBetween: [200, 1000],
+            spatialization: true,
           },
         ]
       )
@@ -160,21 +218,52 @@ export class Patroller extends Entity {
     this.add(new StateMachineComponent());
   }
 
-  spawnDamage() {
+  private getPosition() {
+    return this.get(PositionComponent).getCenter();
+  }
+
+  private spawnDamage() {
     const damage = this.getDamage();
-    Emitter.emit('spawn', damage);
+    EventManager.emit('spawn', damage);
 
     setTimeout(() => {
-      Emitter.emit('despawn', damage.id);
+      EventManager.emit('despawn', damage.id);
     }, 166);
   }
 
-  getDamage() {
-    const position = this.get(PositionComponent).getCenter();
+  private getDamage() {
+    const position = this.getPosition();
     const { angle } = this.get(MovementComponent);
 
     const { x, y } = getPointFromAngle(angle, position.x, position.y, 10);
 
     return new Damage(x, y, 24, 24, 30);
+  }
+
+  private emitFootstepsSound() {
+    AudioManager.playEffect('/sounds/effects/desert-footsteps.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitAttackSound() {
+    AudioManager.playEffect('/sounds/effects/robot-attack.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitHitSound() {
+    AudioManager.playEffect('/sounds/effects/robot-hit.wav', {
+      pitchVariance: 200,
+      spatialization: this.getPosition(),
+    });
+  }
+
+  private emitDieSound() {
+    AudioManager.playEffect('/sounds/effects/robot-die.wav', {
+      spatialization: this.getPosition(),
+    });
   }
 }

@@ -22,7 +22,7 @@ const store = useEditorStore();
 @import './editor-mixins';
 
 .selector {
-  @include editor-button(true);
+  @include editor-button;
 
   &.selected {
     background-color: white;

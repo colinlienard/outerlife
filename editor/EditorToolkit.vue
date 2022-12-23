@@ -33,7 +33,12 @@ const handleMapUpload = (data: string) => {
 
     store.rows = map.rows;
     store.columns = map.columns;
-    store.postProcessing = map.postProcessing;
+    const { postProcessing, ambiantSound, music } = map;
+    store.exportSettings = {
+      postProcessing,
+      ambiantSound,
+      music,
+    };
 
     setTimeout(() => {
       store.editor?.setMapData(map);
@@ -311,15 +316,11 @@ watch(
   }
 
   .button {
-    @include editor-button(true);
+    @include editor-button;
   }
 
   .select {
-    @include editor-button(true);
-
-    option {
-      background-color: black;
-    }
+    @include editor-select;
   }
 
   .wrapper {
@@ -343,7 +344,7 @@ watch(
 
 .upload,
 .download {
-  @include editor-button(true);
+  @include editor-button;
 
   aspect-ratio: 1 / 1;
 

@@ -357,47 +357,43 @@ export class RenderSystem extends System {
     );
   }
 
-  loadTextures() {
-    return new Promise((resolve) => {
-      const requiredSources = [
-        '/sprites/dash-dust.png',
-        '/sprites/dust.png',
-        '/sprites/items.png',
-        '/sprites/slash.png',
-        '/sprites/guidelines.png',
-        '/sprites/palette.png',
-        '/sprites/impact.png',
-      ];
+  async loadTextures() {
+    const requiredSources = [
+      '/sprites/dash-dust.png',
+      '/sprites/dust.png',
+      '/sprites/items.png',
+      '/sprites/slash.png',
+      '/sprites/guidelines.png',
+      '/sprites/palette.png',
+      '/sprites/impact.png',
+    ];
 
-      const entitiesSources = Array.from(this.get().values()).reduce(
-        (previous: string[], current) => {
-          const sprite = current.get(SpriteComponent);
-          if (sprite && !previous.includes(sprite.source)) {
-            return [...previous, sprite.source];
-          }
+    const entitiesSources = Array.from(this.get().values()).reduce(
+      (previous: string[], current) => {
+        const sprite = current.get(SpriteComponent);
+        if (sprite && !previous.includes(sprite.source)) {
+          return [...previous, sprite.source];
+        }
+        return previous;
+      },
+      []
+    );
+
+    const terrainsSources = this.terrains.reduce(
+      (previous: string[], current) => {
+        if (previous.includes(current.source)) {
           return previous;
-        },
-        []
-      );
+        }
+        return [...previous, current.source];
+      },
+      []
+    );
 
-      const terrainsSources = this.terrains.reduce(
-        (previous: string[], current) => {
-          if (previous.includes(current.source)) {
-            return previous;
-          }
-          return [...previous, current.source];
-        },
-        []
-      );
-
-      this.engine
-        .loadTextures([
-          ...requiredSources,
-          ...entitiesSources,
-          ...terrainsSources,
-        ])
-        .then(resolve);
-    });
+    await this.engine.loadTextures([
+      ...requiredSources,
+      ...entitiesSources,
+      ...terrainsSources,
+    ]);
   }
 
   resize() {

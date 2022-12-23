@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { useEditorStore } from './editor-store';
+import EditorInput from './EditorInput.vue';
 
 const store = useEditorStore();
 
 const downloadMap = () => {
+  store.editor?.updateExportSettings(store.exportSettings);
   const map = store.editor?.getMap();
   useDownload(map, 'map.json');
 };
-
-watch(
-  () => store.postProcessing,
-  () => {
-    store.editor?.updatePostProcessing(store.postProcessing);
-  }
-);
 </script>
 
 <template>
@@ -23,12 +18,57 @@ watch(
       <h2 class="title">Post processing effects</h2>
       <select
         id="post-processing"
-        v-model="store.postProcessing"
+        v-model="store.exportSettings.postProcessing"
         class="select"
       >
         <option :value="null">None</option>
         <option value="desert">Desert</option>
       </select>
+    </section>
+    <section class="section">
+      <h2 class="title">Ambiant sound</h2>
+      <div v-if="store.exportSettings.ambiantSound" class="wrapper-2-1">
+        <EditorInput
+          v-model="store.exportSettings.ambiantSound"
+          label="Path"
+          placeholder="Audio source"
+          type="text"
+        />
+        <button
+          class="button"
+          @click="store.exportSettings.ambiantSound = undefined"
+        >
+          Delete
+        </button>
+      </div>
+      <button
+        v-else
+        class="button"
+        @click="store.exportSettings.ambiantSound = '/sounds/effects/*.wav'"
+      >
+        Add
+      </button>
+    </section>
+    <section class="section">
+      <h2 class="title">Music</h2>
+      <div v-if="store.exportSettings.music" class="wrapper-2-1">
+        <EditorInput
+          v-model="store.exportSettings.music"
+          label="Path"
+          placeholder="Audio source"
+          type="text"
+        />
+        <button class="button" @click="store.exportSettings.music = undefined">
+          Delete
+        </button>
+      </div>
+      <button
+        v-else
+        class="button"
+        @click="store.exportSettings.music = '/sounds/musics/*.mp3'"
+      >
+        Add
+      </button>
     </section>
     <section class="section">
       <button class="button" @click="downloadMap">Export</button>
@@ -52,7 +92,7 @@ watch(
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  width: 20rem;
+  width: 30rem;
 }
 
 .section {
@@ -63,19 +103,16 @@ watch(
   }
 
   .button {
-    @include editor-button(true);
+    @include editor-button;
   }
 
   .select {
-    @include editor-button(true);
-
-    option {
-      background-color: black;
-    }
+    @include editor-select;
   }
 
-  .wrapper {
-    display: flex;
+  .wrapper-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
     gap: 1rem;
   }
 }

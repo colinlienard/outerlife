@@ -8,13 +8,20 @@ const debugMode = ref(false);
 provide('game', game);
 provide('debugMode', debugMode);
 
-onMounted(() => {
-  // Create the game
+const createGame = () => {
   try {
     game.value = new Game(gameCanvas.value as HTMLCanvasElement);
   } catch (error) {
     throw new Error(error as string);
   }
+};
+
+onMounted(() => {
+  // Ask for permission to play audio
+  navigator.mediaDevices
+    .getUserMedia({ audio: true })
+    .then(createGame)
+    .catch(createGame);
 });
 </script>
 

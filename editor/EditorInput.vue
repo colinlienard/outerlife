@@ -10,12 +10,9 @@ const width = ref(1);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string | number | boolean): void;
-  (e: 'change', event: Event): void;
 }>();
 
 const updateValue = (event: Event) => {
-  emit('change', event);
-
   const target = event.target as HTMLInputElement;
 
   if (props.type === 'checkbox') {
@@ -67,10 +64,10 @@ watch(
 @import './editor-mixins';
 
 .label {
-  @include editor-button(false);
+  @include editor-input;
 
   &.check {
-    @include editor-button(true);
+    @include editor-button;
   }
 
   .text:not(.text.opaque) {

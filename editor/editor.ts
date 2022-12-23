@@ -13,6 +13,12 @@ import {
 
 type EditorEntity = { data: GameMapEntity; type: GameMapItemType };
 
+export type ExportSettings = {
+  postProcessing: GameMapPostProcessing;
+  ambiantSound?: string;
+  music?: string;
+};
+
 export class Editor {
   private readonly engine!: Engine;
 
@@ -22,8 +28,6 @@ export class Editor {
 
   private interactions: GameMapInteraction[] = [];
 
-  private postProcessing: GameMapPostProcessing = null;
-
   private ratio: number;
 
   private showGrid: boolean = true;
@@ -31,6 +35,8 @@ export class Editor {
   private rows: number;
 
   private columns: number;
+
+  private exportSettings: ExportSettings = { postProcessing: null };
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -197,8 +203,8 @@ export class Editor {
     return this.interactions;
   }
 
-  updatePostProcessing(data: GameMapPostProcessing) {
-    this.postProcessing = data;
+  updateExportSettings(data: ExportSettings) {
+    this.exportSettings = data;
   }
 
   getMap(): GameMap {
@@ -209,6 +215,8 @@ export class Editor {
       .filter((entity) => entity.type === 'organism')
       .map((entity) => entity.data);
 
+    const { postProcessing, ambiantSound, music } = this.exportSettings;
+
     return {
       rows: this.rows,
       columns: this.columns,
@@ -216,7 +224,9 @@ export class Editor {
       environments,
       organisms,
       interactions: this.interactions,
-      postProcessing: this.postProcessing,
+      postProcessing,
+      ambiantSound,
+      music,
     };
   }
 
@@ -235,7 +245,8 @@ export class Editor {
 
     this.interactions = map.interactions;
 
-    this.postProcessing = map.postProcessing;
+    const { postProcessing, ambiantSound, music } = map;
+    this.exportSettings = { postProcessing, ambiantSound, music };
   }
 
   render() {

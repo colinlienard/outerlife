@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { Emitter, Settings } from '~~/game/utils';
+import { EventManager } from '~~/game/managers';
+import { Settings } from '~~/game/utils';
 
 const showTransition = ref(true);
 const transitionDuration = `${Settings.transitionDuration}ms`;
 
 onMounted(() => {
-  Emitter.on('switch-map', () => {
+  EventManager.on('switch-map', () => {
     showTransition.value = true;
   });
 
-  Emitter.on('scene-loaded', () => {
+  EventManager.on('scene-loaded', () => {
     showTransition.value = false;
   });
 });
