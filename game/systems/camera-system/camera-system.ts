@@ -8,6 +8,8 @@ export class CameraSystem extends System {
 
   private readonly shakeAmount = 1.5;
 
+  private readonly cursorDiffReductor = 12;
+
   private player!: Player;
 
   private map = {
@@ -23,6 +25,10 @@ export class CameraSystem extends System {
   private x = 0;
 
   private y = 0;
+
+  private cursorDiffX = 0;
+
+  private cursorDiffY = 0;
 
   private shaking = false;
 
@@ -58,20 +64,21 @@ export class CameraSystem extends System {
       this.player.get(PositionComponent).x;
 
     if (this.overflows) {
-      return target;
+      return target - this.cursorDiffX;
     }
 
     // No overflow on the left
-    if (target > 0) {
-      return 0;
+    if (target > this.cursorDiffX) {
+      return Math.min(0, -this.cursorDiffX);
     }
 
     // No overflow on the right
-    if (target < -this.map.width + this.viewport.width) {
-      return -this.map.width + this.viewport.width;
+    const maxCameraX = -this.map.width + this.viewport.width;
+    if (target < maxCameraX + this.cursorDiffX) {
+      return Math.max(maxCameraX, maxCameraX - this.cursorDiffX);
     }
 
-    return target;
+    return target - this.cursorDiffX;
   }
 
   private getTargetY(): number {
@@ -80,20 +87,21 @@ export class CameraSystem extends System {
       this.player.get(PositionComponent).y;
 
     if (this.overflows) {
-      return target;
+      return target - this.cursorDiffY;
     }
 
     // No overflow on the top
-    if (target > 0) {
-      return 0;
+    if (target > this.cursorDiffY) {
+      return Math.min(0, -this.cursorDiffY);
     }
 
     // No overflow on the bottom
-    if (target < -this.map.height + this.viewport.height) {
-      return -this.map.height + this.viewport.height;
+    const maxCameraY = -this.map.height + this.viewport.height;
+    if (target < maxCameraY + this.cursorDiffY) {
+      return Math.max(maxCameraY, maxCameraY - this.cursorDiffY);
     }
 
-    return target;
+    return target - this.cursorDiffY;
   }
 
   init() {
@@ -119,6 +127,18 @@ export class CameraSystem extends System {
         this.shaking = false;
       }, 100);
     });
+
+    window.addEventListener(
+      'mousemove',
+      useThrottle((event: MouseEvent) => {
+        const cursorX = Math.round(event.clientX / Settings.ratio);
+        const cursorY = Math.round(event.clientY / Settings.ratio);
+        this.cursorDiffX =
+          (cursorX - this.viewport.width / 2) / this.cursorDiffReductor;
+        this.cursorDiffY =
+          (cursorY - this.viewport.height / 2) / this.cursorDiffReductor;
+      }, 16)
+    );
   }
 
   resize() {
