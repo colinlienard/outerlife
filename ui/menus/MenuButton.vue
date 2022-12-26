@@ -29,6 +29,7 @@ import { AudioManager } from '~~/game/managers';
   justify-content: center;
   background-color: #4e6679;
   border: 5px solid #5c8ba8;
+  cursor: inherit;
 
   &:hover {
     background-color: #5c8ba8;

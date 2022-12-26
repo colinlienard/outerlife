@@ -113,6 +113,7 @@ watch(
   top: 1rem;
   right: 1rem;
   font-size: 3rem;
+  cursor: inherit;
 }
 
 .pause-screen {
@@ -127,6 +128,6 @@ watch(
   position: absolute;
   inset: 0;
   background-color: rgba(#000, 0.5);
-  cursor: default;
+  cursor: inherit;
 }
 </style>
