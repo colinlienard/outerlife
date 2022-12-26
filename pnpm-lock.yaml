@@ -12,7 +12,6 @@ specifiers:
   eslint-plugin-vue: ^8.6.0
   gl-matrix: ^3.4.3
   happy-dom: ^7.7.0
-  husky: ^7.0.4
   nuxt: ^3.0.0
   postcss: ^8.4.12
   postcss-html: ^1.4.1
@@ -40,7 +39,6 @@ devDependencies:
   eslint-plugin-import: 2.26.0_xqbqdxpuqfyd5arbsukm4ttwie
   eslint-plugin-vue: 8.6.0_eslint@8.2.0
   happy-dom: 7.7.0
-  husky: 7.0.4
   nuxt: 3.0.0_insxywmstmffi5pgci4w2z672a
   postcss: 8.4.12
   postcss-html: 1.4.1
@@ -5222,15 +5220,6 @@ packages:
         integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==,
       }
     engines: { node: '>=10.17.0' }
-    dev: true
-
-  /husky/7.0.4:
-    resolution:
-      {
-        integrity: sha512-vbaCKN2QLtP/vD4yvs6iz6hBEo6wkSzs8HpRah1Z6aGmF2KW5PdYuAd7uX5a+OyBZHBhd+TFLqgjUgytQr4RvQ==,
-      }
-    engines: { node: '>=12' }
-    hasBin: true
     dev: true
 
   /iconv-lite/0.4.24:
