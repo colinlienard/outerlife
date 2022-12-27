@@ -28,13 +28,22 @@ export type Terrain = {
   y: number;
 };
 
-export type InteractionData = {
-  type: 'switch-map';
-  map: string;
-  playerX: number;
-  playerY: number;
-  playerDirection: Direction;
-};
+export type GamePrompt = null | 'enter' | 'talk';
+
+export type InteractionData =
+  | {
+      type: 'switch-map';
+      prompt: GamePrompt;
+      map: string;
+      playerX: number;
+      playerY: number;
+      playerDirection: Direction;
+    }
+  | {
+      type: 'dialogue';
+      prompt: GamePrompt;
+      id: number;
+    };
 
 export interface GameMapInteraction extends Box {
   data: InteractionData;

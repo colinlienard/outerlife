@@ -192,16 +192,14 @@ export class CollisionSystem extends System {
                   pos.y += distanceY > 0 ? overlapY : -overlapY;
                   return;
                 }
+
                 case 'interaction': {
                   if (colliding instanceof Player) {
-                    const { interaction } = collider;
-                    if (!interaction.entered) {
-                      interaction.enter();
-                      interaction.entered = true;
-                    }
+                    collider.interaction.trigger();
                   }
                   return;
                 }
+
                 default:
                   return;
               }

@@ -4,10 +4,13 @@ import { EventManager } from '~~/game/managers';
 import { getAngleFromPoints, Settings, System } from '~~/game/utils';
 
 const defaultInput = {
-  up: false,
-  down: false,
-  left: false,
-  right: false,
+  movement: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+  },
+  interact: false,
 };
 
 export class PlayerSystem extends System {
@@ -20,6 +23,8 @@ export class PlayerSystem extends System {
 
   private input = defaultInput;
 
+  private prompting: (() => void) | null = null;
+
   constructor() {
     super();
 
@@ -31,6 +36,14 @@ export class PlayerSystem extends System {
     window.addEventListener('keyup', keyListener);
     window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
+
+    EventManager.on('show-prompt', (_prompt, accept) => {
+      this.prompting = accept;
+    });
+
+    EventManager.on('hide-prompt', () => {
+      this.prompting = null;
+    });
   }
 
   private bindKeys(event: KeyboardEvent) {
@@ -41,22 +54,26 @@ export class PlayerSystem extends System {
     switch (event.key) {
       case 'z':
       case 'ArrowUp':
-        this.input.up = inputState;
+        this.input.movement.up = inputState;
         break;
 
       case 's':
       case 'ArrowDown':
-        this.input.down = inputState;
+        this.input.movement.down = inputState;
         break;
 
       case 'q':
       case 'ArrowLeft':
-        this.input.left = inputState;
+        this.input.movement.left = inputState;
         break;
 
       case 'd':
       case 'ArrowRight':
-        this.input.right = inputState;
+        this.input.movement.right = inputState;
+        break;
+
+      case 'e':
+        this.input.interact = inputState;
         break;
 
       default:
@@ -74,10 +91,10 @@ export class PlayerSystem extends System {
 
     // Get angle of the click based on the player's position
     const cursorX = Math.round(
-      Settings.cameraOffset.x * -1 + event.clientX / Settings.ratio
+      -Settings.cameraOffset.x + event.clientX / Settings.ratio
     );
     const cursorY = Math.round(
-      Settings.cameraOffset.y * -1 + event.clientY / Settings.ratio
+      -Settings.cameraOffset.y + event.clientY / Settings.ratio
     );
     const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
@@ -104,11 +121,18 @@ export class PlayerSystem extends System {
   }
 
   update() {
+    // Handle prompt
+    if (this.prompting && this.input.interact) {
+      this.prompting();
+      this.prompting = null;
+      EventManager.emit('hide-prompt');
+    }
+
     if (!this.player.stateMachine.is(['idle', 'run'])) {
       return;
     }
 
-    const entry = Object.values(this.input).reduce(
+    const entry = Object.values(this.input.movement).reduce(
       (previous, current) => previous || current
     );
 
@@ -120,13 +144,14 @@ export class PlayerSystem extends System {
     }
 
     // Set movement angle
-    if (this.input.down) {
-      if (this.input.left) {
+    const { up, down, left, right } = this.input.movement;
+    if (down) {
+      if (left) {
         this.player.movement.angle = 135;
         return;
       }
 
-      if (this.input.right) {
+      if (right) {
         this.player.movement.angle = 45;
         return;
       }
@@ -135,13 +160,13 @@ export class PlayerSystem extends System {
       return;
     }
 
-    if (this.input.up) {
-      if (this.input.left) {
+    if (up) {
+      if (left) {
         this.player.movement.angle = 225;
         return;
       }
 
-      if (this.input.right) {
+      if (right) {
         this.player.movement.angle = 315;
         return;
       }
@@ -150,7 +175,7 @@ export class PlayerSystem extends System {
       return;
     }
 
-    if (this.input.left) {
+    if (left) {
       this.player.movement.angle = 180;
       return;
     }
