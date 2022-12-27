@@ -200,6 +200,7 @@ watch([rows, columns, ratio, pan, showGrid, mapGrowsAfter], (values) => {
   position: relative;
   overflow: hidden;
   color-scheme: dark;
+  font-family: Inter, sans-serif;
 }
 
 .canvas {

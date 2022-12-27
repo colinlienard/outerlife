@@ -1,9 +1,4 @@
 @font-face {
-  font-family: VPPixel;
-  src: url('/fonts/VPPixel-Simplified.otf');
-}
-
-@font-face {
   font-family: Inter;
   src: url('/fonts/Inter-Regular.ttf');
   font-weight: 400;
@@ -15,6 +10,20 @@
   font-weight: 700;
 }
 
-body {
-  font-family: Inter, sans-serif;
+@font-face {
+  font-family: Jost;
+  src: url('/fonts/Jost-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Jost;
+  src: url('/fonts/Jost-Medium.ttf');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Jost;
+  src: url('/fonts/Jost-Bold.ttf');
+  font-weight: 700;
 }

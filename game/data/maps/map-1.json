@@ -80,6 +80,20 @@
         "playerY": 160,
         "playerDirection": "right"
       }
+    },
+    {
+      "x": 346,
+      "y": 236,
+      "width": 22,
+      "height": 8,
+      "data": {
+        "type": "switch-map",
+        "prompt": "enter",
+        "map": "map-test",
+        "playerX": 300,
+        "playerY": 300,
+        "playerDirection": "down"
+      }
     }
   ],
   "postProcessing": "desert",

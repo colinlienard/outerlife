@@ -41,6 +41,7 @@ onMounted(() => {
 <template>
   <section class="container">
     <canvas ref="gameCanvas" class="game-canvas" />
+    <GamePrompt />
     <GameVignette />
     <GameTransition />
     <FPSVisualizer v-if="debugMode" />
@@ -56,6 +57,7 @@ onMounted(() => {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: Jost, sans-serif;
   cursor: v-bind(cursorSource);
 
   .game-canvas {
