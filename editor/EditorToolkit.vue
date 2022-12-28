@@ -50,6 +50,24 @@ const handleMapUpload = (data: string) => {
   }
 };
 
+const changeInteractionType = () => {
+  if (!store.selectedInteraction) {
+    return;
+  }
+
+  const selectedInteraction = store.editor?.changeInteractionType(
+    store.selectedInteraction.data.type,
+    store.selectedInteraction.index
+  );
+
+  if (selectedInteraction) {
+    store.selectedInteraction = {
+      ...store.selectedInteraction,
+      ...selectedInteraction,
+    };
+  }
+};
+
 watch([selectedItem, selectedType], () => {
   store.selectedEntity = null;
   store.selectedInteraction = null;
@@ -69,12 +87,18 @@ watch([() => store.selectedEntity?.x, () => store.selectedEntity?.y], () => {
 
 watch(
   () => store.selectedInteraction,
-  () => {
-    if (store.selectedInteraction) {
-      const { index, ...interaction } = store.selectedInteraction;
-      store.editor?.updateInteraction(interaction, index);
-      store.editor?.render();
+  (selectedInteraction, oldSelectedInteraction) => {
+    if (!selectedInteraction) {
+      return;
     }
+
+    if (selectedInteraction.data.type !== oldSelectedInteraction?.data.type) {
+      return;
+    }
+
+    const { index, ...interaction } = selectedInteraction;
+    store.editor?.updateInteraction(interaction, index);
+    store.editor?.render();
   },
   { deep: true }
 );
@@ -211,8 +235,10 @@ watch(
         id="type"
         v-model="store.selectedInteraction.data.type"
         class="select"
+        @change="changeInteractionType"
       >
         <option value="switch-map">Map switcher</option>
+        <option value="dialogue">Dialogue</option>
       </select>
       <div class="wrapper">
         <EditorInput
@@ -238,6 +264,15 @@ watch(
           type="number"
         />
       </div>
+      <select
+        id="prompt"
+        v-model="store.selectedInteraction.data.prompt"
+        class="select"
+      >
+        <option :value="null">No prompt</option>
+        <option value="enter">Enter</option>
+        <option value="talk">Talk</option>
+      </select>
       <div
         v-if="store.selectedInteraction.data.type === 'switch-map'"
         class="wrapper"
@@ -274,6 +309,12 @@ watch(
           type="number"
         />
       </div>
+      <EditorInput
+        v-if="store.selectedInteraction.data.type === 'dialogue'"
+        v-model="store.selectedInteraction.data.id"
+        label="Dialogue ID"
+        type="number"
+      />
       <button class="button" @click="deleteInteraction">Delete</button>
     </section>
   </div>

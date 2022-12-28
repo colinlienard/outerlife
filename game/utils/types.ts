@@ -30,6 +30,8 @@ export type Terrain = {
 
 export type GamePrompt = null | 'enter' | 'talk';
 
+export type InteractionType = 'switch-map' | 'dialogue';
+
 export type InteractionData =
   | {
       type: 'switch-map';

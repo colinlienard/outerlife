@@ -85,7 +85,7 @@
       "x": 346,
       "y": 236,
       "width": 22,
-      "height": 8,
+      "height": 16,
       "data": {
         "type": "switch-map",
         "prompt": "enter",
@@ -94,6 +94,13 @@
         "playerY": 300,
         "playerDirection": "down"
       }
+    },
+    {
+      "x": 256,
+      "y": 320,
+      "width": 32,
+      "height": 32,
+      "data": { "type": "dialogue", "prompt": "talk", "id": 0 }
     }
   ],
   "postProcessing": "desert",

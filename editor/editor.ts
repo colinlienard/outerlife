@@ -8,6 +8,8 @@ import {
   GameMapItemType,
   GameMapPostProcessing,
   GameMapTerrain,
+  InteractionData,
+  InteractionType,
   Settings,
 } from '~~/game/utils';
 
@@ -17,6 +19,21 @@ export type ExportSettings = {
   postProcessing: GameMapPostProcessing;
   ambiantSound?: string;
   music?: string;
+};
+
+const defaultSwitchMapInteractionData: InteractionData = {
+  type: 'switch-map',
+  prompt: null,
+  map: '',
+  playerX: 0,
+  playerY: 0,
+  playerDirection: 'down',
+};
+
+const defaultDialogueInteractionData: InteractionData = {
+  type: 'dialogue',
+  prompt: 'talk',
+  id: 0,
 };
 
 export class Editor {
@@ -158,13 +175,7 @@ export class Editor {
       y: y - height / 2,
       width,
       height,
-      data: {
-        type: 'switch-map',
-        map: '',
-        playerX: 0,
-        playerY: 0,
-        playerDirection: 'down',
-      },
+      data: { ...defaultSwitchMapInteractionData },
     });
   }
 
@@ -193,6 +204,28 @@ export class Editor {
         return;
       }
     }
+  }
+
+  changeInteractionType(type: InteractionType, index: number) {
+    for (let i = 0; i < this.interactions.length; i += 1) {
+      if (i === index) {
+        switch (type) {
+          case 'switch-map':
+            this.interactions[index].data = {
+              ...defaultSwitchMapInteractionData,
+            };
+            return this.interactions[index];
+          case 'dialogue':
+            this.interactions[index].data = {
+              ...defaultDialogueInteractionData,
+            };
+            return this.interactions[index];
+          default:
+            throw new Error(`Invalid interaction type: ${type}.`);
+        }
+      }
+    }
+    return null;
   }
 
   deleteInteraction(index: number) {

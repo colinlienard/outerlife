@@ -53,8 +53,11 @@ export class Interaction extends Entity {
         break;
       }
 
-      default:
+      default: {
+        const { id } = this.data;
+        console.log(`start dialogue with id ${id}`);
         break;
+      }
     }
   }
 

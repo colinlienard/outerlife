@@ -154,7 +154,7 @@ const mouseEventHandler = (event: MouseEvent) => {
   }
 };
 
-const mouseMoveHandler = useThrottle((event) => mouseEventHandler(event), 10);
+const mouseMoveHandler = useThrottle((event) => mouseEventHandler(event), 16);
 
 onMounted(() => {
   store.editor = new Editor(
