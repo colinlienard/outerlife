@@ -7,6 +7,8 @@ export abstract class Settings {
 
   static readonly yPixelsNumber = 250;
 
+  static paused = false;
+
   static cameraOffset = {
     x: 0,
     y: 0,

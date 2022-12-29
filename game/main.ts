@@ -265,9 +265,11 @@ export class Game extends ECS {
 
   pause() {
     this.paused = true;
+    Settings.paused = true;
   }
 
   resume() {
     this.paused = false;
+    Settings.paused = false;
   }
 }

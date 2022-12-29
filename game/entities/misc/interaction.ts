@@ -4,7 +4,7 @@ import {
   SpriteComponent,
 } from '~~/game/components';
 import { EventManager } from '~~/game/managers';
-import { Entity, InteractionData } from '~~/game/utils';
+import { Entity, InteractionData, Settings } from '~~/game/utils';
 
 export class Interaction extends Entity {
   private activeNumber = 0;
@@ -78,7 +78,7 @@ export class Interaction extends Entity {
     const previousNumber = this.activeNumber;
 
     this.activeTimeout = setTimeout(() => {
-      if (previousNumber === this.activeNumber) {
+      if (previousNumber === this.activeNumber && !Settings.paused) {
         this.entered = false;
         this.exit();
       }

@@ -37,6 +37,13 @@ const togglePause = () => {
   paused.value = !game?.value.paused;
 };
 
+onMounted(() => {
+  // Pause the game when switching tab
+  window.addEventListener('blur', () => {
+    togglePause();
+  });
+});
+
 watch(paused, (newPaused) => {
   if (newPaused) {
     showOptions.value = false;
