@@ -1,0 +1,22 @@
+{
+  "text": "Lorem ipsum",
+  "hasChoices": false,
+  "next": {
+    "text": "Lorem ipsum 2",
+    "hasChoices": true,
+    "choices": [
+      {
+        "text": "Lorem ipsum 3",
+        "next": {
+          "text": "Lorem ipsum 5",
+          "hasChoices": false,
+          "next": null
+        }
+      },
+      {
+        "text": "Lorem ipsum 4",
+        "next": null
+      }
+    ]
+  }
+}

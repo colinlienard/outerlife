@@ -85,3 +85,18 @@ export type EntityState =
   | 'dash-recovery'
   | 'hit'
   | 'dead';
+
+export type Dialogue =
+  | {
+      text: string;
+      hasChoices: false;
+      next: Dialogue | null;
+    }
+  | {
+      text: string;
+      hasChoices: true;
+      choices: {
+        text: string;
+        next: Dialogue | null;
+      }[];
+    };

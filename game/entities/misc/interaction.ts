@@ -53,11 +53,9 @@ export class Interaction extends Entity {
         break;
       }
 
-      default: {
-        const { id } = this.data;
-        console.log(`start dialogue with id ${id}`);
+      default:
+        EventManager.emit('start-dialogue', this.data.id);
         break;
-      }
     }
   }
 

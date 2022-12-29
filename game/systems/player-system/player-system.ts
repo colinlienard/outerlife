@@ -1,6 +1,6 @@
 import { MovementComponent, StateMachineComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
-import { EventManager } from '~~/game/managers';
+import { DialogueManager, EventManager } from '~~/game/managers';
 import { getAngleFromPoints, Settings, System } from '~~/game/utils';
 
 const defaultInput = {
@@ -84,7 +84,8 @@ export class PlayerSystem extends System {
   private handleClick(event: MouseEvent) {
     if (
       !this.player.stateMachine.is(['idle', 'run']) ||
-      (event.target as HTMLElement).tagName !== 'CANVAS'
+      (event.target as HTMLElement).tagName !== 'CANVAS' ||
+      DialogueManager.isOpen()
     ) {
       return;
     }
@@ -121,6 +122,10 @@ export class PlayerSystem extends System {
   }
 
   update() {
+    if (DialogueManager.isOpen()) {
+      return;
+    }
+
     // Handle prompt
     if (this.prompting && this.input.interact) {
       this.prompting();

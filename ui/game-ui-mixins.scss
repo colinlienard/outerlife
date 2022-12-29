@@ -1,0 +1,44 @@
+@mixin box {
+  background-color: rgba(black, 40%);
+  padding: 1rem;
+  backdrop-filter: blur(1rem);
+}
+
+@mixin box-transition {
+  &.v-enter-active,
+  &.v-leave-active {
+    transition: 0.1s ease-out;
+  }
+
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition: 0.1s ease-in;
+  }
+}
+
+@mixin text($small: false) {
+  @if $small {
+    font-size: 1.25rem;
+  } @else {
+    font-size: 1.5rem;
+  }
+
+  font-weight: 500;
+  color: white;
+}
+
+@mixin key {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #b6f5db;
+  border: solid 3px currentcolor;
+  box-shadow: 0 0 1rem #72b6cf, inset 0 0 1rem #72b6cf;
+}

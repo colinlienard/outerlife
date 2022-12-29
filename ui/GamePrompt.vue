@@ -25,7 +25,12 @@ EventManager.on('hide-prompt', () => {
 </template>
 
 <style scoped lang="scss">
+@import './game-ui-mixins';
+
 .prompt {
+  @include box;
+  @include box-transition;
+
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -33,41 +38,15 @@ EventManager.on('hide-prompt', () => {
   top: 65%;
   left: 50%;
   translate: -50%;
-  background-color: rgba(black, 40%);
-  padding: 1rem;
-  backdrop-filter: blur(1rem);
-
-  &.v-enter-active,
-  &.v-leave-active {
-    transition: 0.1s ease-out;
-  }
-
-  &.v-enter-from,
-  &.v-leave-to {
-    opacity: 0;
-    transform: translateY(1rem);
-    transition: 0.1s ease-in;
-  }
 
   .key {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #b6f5db;
-    border: solid 3px currentcolor;
-    box-shadow: 0 0 1rem #72b6cf, inset 0 0 1rem #72b6cf;
+    @include key;
   }
 
   .text {
-    font-size: 1.5rem;
-    font-weight: 500;
+    @include text;
+
     text-transform: capitalize;
-    color: white;
   }
 }
 </style>

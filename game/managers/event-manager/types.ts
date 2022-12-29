@@ -15,6 +15,7 @@ export interface EventMap {
   hit: () => void;
   'show-prompt': (prompt: GamePrompt, accept: () => void) => void;
   'hide-prompt': () => void;
+  'start-dialogue': (id: number) => void;
 }
 
 export type Events = keyof EventMap;
