@@ -131,6 +131,8 @@ export class PlayerSystem extends System {
       this.prompting();
       this.prompting = null;
       EventManager.emit('hide-prompt');
+      this.player.stateMachine.set('idle');
+      return;
     }
 
     if (!this.player.stateMachine.is(['idle', 'run'])) {

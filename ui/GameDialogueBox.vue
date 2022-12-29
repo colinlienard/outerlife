@@ -3,6 +3,8 @@ import { DialogueManager, EventManager } from '~~/game/managers';
 import { Dialogue } from '~~/game/utils';
 
 const dialogue = ref<Dialogue | null>(null);
+const text = ref('');
+const textFulled = ref(false);
 
 EventManager.on('start-dialogue', async (id) => {
   dialogue.value = await DialogueManager.start(id);
@@ -14,6 +16,12 @@ const endDialogue = () => {
 };
 
 const nextDialogue = () => {
+  if (dialogue.value && !textFulled.value) {
+    text.value = dialogue.value.text;
+    textFulled.value = true;
+    return;
+  }
+
   if (dialogue.value?.hasChoices) {
     return;
   }
@@ -47,17 +55,32 @@ onMounted(() => {
     }
   });
 });
+
+const incrementText = () => {
+  if (dialogue.value && text.value.length < dialogue.value.text.length) {
+    text.value += dialogue.value.text[text.value.length];
+    textFulled.value = text.value.length === dialogue.value.text.length;
+    setTimeout(() => incrementText(), 30);
+  }
+};
+
+watch(dialogue, () => {
+  text.value = '';
+  incrementText();
+});
 </script>
 
 <template>
   <Transition>
     <div v-if="dialogue" class="dialogue-container">
       <button class="dialogue-box" @click="nextDialogue">
-        <p class="text">{{ dialogue?.text }}</p>
-        <span v-if="!dialogue.hasChoices" class="key">e</span>
+        <p class="text">{{ text }}</p>
+        <Transition>
+          <span v-if="!dialogue?.hasChoices && textFulled" class="key">e</span>
+        </Transition>
       </button>
       <Transition>
-        <div v-if="dialogue?.hasChoices" class="choices-grid">
+        <div v-if="dialogue?.hasChoices && textFulled" class="choices-grid">
           <button
             v-for="(choice, index) of dialogue.choices"
             :key="index"
@@ -100,6 +123,8 @@ onMounted(() => {
     @include text;
 
     text-align: start;
+    overflow-wrap: break-word;
+    height: 100%;
   }
 
   .key {
@@ -133,6 +158,8 @@ onMounted(() => {
       @include text(true);
 
       text-align: start;
+      overflow-wrap: break-word;
+      height: 100%;
     }
 
     &:hover {

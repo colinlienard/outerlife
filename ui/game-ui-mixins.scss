@@ -41,4 +41,10 @@
   color: #b6f5db;
   border: solid 3px currentcolor;
   box-shadow: 0 0 1rem #72b6cf, inset 0 0 1rem #72b6cf;
+  transition: opacity 0.2s ease-in-out;
+
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
+  }
 }
