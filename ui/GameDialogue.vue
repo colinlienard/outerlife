@@ -60,7 +60,7 @@ const incrementText = () => {
   if (dialogue.value && text.value.length < dialogue.value.text.length) {
     text.value += dialogue.value.text[text.value.length];
     textFulled.value = text.value.length === dialogue.value.text.length;
-    setTimeout(() => incrementText(), 30);
+    setTimeout(() => incrementText(), 15);
   }
 };
 
@@ -74,6 +74,11 @@ watch(dialogue, () => {
   <Transition>
     <div v-if="dialogue" class="dialogue-container">
       <button class="dialogue-box" @click="nextDialogue">
+        <img
+          class="portrait"
+          :src="`/images/${dialogue.person}-portrait.png`"
+          alt=""
+        />
         <p class="text">{{ text }}</p>
         <Transition>
           <span v-if="!dialogue?.hasChoices && textFulled" class="key">e</span>
@@ -107,7 +112,7 @@ watch(dialogue, () => {
   bottom: 2rem;
   left: 50%;
   translate: -50%;
-  width: 40rem;
+  width: 48rem;
   display: flex;
   flex-direction: column;
 }
@@ -115,9 +120,19 @@ watch(dialogue, () => {
 .dialogue-box {
   @include box;
 
-  height: 20rem;
+  height: 15rem;
   margin-bottom: 1rem;
+  padding: 2rem 4rem 2rem 15rem;
+  overflow: hidden;
   cursor: inherit;
+
+  .portrait {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    height: 100%;
+    image-rendering: pixelated;
+  }
 
   .text {
     @include text;
@@ -139,7 +154,7 @@ watch(dialogue, () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  height: 10rem;
+  height: 5.5rem;
   transition: 0.3s cubic-bezier(0.4, 0, 0.4, 1);
 
   &.v-enter-from,
@@ -151,7 +166,7 @@ watch(dialogue, () => {
   .choice {
     @include box;
 
-    height: 10rem;
+    height: 5.5rem;
     cursor: inherit;
 
     .text {

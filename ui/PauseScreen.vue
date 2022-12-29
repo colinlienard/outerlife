@@ -40,7 +40,7 @@ const togglePause = () => {
 onMounted(() => {
   // Pause the game when switching tab
   window.addEventListener('blur', () => {
-    togglePause();
+    paused.value = true;
   });
 });
 

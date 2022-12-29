@@ -42,7 +42,7 @@ onMounted(() => {
   <section class="game-container">
     <canvas ref="gameCanvas" class="game-canvas" />
     <GameVignette />
-    <GameDialogueBox />
+    <GameDialogue />
     <GamePrompt />
     <GameTransition />
     <FPSVisualizer v-if="debugMode" />

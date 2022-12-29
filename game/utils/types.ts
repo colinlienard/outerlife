@@ -86,14 +86,18 @@ export type EntityState =
   | 'hit'
   | 'dead';
 
+export type DialoguePerson = 'player' | 'patroller';
+
 export type Dialogue =
   | {
       text: string;
+      person: DialoguePerson;
       hasChoices: false;
       next: Dialogue | null;
     }
   | {
       text: string;
+      person: DialoguePerson;
       hasChoices: true;
       choices: {
         text: string;
