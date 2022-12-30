@@ -39,23 +39,43 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="container">
+  <section class="game-container">
     <canvas ref="gameCanvas" class="game-canvas" />
     <GameVignette />
+    <GameDialogue />
+    <GamePrompt />
     <GameTransition />
     <FPSVisualizer v-if="debugMode" />
-    <LoadingScreen />
     <PauseScreen />
     <GameNoise />
   </section>
 </template>
 
-<style scoped lang="scss">
-.container {
+<style lang="scss">
+@media (min-width: 1500px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 2300px) {
+  html {
+    font-size: 22px;
+  }
+}
+
+.game-container {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: Jost, sans-serif;
   cursor: v-bind(cursorSource);
 
   .game-canvas {

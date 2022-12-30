@@ -28,13 +28,24 @@ export type Terrain = {
   y: number;
 };
 
-export type InteractionData = {
-  type: 'switch-map';
-  map: string;
-  playerX: number;
-  playerY: number;
-  playerDirection: Direction;
-};
+export type GamePrompt = null | 'enter' | 'talk';
+
+export type InteractionType = 'switch-map' | 'dialogue';
+
+export type InteractionData =
+  | {
+      type: 'switch-map';
+      prompt: GamePrompt;
+      map: string;
+      playerX: number;
+      playerY: number;
+      playerDirection: Direction;
+    }
+  | {
+      type: 'dialogue';
+      prompt: GamePrompt;
+      id: number;
+    };
 
 export interface GameMapInteraction extends Box {
   data: InteractionData;
@@ -74,3 +85,22 @@ export type EntityState =
   | 'dash-recovery'
   | 'hit'
   | 'dead';
+
+export type DialoguePerson = 'player' | 'patroller';
+
+export type Dialogue =
+  | {
+      text: string;
+      person: DialoguePerson;
+      hasChoices: false;
+      next: Dialogue | null;
+    }
+  | {
+      text: string;
+      person: DialoguePerson;
+      hasChoices: true;
+      choices: {
+        text: string;
+        next: Dialogue | null;
+      }[];
+    };

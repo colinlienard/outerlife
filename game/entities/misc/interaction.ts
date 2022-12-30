@@ -4,10 +4,14 @@ import {
   SpriteComponent,
 } from '~~/game/components';
 import { EventManager } from '~~/game/managers';
-import { Entity, InteractionData } from '~~/game/utils';
+import { Entity, InteractionData, Settings } from '~~/game/utils';
 
 export class Interaction extends Entity {
-  data: InteractionData;
+  private activeNumber = 0;
+
+  private activeTimeout: NodeJS.Timeout | null = null;
+
+  readonly data: InteractionData;
 
   entered = false;
 
@@ -36,7 +40,7 @@ export class Interaction extends Entity {
     this.data = data;
   }
 
-  enter() {
+  private enter() {
     switch (this.data.type) {
       case 'switch-map': {
         const { map, playerX, playerY, playerDirection } = this.data;
@@ -50,7 +54,34 @@ export class Interaction extends Entity {
       }
 
       default:
+        EventManager.emit('start-dialogue', this.data.id);
         break;
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private exit() {
+    EventManager.emit('hide-prompt');
+  }
+
+  trigger() {
+    if (!this.entered) {
+      if (this.data.prompt) {
+        EventManager.emit('show-prompt', this.data.prompt, () => this.enter());
+      } else {
+        this.enter();
+      }
+      this.entered = true;
+    }
+
+    this.activeNumber += 1;
+    const previousNumber = this.activeNumber;
+
+    this.activeTimeout = setTimeout(() => {
+      if (previousNumber === this.activeNumber && !Settings.paused) {
+        this.entered = false;
+        this.exit();
+      }
+    }, 100);
   }
 }

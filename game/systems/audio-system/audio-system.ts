@@ -14,6 +14,7 @@ export class AudioSystem extends System {
     // Load UI sounds
     AudioManager.load('/sounds/ui/click.wav');
     AudioManager.load('/sounds/ui/hover.wav');
+    AudioManager.load('/sounds/ui/dialogue-letter.wav');
   }
 
   add(entity: Entity) {

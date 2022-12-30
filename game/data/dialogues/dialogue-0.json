@@ -1,0 +1,25 @@
+{
+  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+  "person": "player",
+  "hasChoices": false,
+  "next": {
+    "text": "Lorem ipsum 2",
+    "person": "patroller",
+    "hasChoices": true,
+    "choices": [
+      {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+        "next": {
+          "text": "Lorem ipsum 5",
+          "person": "player",
+          "hasChoices": false,
+          "next": null
+        }
+      },
+      {
+        "text": "Lorem ipsum 4",
+        "next": null
+      }
+    ]
+  }
+}

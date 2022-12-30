@@ -10,5 +10,6 @@
   mix-blend-mode: soft-light;
   opacity: 0.2;
   pointer-events: none;
+  z-index: 999;
 }
 </style>

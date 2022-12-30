@@ -434,6 +434,7 @@
       "height": 16,
       "data": {
         "type": "switch-map",
+        "prompt": "enter",
         "map": "map-2",
         "playerX": 32,
         "playerY": 160,

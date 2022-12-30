@@ -1,5 +1,5 @@
 import { Entity } from '~~/game/utils/ecs/entity';
-import { Direction } from '../../utils/types';
+import { Direction, GamePrompt } from '../../utils/types';
 
 export interface EventMap {
   'scene-loaded': () => void;
@@ -13,6 +13,9 @@ export interface EventMap {
   despawn: (id: number) => void;
   'get-player-position': () => { x: number; y: number };
   hit: () => void;
+  'show-prompt': (prompt: GamePrompt, accept: () => void) => void;
+  'hide-prompt': () => void;
+  'start-dialogue': (id: number) => void;
 }
 
 export type Events = keyof EventMap;
