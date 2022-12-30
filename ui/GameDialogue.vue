@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DialogueManager, EventManager } from '~~/game/managers';
+import { AudioManager, DialogueManager, EventManager } from '~~/game/managers';
 import { Dialogue } from '~~/game/utils';
 
 const dialogue = ref<Dialogue | null>(null);
@@ -49,6 +49,13 @@ const handleChoice = (index: number) => {
 };
 
 onMounted(() => {
+  // Preload portraits images
+  const portraits = import.meta.glob('/public/images/*-portrait.png');
+  Object.keys(portraits).forEach((portrait) => {
+    useLoadImage(portrait.replace('/public', ''));
+  });
+
+  // Handle user pressing e
   window.addEventListener('keypress', (event) => {
     if (event.key === 'e' && DialogueManager.isOpen()) {
       nextDialogue();
@@ -58,8 +65,18 @@ onMounted(() => {
 
 const incrementText = () => {
   if (dialogue.value && text.value.length < dialogue.value.text.length) {
+    // Add a character
     text.value += dialogue.value.text[text.value.length];
+
+    // Check if the text is complete
     textFulled.value = text.value.length === dialogue.value.text.length;
+
+    // Play sound
+    if (text.value.length % 3 === 0) {
+      AudioManager.playEffect('/sounds/ui/dialogue-letter.wav');
+    }
+
+    // Repeat
     setTimeout(() => incrementText(), 15);
   }
 };
