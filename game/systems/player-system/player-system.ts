@@ -1,16 +1,25 @@
 import { MovementComponent, StateMachineComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
 import { DialogueManager, EventManager } from '~~/game/managers';
-import { getAngleFromPoints, Settings, System } from '~~/game/utils';
+import {
+  getAngleFromPoints,
+  getDegreeFromRadian,
+  Settings,
+  System,
+} from '~~/game/utils';
+import { Keyboard, PlayerInput } from './types';
 
-const defaultInput = {
-  movement: {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-  },
+const defaultInput: PlayerInput = {
+  angle: 0,
+  running: false,
   interact: false,
+};
+
+const defaultKeyboard: Keyboard = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
 };
 
 export class PlayerSystem extends System {
@@ -21,7 +30,11 @@ export class PlayerSystem extends System {
     stateMachine: StateMachineComponent;
   };
 
-  private input = defaultInput;
+  private input: PlayerInput = defaultInput;
+
+  private keyboard: Keyboard = defaultKeyboard;
+
+  private usingGamepad = false;
 
   private prompting: (() => void) | null = null;
 
@@ -31,11 +44,19 @@ export class PlayerSystem extends System {
     const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
     const clickListener = (event: MouseEvent) => this.handleClick(event);
     const contextMenuListener = (event: MouseEvent) => event.preventDefault();
+    const gamepadConnectedListener = () => {
+      this.usingGamepad = true;
+    };
+    const gamepadDisconnectedListener = () => {
+      this.usingGamepad = false;
+    };
 
     window.addEventListener('keydown', keyListener);
     window.addEventListener('keyup', keyListener);
     window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
+    window.addEventListener('gamepadconnected', gamepadConnectedListener);
+    window.addEventListener('gamepaddisconnected', gamepadDisconnectedListener);
 
     EventManager.on('show-prompt', (_prompt, accept) => {
       this.prompting = accept;
@@ -47,29 +68,30 @@ export class PlayerSystem extends System {
   }
 
   private bindKeys(event: KeyboardEvent) {
+    this.usingGamepad = false;
     const inputState = event.type === 'keydown';
 
-    this.input = defaultInput;
+    this.keyboard = defaultKeyboard;
 
     switch (event.key) {
       case 'z':
       case 'ArrowUp':
-        this.input.movement.up = inputState;
+        this.keyboard.up = inputState;
         break;
 
       case 's':
       case 'ArrowDown':
-        this.input.movement.down = inputState;
+        this.keyboard.down = inputState;
         break;
 
       case 'q':
       case 'ArrowLeft':
-        this.input.movement.left = inputState;
+        this.keyboard.left = inputState;
         break;
 
       case 'd':
       case 'ArrowRight':
-        this.input.movement.right = inputState;
+        this.keyboard.right = inputState;
         break;
 
       case 'e':
@@ -100,6 +122,7 @@ export class PlayerSystem extends System {
     const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
+    this.input.angle = angle;
     this.player.movement.angle = angle;
 
     // Perform melee attack
@@ -112,6 +135,75 @@ export class PlayerSystem extends System {
     if (event.button === 2) {
       this.player.stateMachine.set('dash');
     }
+  }
+
+  private handleKeyboard() {
+    const entry = Object.values(this.keyboard).reduce(
+      (previous, current) => previous || current
+    );
+    this.input.running = entry;
+
+    if (!entry) {
+      return;
+    }
+
+    // Set movement angle
+    const { up, down, left, right } = this.keyboard;
+    if (down) {
+      if (left) {
+        this.input.angle = 135;
+        return;
+      }
+
+      if (right) {
+        this.input.angle = 45;
+        return;
+      }
+
+      this.input.angle = 90;
+      return;
+    }
+
+    if (up) {
+      if (left) {
+        this.input.angle = 225;
+        return;
+      }
+
+      if (right) {
+        this.input.angle = 315;
+        return;
+      }
+
+      this.input.angle = 270;
+      return;
+    }
+
+    if (left) {
+      this.input.angle = 180;
+      return;
+    }
+
+    this.input.angle = 0;
+  }
+
+  private handleGamepad() {
+    const gamepad = navigator.getGamepads()[0];
+    if (!gamepad) {
+      this.usingGamepad = false;
+      return;
+    }
+
+    const x = gamepad.axes[0];
+    const y = gamepad.axes[1];
+
+    if (Math.abs(x) < 0.2 && Math.abs(y) < 0.2) {
+      this.input.running = false;
+      return;
+    }
+
+    this.input.running = true;
+    this.input.angle = getDegreeFromRadian(Math.atan2(y, x));
   }
 
   setPlayer(player: Player) {
@@ -139,54 +231,18 @@ export class PlayerSystem extends System {
       return;
     }
 
-    const entry = Object.values(this.input.movement).reduce(
-      (previous, current) => previous || current
-    );
+    // Reset input
+    this.input = defaultInput;
 
-    // Set movement state
-    this.player.stateMachine.set(entry ? 'run' : 'idle');
-
-    if (!entry) {
-      return;
+    // Set input
+    if (this.usingGamepad) {
+      this.handleGamepad();
+    } else {
+      this.handleKeyboard();
     }
 
-    // Set movement angle
-    const { up, down, left, right } = this.input.movement;
-    if (down) {
-      if (left) {
-        this.player.movement.angle = 135;
-        return;
-      }
-
-      if (right) {
-        this.player.movement.angle = 45;
-        return;
-      }
-
-      this.player.movement.angle = 90;
-      return;
-    }
-
-    if (up) {
-      if (left) {
-        this.player.movement.angle = 225;
-        return;
-      }
-
-      if (right) {
-        this.player.movement.angle = 315;
-        return;
-      }
-
-      this.player.movement.angle = 270;
-      return;
-    }
-
-    if (left) {
-      this.player.movement.angle = 180;
-      return;
-    }
-
-    this.player.movement.angle = 0;
+    // Apply input to the player
+    this.player.stateMachine.set(this.input.running ? 'run' : 'idle');
+    this.player.movement.angle = this.input.angle;
   }
 }
