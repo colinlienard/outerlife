@@ -7,13 +7,7 @@ import {
   Settings,
   System,
 } from '~~/game/utils';
-import { Keyboard, PlayerInput } from './types';
-
-const defaultInput: PlayerInput = {
-  angle: 0,
-  running: false,
-  interact: false,
-};
+import { Keyboard } from './types';
 
 const defaultKeyboard: Keyboard = {
   up: false,
@@ -30,11 +24,9 @@ export class PlayerSystem extends System {
     stateMachine: StateMachineComponent;
   };
 
-  private input: PlayerInput = defaultInput;
-
   private keyboard: Keyboard = defaultKeyboard;
 
-  private usingGamepad = false;
+  private interact = false;
 
   private prompting: (() => void) | null = null;
 
@@ -44,19 +36,11 @@ export class PlayerSystem extends System {
     const keyListener = (event: KeyboardEvent) => this.bindKeys(event);
     const clickListener = (event: MouseEvent) => this.handleClick(event);
     const contextMenuListener = (event: MouseEvent) => event.preventDefault();
-    const gamepadConnectedListener = () => {
-      this.usingGamepad = true;
-    };
-    const gamepadDisconnectedListener = () => {
-      this.usingGamepad = false;
-    };
 
     window.addEventListener('keydown', keyListener);
     window.addEventListener('keyup', keyListener);
     window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
-    window.addEventListener('gamepadconnected', gamepadConnectedListener);
-    window.addEventListener('gamepaddisconnected', gamepadDisconnectedListener);
 
     EventManager.on('show-prompt', (_prompt, accept) => {
       this.prompting = accept;
@@ -68,7 +52,6 @@ export class PlayerSystem extends System {
   }
 
   private bindKeys(event: KeyboardEvent) {
-    this.usingGamepad = false;
     const inputState = event.type === 'keydown';
 
     this.keyboard = defaultKeyboard;
@@ -95,7 +78,7 @@ export class PlayerSystem extends System {
         break;
 
       case 'e':
-        this.input.interact = inputState;
+        this.interact = inputState;
         break;
 
       default:
@@ -122,7 +105,6 @@ export class PlayerSystem extends System {
     const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
-    this.input.angle = angle;
     this.player.movement.angle = angle;
 
     // Perform melee attack
@@ -141,7 +123,8 @@ export class PlayerSystem extends System {
     const entry = Object.values(this.keyboard).reduce(
       (previous, current) => previous || current
     );
-    this.input.running = entry;
+
+    this.player.stateMachine.set(entry ? 'run' : 'idle');
 
     if (!entry) {
       return;
@@ -151,59 +134,86 @@ export class PlayerSystem extends System {
     const { up, down, left, right } = this.keyboard;
     if (down) {
       if (left) {
-        this.input.angle = 135;
+        this.player.movement.angle = 135;
         return;
       }
 
       if (right) {
-        this.input.angle = 45;
+        this.player.movement.angle = 45;
         return;
       }
 
-      this.input.angle = 90;
+      this.player.movement.angle = 90;
       return;
     }
 
     if (up) {
       if (left) {
-        this.input.angle = 225;
+        this.player.movement.angle = 225;
         return;
       }
 
       if (right) {
-        this.input.angle = 315;
+        this.player.movement.angle = 315;
         return;
       }
 
-      this.input.angle = 270;
+      this.player.movement.angle = 270;
       return;
     }
 
     if (left) {
-      this.input.angle = 180;
+      this.player.movement.angle = 180;
       return;
     }
 
-    this.input.angle = 0;
+    this.player.movement.angle = 0;
   }
 
   private handleGamepad() {
     const gamepad = navigator.getGamepads()[0];
     if (!gamepad) {
-      this.usingGamepad = false;
       return;
     }
 
+    // Get inputs
     const x = gamepad.axes[0];
     const y = gamepad.axes[1];
+    const meleeAttacking = gamepad.buttons[2].pressed;
+    const dashing = gamepad.buttons[0].pressed;
+    const interacting = gamepad.buttons[3].pressed;
+    const pausing = gamepad.buttons[9].pressed;
+    let moving = false;
 
-    if (Math.abs(x) < 0.2 && Math.abs(y) < 0.2) {
-      this.input.running = false;
+    // Handle pause
+    if (pausing) {
+      EventManager.emit('pause');
       return;
     }
 
-    this.input.running = true;
-    this.input.angle = getDegreeFromRadian(Math.atan2(y, x));
+    // Handle interact
+    this.interact = interacting;
+    if (interacting) {
+      return;
+    }
+
+    // Set angle based on joystick
+    if (Math.abs(x) > 0.2 || Math.abs(y) > 0.2) {
+      this.player.movement.angle = getDegreeFromRadian(Math.atan2(y, x));
+      moving = true;
+    }
+
+    if (meleeAttacking) {
+      this.player.stateMachine.set('melee-attack');
+      return;
+    }
+
+    if (dashing) {
+      this.player.stateMachine.set('dash');
+      return;
+    }
+
+    this.player.stateMachine.set(moving ? 'run' : 'idle');
   }
 
   setPlayer(player: Player) {
@@ -219,7 +229,7 @@ export class PlayerSystem extends System {
     }
 
     // Handle prompt
-    if (this.prompting && this.input.interact) {
+    if (this.prompting && this.interact) {
       this.prompting();
       this.prompting = null;
       EventManager.emit('hide-prompt');
@@ -231,18 +241,11 @@ export class PlayerSystem extends System {
       return;
     }
 
-    // Reset input
-    this.input = defaultInput;
-
-    // Set input
-    if (this.usingGamepad) {
+    if (Settings.usingGamepad) {
       this.handleGamepad();
-    } else {
-      this.handleKeyboard();
+      return;
     }
 
-    // Apply input to the player
-    this.player.stateMachine.set(this.input.running ? 'run' : 'idle');
-    this.player.movement.angle = this.input.angle;
+    this.handleKeyboard();
   }
 }

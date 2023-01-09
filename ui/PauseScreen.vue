@@ -2,7 +2,7 @@
 import { Ref } from 'vue';
 import { Game } from '~~/game';
 import { Settings } from '~~/game/utils';
-import { AudioManager, Volumes } from '~~/game/managers';
+import { AudioManager, EventManager, Volumes } from '~~/game/managers';
 import MenuButton from './menus/MenuButton.vue';
 import MenuList from './menus/MenuList.vue';
 import MenuTitle from './menus/MenuTitle.vue';
@@ -40,6 +40,10 @@ const togglePause = () => {
 onMounted(() => {
   // Pause the game when switching tab
   window.addEventListener('blur', () => {
+    paused.value = true;
+  });
+
+  EventManager.on('pause', () => {
     paused.value = true;
   });
 });
