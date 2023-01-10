@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AudioManager, DialogueManager, EventManager } from '~~/game/managers';
 import { Dialogue } from '~~/game/utils';
+import MenuKey from './menus/MenuKey.vue';
 
 const dialogue = ref<Dialogue | null>(null);
 const text = ref('');
@@ -98,7 +99,7 @@ watch(dialogue, () => {
         />
         <p class="text">{{ text }}</p>
         <Transition>
-          <span v-if="!dialogue?.hasChoices && textFulled" class="key">e</span>
+          <MenuKey v-if="!dialogue?.hasChoices && textFulled" class="key" />
         </Transition>
       </button>
       <Transition>
@@ -160,10 +161,13 @@ watch(dialogue, () => {
   }
 
   .key {
-    @include key;
-
     position: absolute;
     inset: auto 1rem 1rem auto;
+
+    &.v-enter-from,
+    &.v-leave-to {
+      opacity: 0;
+    }
   }
 }
 

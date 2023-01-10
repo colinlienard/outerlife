@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { EventManager } from '~~/game/managers';
 import { GamePrompt } from '~~/game/utils';
+import MenuKey from './menus/MenuKey.vue';
 
 const promptText = ref<GamePrompt>(null);
 
@@ -16,7 +17,7 @@ EventManager.on('hide-prompt', () => {
 <template>
   <Transition>
     <div v-if="promptText" class="prompt">
-      <span class="key">e</span>
+      <MenuKey />
       <p class="text">
         {{ promptText }}
       </p>
@@ -38,10 +39,6 @@ EventManager.on('hide-prompt', () => {
   top: 65%;
   left: 50%;
   translate: -50%;
-
-  .key {
-    @include key;
-  }
 
   .text {
     @include text;
