@@ -151,6 +151,11 @@ export class CameraSystem extends System {
   }
 
   update() {
+    if (Settings.usingGamepad) {
+      this.cursorDiffX = 0;
+      this.cursorDiffY = 0;
+    }
+
     Settings.cameraOffset = {
       x: this.getCameraX(),
       y: this.getCameraY(),
