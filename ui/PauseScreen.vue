@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Ref } from 'vue';
 import { Game } from '~~/game';
-import { Settings } from '~~/game/utils';
-import { AudioManager, EventManager, Volumes } from '~~/game/managers';
+import { Controller, Settings } from '~~/game/utils';
+import { AudioManager, Volumes } from '~~/game/managers';
 import MenuButton from './menus/MenuButton.vue';
 import MenuList from './menus/MenuList.vue';
 import MenuTitle from './menus/MenuTitle.vue';
@@ -43,8 +43,8 @@ onMounted(() => {
     paused.value = true;
   });
 
-  EventManager.on('pause', () => {
-    paused.value = true;
+  Controller.on(9, () => {
+    paused.value = !paused.value;
   });
 });
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Controller } from '~~/game/utils';
 import MenuButton from './MenuButton.vue';
 
 const props = defineProps<{
@@ -7,6 +8,9 @@ const props = defineProps<{
   max: number;
   step: number;
 }>();
+
+const root = ref();
+const isFocused = ref(false);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void;
@@ -23,17 +27,43 @@ const increase = () => {
     emit('update:modelValue', props.modelValue + 1);
   }
 };
+
+const handleFocus = (event: FocusEvent) => {
+  isFocused.value = root.value?.element === event.target;
+};
+
+onMounted(() => {
+  window.addEventListener('focusin', handleFocus);
+
+  Controller.on(14, () => {
+    if (isFocused.value) {
+      decrease();
+    }
+  });
+  Controller.on(15, () => {
+    if (isFocused.value) {
+      increase();
+    }
+  });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('focusin', handleFocus);
+
+  Controller.unbind(14);
+  Controller.unbind(15);
+});
 </script>
 
 <template>
-  <MenuButton>
+  <MenuButton ref="root">
     <div class="container">
       <slot />
-      <span class="buttons">
-        <button @click="decrease">{{ modelValue > min ? '⬅️' : '⬛' }}</button>
+      <div class="buttons">
+        <span @click="decrease">{{ modelValue > min ? '⬅️' : '⬛' }}</span>
         <p>{{ modelValue }}</p>
-        <button @click="increase">{{ modelValue < max ? '➡️' : '⬛' }}️</button>
-      </span>
+        <span @click="increase">{{ modelValue < max ? '➡️' : '⬛' }}️</span>
+      </div>
     </div>
   </MenuButton>
 </template>

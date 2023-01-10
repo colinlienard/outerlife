@@ -182,14 +182,7 @@ export class PlayerSystem extends System {
     const meleeAttacking = gamepad.buttons[2].pressed;
     const dashing = gamepad.buttons[0].pressed;
     const interacting = gamepad.buttons[3].pressed;
-    const pausing = gamepad.buttons[9].pressed;
     let moving = false;
-
-    // Handle pause
-    if (pausing) {
-      EventManager.emit('pause');
-      return;
-    }
 
     // Handle interact
     this.interact = interacting;
