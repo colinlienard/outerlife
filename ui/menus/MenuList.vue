@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { Controller } from '~~/game/utils';
+import { Controller, Settings } from '~~/game/utils';
 
 const root = ref();
 const children = ref<HTMLElement[]>([]);
 const selected = ref(0);
+
+const controller = new Controller();
 
 const updateSelected = (value: number) => {
   if (
@@ -21,19 +23,19 @@ const clickSelected = () => {
 
 onMounted(() => {
   children.value = root.value.querySelectorAll('button');
-  updateSelected(0);
+  if (Settings.usingGamepad) {
+    updateSelected(0);
+  }
 
-  setTimeout(() => {
-    Controller.on(0, () => clickSelected());
-    Controller.on(12, () => updateSelected(-1));
-    Controller.on(13, () => updateSelected(1));
-  }, 100);
+  controller
+    .startWatching()
+    .on(0, () => clickSelected())
+    .on(12, () => updateSelected(-1))
+    .on(13, () => updateSelected(1));
 });
 
 onUnmounted(() => {
-  Controller.unbind(0);
-  Controller.unbind(12);
-  Controller.unbind(13);
+  controller.stopWatching();
 });
 </script>
 

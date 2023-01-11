@@ -1,16 +1,44 @@
+/* eslint-disable class-methods-use-this */
 import { ControllerEvent, ControllerEventCallback, Events } from './types';
 
-export abstract class Controller {
-  private static readonly deadzone = 0.2;
+export class Controller {
+  private readonly deadzone = 0.2;
 
-  private static events: Events<ControllerEvent> = new Map();
+  private events: Events<ControllerEvent> = new Map();
 
-  private static buttons = new Array(16).map(() => false);
+  private runOnAny: () => void = () => null;
 
-  private static update() {
+  private runIf: () => boolean = () => true;
+
+  private buttons = new Array(16).map(() => false);
+
+  private loopId = 0;
+
+  private loop() {
+    this.update();
+    this.loopId = requestAnimationFrame(() => this.loop());
+  }
+
+  update() {
     const gamepad = navigator.getGamepads()[0];
     if (!gamepad) {
-      return;
+      return this;
+    }
+
+    // Handle all buttons
+    this.buttons = gamepad.buttons.map((button, index) => {
+      if (button.pressed && !this.buttons[index] && this.runIf()) {
+        this.events
+          .get(index)
+          ?.forEach((callback) => (callback as () => void)());
+        this.runOnAny();
+      }
+
+      return button.pressed;
+    });
+
+    if (!this.runIf()) {
+      return this;
     }
 
     // Handle left joystick
@@ -23,6 +51,7 @@ export abstract class Controller {
       this.events.get('joystick-left')?.forEach((callback) => {
         callback({ x: joystickLeftX, y: joystickLeftY });
       });
+      this.runOnAny();
     }
 
     // Handle right joystick
@@ -35,35 +64,42 @@ export abstract class Controller {
       this.events.get('joystick-right')?.forEach((callback) => {
         callback({ x: joystickRightX, y: joystickRightY });
       });
+      this.runOnAny();
     }
 
-    // Handle all buttons
-    this.buttons = gamepad.buttons.map((button, index) => {
-      if (button.pressed && !this.buttons[index]) {
-        this.events
-          .get(index)
-          ?.forEach((callback) => (callback as () => void)());
-      }
-
-      return button.pressed;
-    });
+    return this;
   }
 
-  static loop() {
-    this.update();
-    requestAnimationFrame(() => this.loop());
-  }
-
-  static on<C extends ControllerEvent>(
+  on<C extends ControllerEvent>(
     event: C,
     callback: ControllerEventCallback<C>
   ) {
     this.events.set(event, [...(this.events.get(event) || []), callback]);
+    return this;
   }
 
-  static unbind(event: ControllerEvent) {
+  onAny(callback: () => void) {
+    this.runOnAny = callback;
+    return this;
+  }
+
+  if(callback: () => boolean) {
+    this.runIf = callback;
+    return this;
+  }
+
+  unbind(event: ControllerEvent) {
     this.events.delete(event);
+    return this;
+  }
+
+  startWatching() {
+    this.loop();
+    return this;
+  }
+
+  stopWatching() {
+    cancelAnimationFrame(this.loopId);
+    return this;
   }
 }
-
-Controller.loop();

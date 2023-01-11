@@ -22,6 +22,8 @@ const volumes = ref<Volumes>({
   music: 5,
 });
 
+const controller = new Controller();
+
 const isFullScreen = () => document.fullscreenElement !== null;
 
 const enterFullScreen = () => document.body.requestFullscreen();
@@ -43,9 +45,13 @@ onMounted(() => {
     paused.value = true;
   });
 
-  Controller.on(9, () => {
+  controller.startWatching().on(9, () => {
     paused.value = !paused.value;
   });
+});
+
+onUnmounted(() => {
+  controller.stopWatching();
 });
 
 watch(paused, (newPaused) => {

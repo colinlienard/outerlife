@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { AudioManager, DialogueManager, EventManager } from '~~/game/managers';
-import { Dialogue } from '~~/game/utils';
+import { Controller, Dialogue, Settings } from '~~/game/utils';
 import MenuKey from './menus/MenuKey.vue';
 
 const dialogue = ref<Dialogue | null>(null);
 const text = ref('');
 const textFulled = ref(false);
+
+const controller = new Controller();
+const selectedResponse = ref(-1);
+const responses = ref<HTMLButtonElement[]>([]);
 
 EventManager.on('start-dialogue', async (id) => {
   dialogue.value = await DialogueManager.start(id);
@@ -62,6 +66,30 @@ onMounted(() => {
       nextDialogue();
     }
   });
+
+  controller
+    .startWatching()
+    .on(0, () => {
+      if (dialogue.value?.hasChoices) {
+        handleChoice(selectedResponse.value);
+        return;
+      }
+      nextDialogue();
+    })
+    .on(14, () => {
+      if (selectedResponse.value > 0) {
+        selectedResponse.value -= 1;
+      }
+    })
+    .on(15, () => {
+      if (selectedResponse.value < responses.value.length - 1) {
+        selectedResponse.value += 1;
+      }
+    });
+});
+
+onUnmounted(() => {
+  controller.stopWatching();
 });
 
 const incrementText = () => {
@@ -82,9 +110,12 @@ const incrementText = () => {
   }
 };
 
-watch(dialogue, () => {
+watch(dialogue, (newDialogue) => {
   text.value = '';
   incrementText();
+
+  selectedResponse.value =
+    newDialogue && newDialogue.hasChoices && Settings.usingGamepad ? 0 : -1;
 });
 </script>
 
@@ -99,15 +130,20 @@ watch(dialogue, () => {
         />
         <p class="text">{{ text }}</p>
         <Transition>
-          <MenuKey v-if="!dialogue?.hasChoices && textFulled" class="key" />
+          <MenuKey
+            v-if="!dialogue?.hasChoices && textFulled"
+            class="key"
+            controller-button="a"
+          />
         </Transition>
       </button>
       <Transition>
         <div v-if="dialogue?.hasChoices && textFulled" class="choices-grid">
           <button
             v-for="(choice, index) of dialogue.choices"
+            ref="responses"
             :key="index"
-            class="choice"
+            :class="['choice', { focus: selectedResponse === index }]"
             @click="handleChoice(index)"
           >
             <p class="text">
@@ -198,7 +234,8 @@ watch(dialogue, () => {
       height: 100%;
     }
 
-    &:hover {
+    &:hover,
+    &.focus {
       background-color: white;
       box-shadow: 0 0 1rem white;
 

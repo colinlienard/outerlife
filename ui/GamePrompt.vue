@@ -17,7 +17,7 @@ EventManager.on('hide-prompt', () => {
 <template>
   <Transition>
     <div v-if="promptText" class="prompt">
-      <MenuKey />
+      <MenuKey controller-button="y" />
       <p class="text">
         {{ promptText }}
       </p>

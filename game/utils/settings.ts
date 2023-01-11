@@ -26,5 +26,5 @@ export abstract class Settings {
     height: 1000,
   };
 
-  static usingGamepad = true;
+  static usingGamepad = false;
 }

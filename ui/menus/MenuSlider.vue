@@ -12,6 +12,8 @@ const props = defineProps<{
 const root = ref();
 const isFocused = ref(false);
 
+const controller = new Controller();
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void;
 }>();
@@ -35,23 +37,24 @@ const handleFocus = (event: FocusEvent) => {
 onMounted(() => {
   window.addEventListener('focusin', handleFocus);
 
-  Controller.on(14, () => {
-    if (isFocused.value) {
-      decrease();
-    }
-  });
-  Controller.on(15, () => {
-    if (isFocused.value) {
-      increase();
-    }
-  });
+  controller
+    .startWatching()
+    .on(14, () => {
+      if (isFocused.value) {
+        decrease();
+      }
+    })
+    .on(15, () => {
+      if (isFocused.value) {
+        increase();
+      }
+    });
 });
 
 onUnmounted(() => {
   window.removeEventListener('focusin', handleFocus);
 
-  Controller.unbind(14);
-  Controller.unbind(15);
+  controller.stopWatching();
 });
 </script>
 

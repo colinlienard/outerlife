@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { Settings } from '~~/game/utils';
 
+defineProps<{
+  controllerButton: string;
+}>();
+
 const { usingGamepad } = Settings;
 </script>
 
 <template>
   <span :class="['key', { round: usingGamepad }]">{{
-    usingGamepad ? 'y' : 'e'
+    usingGamepad ? controllerButton : 'e'
   }}</span>
 </template>
 
