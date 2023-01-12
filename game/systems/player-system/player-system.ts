@@ -71,6 +71,7 @@ export class PlayerSystem extends System {
     this.keyboard = defaultKeyboard;
 
     switch (event.key) {
+      case 'w':
       case 'z':
       case 'ArrowUp':
         this.keyboard.up = inputState;
@@ -81,6 +82,7 @@ export class PlayerSystem extends System {
         this.keyboard.down = inputState;
         break;
 
+      case 'a':
       case 'q':
       case 'ArrowLeft':
         this.keyboard.left = inputState;
@@ -121,6 +123,7 @@ export class PlayerSystem extends System {
     const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
+    this.input.angle = angle;
     this.player.movement.angle = angle;
 
     // Perform melee attack
@@ -207,7 +210,12 @@ export class PlayerSystem extends System {
       .onAny(() => {
         Settings.usingGamepad = true;
       })
-      .if(() => !Settings.paused && !DialogueManager.isOpen());
+      .if(
+        () =>
+          !Settings.paused &&
+          !DialogueManager.isOpen() &&
+          this.player.stateMachine.is(['idle', 'run'])
+      );
   }
 
   setPlayer(player: Player) {
