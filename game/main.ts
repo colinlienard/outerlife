@@ -169,11 +169,12 @@ export class Game extends ECS {
       this.addEntity(new AmbiantAudio(this.map.music));
     }
 
-    // Load textures
-    await this.get(RenderSystem).loadTextures();
-
-    // Load audio
-    await this.get(AudioSystem).loadAudioSources();
+    await Promise.all([
+      // Load textures
+      this.get(RenderSystem).loadTextures(),
+      // Load audio
+      this.get(AudioSystem).loadAudioSources(),
+    ]);
 
     // Play ambiant sound and music
     if (this.map.ambiantSound) {
@@ -270,6 +271,8 @@ export class Game extends ECS {
 
   resume() {
     this.paused = false;
-    Settings.paused = false;
+    setTimeout(() => {
+      Settings.paused = false;
+    }, 100);
   }
 }

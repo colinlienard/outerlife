@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { AudioManager } from '~~/game/managers';
+
+const element = ref(null);
+
+defineExpose({ element });
+
+const playSound = (sound: string) => {
+  AudioManager.playEffect(`/sounds/ui/${sound}.wav`, { pitchVariance: 200 });
+};
 </script>
 
 <template>
   <li>
     <button
+      ref="element"
       class="button"
-      @click="
-        AudioManager.playEffect('/sounds/ui/click.wav', { pitchVariance: 200 })
-      "
-      @mouseenter="
-        AudioManager.playEffect('/sounds/ui/hover.wav', { pitchVariance: 200 })
-      "
+      @click="playSound('click')"
+      @mouseenter="playSound('hover')"
+      @focus="playSound('hover')"
     >
       <slot />
     </button>
@@ -31,7 +37,8 @@ import { AudioManager } from '~~/game/managers';
   border: 5px solid #5c8ba8;
   cursor: inherit;
 
-  &:hover {
+  &:hover,
+  &:focus {
     background-color: #5c8ba8;
   }
 

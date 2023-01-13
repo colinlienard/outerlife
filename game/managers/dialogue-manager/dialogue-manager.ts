@@ -26,7 +26,9 @@ export abstract class DialogueManager {
   }
 
   static end() {
-    this.open = false;
+    setTimeout(() => {
+      this.open = false;
+    }, 100);
   }
 
   static isOpen() {

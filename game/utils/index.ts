@@ -1,3 +1,4 @@
+export * from './controller';
 export * from './ecs';
 export * from './helpers';
 export * from './post-processing';

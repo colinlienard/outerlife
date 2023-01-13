@@ -152,7 +152,7 @@ export class Player extends Entity {
         },
       ])
     );
-    this.add(new DashComponent(7, 4, 0.5));
+    this.add(new DashComponent(6, 4, 0.5));
     this.add(new HealthComponent(this.id, 100));
 
     const layerItemIdle = {

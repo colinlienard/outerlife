@@ -1,16 +1,20 @@
 import { MovementComponent, StateMachineComponent } from '~~/game/components';
 import { Player } from '~~/game/entities';
 import { DialogueManager, EventManager } from '~~/game/managers';
-import { getAngleFromPoints, Settings, System } from '~~/game/utils';
+import {
+  Controller,
+  getAngleFromPoints,
+  getDegreeFromRadian,
+  Settings,
+  System,
+} from '~~/game/utils';
+import { Keyboard, PlayerInput } from './types';
 
-const defaultInput = {
-  movement: {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-  },
-  interact: false,
+const defaultKeyboard: Keyboard = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
 };
 
 export class PlayerSystem extends System {
@@ -21,7 +25,19 @@ export class PlayerSystem extends System {
     stateMachine: StateMachineComponent;
   };
 
-  private input = defaultInput;
+  private input: PlayerInput = {
+    angle: 90,
+    interact: false,
+    running: false,
+  };
+
+  private keyboard: Keyboard = defaultKeyboard;
+
+  private passiveController = new Controller();
+
+  private activeController = new Controller();
+
+  private interact = false;
 
   private prompting: (() => void) | null = null;
 
@@ -37,6 +53,8 @@ export class PlayerSystem extends System {
     window.addEventListener('mousedown', clickListener);
     window.addEventListener('contextmenu', contextMenuListener);
 
+    this.setupControllerListeners();
+
     EventManager.on('show-prompt', (_prompt, accept) => {
       this.prompting = accept;
     });
@@ -47,33 +65,36 @@ export class PlayerSystem extends System {
   }
 
   private bindKeys(event: KeyboardEvent) {
-    const inputState = event.type === 'keydown';
+    Settings.usingGamepad = false;
 
-    this.input = defaultInput;
+    const inputState = event.type === 'keydown';
+    this.keyboard = defaultKeyboard;
 
     switch (event.key) {
+      case 'w':
       case 'z':
       case 'ArrowUp':
-        this.input.movement.up = inputState;
+        this.keyboard.up = inputState;
         break;
 
       case 's':
       case 'ArrowDown':
-        this.input.movement.down = inputState;
+        this.keyboard.down = inputState;
         break;
 
+      case 'a':
       case 'q':
       case 'ArrowLeft':
-        this.input.movement.left = inputState;
+        this.keyboard.left = inputState;
         break;
 
       case 'd':
       case 'ArrowRight':
-        this.input.movement.right = inputState;
+        this.keyboard.right = inputState;
         break;
 
       case 'e':
-        this.input.interact = inputState;
+        this.interact = inputState;
         break;
 
       default:
@@ -82,6 +103,8 @@ export class PlayerSystem extends System {
   }
 
   private handleClick(event: MouseEvent) {
+    Settings.usingGamepad = false;
+
     if (
       !this.player.stateMachine.is(['idle', 'run']) ||
       (event.target as HTMLElement).tagName !== 'CANVAS' ||
@@ -100,6 +123,7 @@ export class PlayerSystem extends System {
     const [{ x, y }] = EventManager.emit('get-player-position');
     const angle = getAngleFromPoints(cursorX, cursorY, x, y);
 
+    this.input.angle = angle;
     this.player.movement.angle = angle;
 
     // Perform melee attack
@@ -114,11 +138,92 @@ export class PlayerSystem extends System {
     }
   }
 
+  private updateKeyboard() {
+    const entry = Object.values(this.keyboard).reduce(
+      (previous, current) => previous || current
+    );
+
+    this.input.running = entry;
+
+    if (!entry) {
+      return;
+    }
+
+    // Set movement angle
+    const { up, down, left, right } = this.keyboard;
+    if (down) {
+      if (left) {
+        this.input.angle = 135;
+        return;
+      }
+
+      if (right) {
+        this.input.angle = 45;
+        return;
+      }
+
+      this.input.angle = 90;
+      return;
+    }
+
+    if (up) {
+      if (left) {
+        this.input.angle = 225;
+        return;
+      }
+
+      if (right) {
+        this.input.angle = 315;
+        return;
+      }
+
+      this.input.angle = 270;
+      return;
+    }
+
+    if (left) {
+      this.input.angle = 180;
+      return;
+    }
+
+    this.input.angle = 0;
+  }
+
+  private setupControllerListeners() {
+    this.passiveController
+      .on('joystick-left', ({ x, y }) => {
+        this.input.angle = getDegreeFromRadian(Math.atan2(y, x));
+        this.input.running = true;
+      })
+      .on(3, () => {
+        this.interact = true;
+      });
+
+    this.activeController
+      .startWatching()
+      .on(0, () => {
+        this.player.stateMachine.set('dash');
+      })
+      .on(2, () => {
+        this.player.stateMachine.set('melee-attack');
+      })
+      .onAny(() => {
+        Settings.usingGamepad = true;
+      })
+      .if(
+        () =>
+          !Settings.paused &&
+          !DialogueManager.isOpen() &&
+          this.player.stateMachine.is(['idle', 'run'])
+      );
+  }
+
   setPlayer(player: Player) {
     this.player = {
       movement: player.get(MovementComponent),
       stateMachine: player.get(StateMachineComponent),
     };
+    this.input.angle = this.player.movement.angle;
   }
 
   update() {
@@ -127,7 +232,7 @@ export class PlayerSystem extends System {
     }
 
     // Handle prompt
-    if (this.prompting && this.input.interact) {
+    if (this.prompting && this.interact) {
       this.prompting();
       this.prompting = null;
       EventManager.emit('hide-prompt');
@@ -139,54 +244,15 @@ export class PlayerSystem extends System {
       return;
     }
 
-    const entry = Object.values(this.input.movement).reduce(
-      (previous, current) => previous || current
-    );
-
-    // Set movement state
-    this.player.stateMachine.set(entry ? 'run' : 'idle');
-
-    if (!entry) {
-      return;
+    if (Settings.usingGamepad) {
+      this.input.running = false;
+      this.interact = false;
+      this.passiveController.update();
+    } else {
+      this.updateKeyboard();
     }
 
-    // Set movement angle
-    const { up, down, left, right } = this.input.movement;
-    if (down) {
-      if (left) {
-        this.player.movement.angle = 135;
-        return;
-      }
-
-      if (right) {
-        this.player.movement.angle = 45;
-        return;
-      }
-
-      this.player.movement.angle = 90;
-      return;
-    }
-
-    if (up) {
-      if (left) {
-        this.player.movement.angle = 225;
-        return;
-      }
-
-      if (right) {
-        this.player.movement.angle = 315;
-        return;
-      }
-
-      this.player.movement.angle = 270;
-      return;
-    }
-
-    if (left) {
-      this.player.movement.angle = 180;
-      return;
-    }
-
-    this.player.movement.angle = 0;
+    this.player.movement.angle = this.input.angle;
+    this.player.stateMachine.set(this.input.running ? 'run' : 'idle');
   }
 }

@@ -25,4 +25,6 @@ export abstract class Settings {
     width: 1000,
     height: 1000,
   };
+
+  static usingGamepad = false;
 }

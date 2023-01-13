@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Ref } from 'vue';
 import { Game } from '~~/game';
-import { Settings } from '~~/game/utils';
+import { Controller, Settings } from '~~/game/utils';
 import { AudioManager, Volumes } from '~~/game/managers';
 import MenuButton from './menus/MenuButton.vue';
 import MenuList from './menus/MenuList.vue';
@@ -21,6 +21,8 @@ const volumes = ref<Volumes>({
   effects: 5,
   music: 5,
 });
+
+const controller = new Controller();
 
 const isFullScreen = () => document.fullscreenElement !== null;
 
@@ -42,6 +44,14 @@ onMounted(() => {
   window.addEventListener('blur', () => {
     paused.value = true;
   });
+
+  controller.startWatching().on(9, () => {
+    paused.value = !paused.value;
+  });
+});
+
+onUnmounted(() => {
+  controller.stopWatching();
 });
 
 watch(paused, (newPaused) => {
