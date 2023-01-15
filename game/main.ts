@@ -50,7 +50,7 @@ export class Game extends ECS {
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-1');
+      await this.setMap('map-test');
       await this.buildMap(340, 230, 'down');
 
       this.loop();
