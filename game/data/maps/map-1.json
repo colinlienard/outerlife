@@ -29,7 +29,7 @@
     [51, 160, 5],
     [475, 168, 7],
     [465, 200, 5],
-    [107, 120, 8],
+    [107, 104, 8],
     [520, 227, 5],
     [71, 222, 7],
     [109, 244, 5],
@@ -65,16 +65,16 @@
   "interactions": [
     {
       "x": 288,
-      "y": 224,
+      "y": 208,
       "width": 32,
       "height": 16,
       "data": {
         "type": "switch-map",
         "prompt": "enter",
-        "map": "map-test",
-        "playerX": 300,
-        "playerY": 300,
-        "playerDirection": "down"
+        "map": "spaceship-interior",
+        "playerX": 128,
+        "playerY": 100,
+        "playerDirection": "up"
       }
     },
     {

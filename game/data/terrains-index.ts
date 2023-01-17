@@ -103,4 +103,22 @@ export const terrainsIndex: [string, number, number, Box[]?][] = [
     96,
     [{ x: 0, y: 0, width: 32, height: 32 }],
   ],
+  [
+    '/sprites/desert-terrains.png',
+    64,
+    96,
+    [
+      { x: 0, y: 0, width: 4, height: 32 },
+      { x: 28, y: 0, width: 4, height: 32 },
+    ],
+  ],
+  ['/sprites/spaceship-interior.png', 0, 0],
+  ['/sprites/spaceship-interior.png', 32, 0],
+  ['/sprites/spaceship-interior.png', 64, 0],
+  [
+    '/sprites/spaceship-interior.png',
+    96,
+    0,
+    [{ x: 0, y: 0, width: 32, height: 32 }],
+  ],
 ];

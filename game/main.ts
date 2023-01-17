@@ -50,8 +50,8 @@ export class Game extends ECS {
 
     // Create the world and start the game
     (async () => {
-      await this.setMap('map-test');
-      await this.buildMap(340, 230, 'down');
+      await this.setMap('spaceship-interior');
+      await this.buildMap(35, 60, 'down');
 
       this.loop();
     })();
@@ -87,10 +87,11 @@ export class Game extends ECS {
     for (let row = 0; row < this.map.rows; row += 1) {
       for (let column = 0; column < this.map.columns; column += 1) {
         const tile = this.map.terrains[row * this.map.columns + column];
+        const x = column * Settings.tileSize;
+        const y = row * Settings.tileSize;
+
         if (tile !== null) {
           const [source, sourceX, sourceY, collisions] = terrainsIndex[tile];
-          const x = column * Settings.tileSize;
-          const y = row * Settings.tileSize;
 
           terrains.push({
             source,
@@ -108,6 +109,10 @@ export class Game extends ECS {
               );
             });
           }
+        } else {
+          this.addEntity(
+            new InvisibleWall(x, y, Settings.tileSize, Settings.tileSize)
+          );
         }
       }
     }
@@ -177,9 +182,9 @@ export class Game extends ECS {
     ]);
 
     // Play ambiant sound and music
+    AudioManager.fade('in', 'effect', Settings.transitionDuration);
     if (this.map.ambiantSound) {
       AudioManager.playEffect(this.map.ambiantSound, { loop: true });
-      AudioManager.fade('in', 'effect', Settings.transitionDuration);
     }
     if (this.map.music) {
       AudioManager.playMusic(this.map.music);

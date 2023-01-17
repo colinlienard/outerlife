@@ -39,7 +39,7 @@
         "map": "map-1",
         "playerX": 580,
         "playerY": 490,
-        "playerDirection": "right"
+        "playerDirection": "left"
       }
     },
     {
@@ -53,7 +53,7 @@
         "map": "map-2",
         "playerX": 40,
         "playerY": 100,
-        "playerDirection": "left"
+        "playerDirection": "right"
       }
     }
   ],

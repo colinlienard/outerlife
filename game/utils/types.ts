@@ -28,7 +28,7 @@ export type Terrain = {
   y: number;
 };
 
-export type GamePrompt = null | 'enter' | 'talk';
+export type GamePrompt = null | 'enter' | 'exit' | 'talk';
 
 export type InteractionType = 'switch-map' | 'dialogue';
 

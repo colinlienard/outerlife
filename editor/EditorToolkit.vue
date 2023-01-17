@@ -271,6 +271,7 @@ watch(
       >
         <option :value="null">No prompt</option>
         <option value="enter">Enter</option>
+        <option value="exit">Exit</option>
         <option value="talk">Talk</option>
       </select>
       <div

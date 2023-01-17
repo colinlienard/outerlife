@@ -440,6 +440,7 @@ export class RenderSystem extends System {
 
   reset() {
     this.entityTree.reset(0, 0, Settings.scene.width, Settings.scene.height);
+    this.colorCorrection = [0, 0, 0, 0];
   }
 
   setColorCorrection(colorCorrection: [number, number, number, number]) {
@@ -462,6 +463,8 @@ export class RenderSystem extends System {
   }
 
   update() {
+    this.engine.clear();
+
     // Update movable entities in the tree
     this.movableEntityIds.forEach((id) => {
       this.entityTree.delete(id);
